@@ -17,6 +17,7 @@ public class UnixMetrics {
 	public static final String kAgentVersion = "0.1";
 	public static final String kAgentGuid = "com.chocolatefactory.newrelic.plugins.unix";
 	public HashMap<String, MetricDetail> dfMetrics = new HashMap<String, MetricDetail>();
+	public HashMap<String, MetricDetail> iostatMetrics = new HashMap<String, MetricDetail>();
 	public HashMap<String, MetricDetail> vmstatMetrics = new HashMap<String, MetricDetail>();
 	public HashMap<String, MetricDetail> netstatMetrics = new HashMap<String, MetricDetail>();
 	
@@ -28,6 +29,18 @@ public class UnixMetrics {
 		dfMetrics.put("Iused", new MetricDetail("INodes Used", "inodes", MetricDetail.metricTypes.NORMAL, 1));
 		dfMetrics.put("%Iused", new MetricDetail("INodes Used", "%", MetricDetail.metricTypes.NORMAL, 1));
 		
+		iostatMetrics.put("tin", new MetricDetail("tty/Total Read", "chars", MetricDetail.metricTypes.NORMAL, 1));
+		iostatMetrics.put("tout", new MetricDetail("tty/Total Written", "chars", MetricDetail.metricTypes.NORMAL, 1));
+		iostatMetrics.put("%user", new MetricDetail("CPU/User", "%", MetricDetail.metricTypes.NORMAL, 1));
+		iostatMetrics.put("%sys", new MetricDetail("CPU/System", "%", MetricDetail.metricTypes.NORMAL, 1));
+		iostatMetrics.put("%idle", new MetricDetail("CPU/Idle", "%", MetricDetail.metricTypes.NORMAL, 1));
+		iostatMetrics.put("%iowait", new MetricDetail("CPU/Waiting", "%", MetricDetail.metricTypes.NORMAL, 1));
+		iostatMetrics.put("%tm_act", new MetricDetail("Disk/Percentage of Time Active", "%", MetricDetail.metricTypes.NORMAL, 1));
+		iostatMetrics.put("Kbps", new MetricDetail("Disk/Data Transferred Per Second", "kb", MetricDetail.metricTypes.NORMAL, 1));
+		iostatMetrics.put("tps", new MetricDetail("Disk/Transfers per Second", "transfers", MetricDetail.metricTypes.NORMAL, 1));
+		iostatMetrics.put("Kb_read", new MetricDetail("Disk/KB Read", "kb", MetricDetail.metricTypes.NORMAL, 1));
+		iostatMetrics.put("Kb_wrtn", new MetricDetail("Disk/KB Written", "kb", MetricDetail.metricTypes.NORMAL, 1));
+
 		vmstatMetrics.put("r", new MetricDetail("Kernel Threads/Runnable", "threads", MetricDetail.metricTypes.NORMAL, 1));
 		vmstatMetrics.put("b", new MetricDetail("Kernel Threads/In Wait Queue", "threads", MetricDetail.metricTypes.NORMAL, 1));
 		vmstatMetrics.put("avm", new MetricDetail("Memory/Active Virtual Pages", "bytes", MetricDetail.metricTypes.NORMAL, 4096));

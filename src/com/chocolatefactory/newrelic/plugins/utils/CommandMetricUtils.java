@@ -19,8 +19,9 @@ public class CommandMetricUtils {
 
 	private Runtime rt;
 	private Logger logger;
-	// private Pattern headerPattern = Pattern.compile("\\w+(\\s+\\w+)*");
-	private Pattern headerPattern = Pattern.compile("\\S+(\\s+\\S+)+");
+	private Pattern headerPattern = Pattern.compile("[\\w-%:]+(\\s+[\\w-%:]+)*");
+	//private Pattern headerPattern = Pattern.compile("\\S+(\\s+\\S+)+");
+	private Pattern headerDashesPattern = Pattern.compile("[-]+(\\s+[-]+)+");
 	private Pattern singleLineValuePattern = Pattern.compile("\\d+\\.*\\d*%?(\\s+\\d+\\.*\\d*%?)*");
 	private Pattern multiLineValuePattern = Pattern.compile("\\S+(\\s+\\S+)+");
 	private Pattern lineHasNumbersPattern = Pattern.compile(".*\\d.*");
@@ -77,14 +78,25 @@ public class CommandMetricUtils {
 		
 		while((line = commandOutput.readLine()) != null) {
 			line = line.trim();
-			if (headerPattern.matcher(line).matches()) {
-				metricNames = line.replace("% ", "%").split("\\s+");
-				System.out.println("Names: " + Arrays.toString(metricNames));
-				while ((nextLine = commandOutput.readLine()) != null && !(nextLine.trim().isEmpty())) {
+			if (headerPattern.matcher(line).matches() && !headerDashesPattern.matcher(line).matches()) {
+				metricNames = line.replace("% ", "%").replaceAll("([A-Z]+)\\s{0,1}([A-Z]*[a-z]+):","$1$2").replaceAll("[a-z-]+:", "").split("\\s+");
+				
+				// Debug
+				// System.out.println("Names: " + Arrays.toString(metricNames));
+				
+				while ((nextLine = commandOutput.readLine()) != null) {
 					nextLine = nextLine.trim();
+					if (nextLine.isEmpty()) {
+						break;
+					}
+					
+					// Debug
+					// System.out.println("Next Line: " + nextLine);
+					
 					if (singleLineValuePattern.matcher(nextLine).matches()) {
 						metricValues = nextLine.split("\\s+");
-						System.out.println("Values: " + Arrays.toString(metricValues));
+						// Debug
+						// System.out.println("Values: " + Arrays.toString(metricValues));
 						for (int i=0;i<metricValues.length;i++) {
 							insertMetric(currentMetrics, metricDeets, metricNames[i], "", metricValues[i]);
 						}
@@ -92,11 +104,23 @@ public class CommandMetricUtils {
 					} else if (multiLineValuePattern.matcher(nextLine).matches() && 
 							lineHasNumbersPattern.matcher(nextLine).matches()) {
 						// Assume 1st column is prefix to metric
-						metricValues = nextLine.replace('%', ' ').split("\\s+");
-						System.out.println("Multi-Dim Values: " + Arrays.toString(metricValues));
-						for (int j=1;j<metricValues.length;j++) {
-							insertMetric(currentMetrics, metricDeets, metricNames[j], metricValues[0], metricValues[j]);
+						metricValues = nextLine.replace('%', ' ').replace('/', '\\').split("\\s+");
+						// Debug
+						// System.out.println("Multi-Dim Values: " + Arrays.toString(metricValues));
+						int j, k;
+						for (j=1;j<metricValues.length;j++) {
+							if (metricValues.length > metricNames.length) {
+								k = j-1;
+							} else {
+								k = j;
+							}
+							insertMetric(currentMetrics, metricDeets, metricNames[k], metricValues[0], metricValues[j]);
 						}
+					} else if (headerPattern.matcher(nextLine).matches()) {
+						metricNames = nextLine.replace("% ", "%").replaceAll("([A-Z]+)\\s{0,1}([A-Z]*[a-z]+):","$1$2").replaceAll("[a-z-]+:", "").split("\\s+");
+						// Debug
+						// System.out.println("Names: " + Arrays.toString(metricNames));
+						continue;
 					} else if (!lineHasWordsAndDashesPattern.matcher(nextLine).matches()) {
 						break;
 					}

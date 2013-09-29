@@ -14,6 +14,7 @@ public class UnixAgent extends Agent {
 	boolean useFile = false;
 	UnixMetrics aixmetrics = new UnixMetrics();
 	HashMap<String, MetricOutput> dfMetricOutput = new HashMap<String, MetricOutput>();
+	HashMap<String, MetricOutput> iostatMetricOutput = new HashMap<String, MetricOutput>();
 	HashMap<String, MetricOutput> vmstatMetricOutput = new HashMap<String, MetricOutput>();
 
 	public UnixAgent(String GUID, String version) {
@@ -45,6 +46,18 @@ public class UnixAgent extends Agent {
 			e.printStackTrace();
 		}
 		metricUtils.printMetrics(dfMetricOutput);
+		
+		//IOSTAT Metrics
+		
+		String[] iostatArgs = {"iostat", "-s", "-f"};
+		BufferedReader iostatCommand = metricUtils.executeCommand(iostatArgs, false);
+		try {
+			metricUtils.parseMultiMetricOutput(iostatMetricOutput, aixmetrics.iostatMetrics, iostatCommand);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		metricUtils.printMetrics(iostatMetricOutput);
 	}
 
 	@Override
