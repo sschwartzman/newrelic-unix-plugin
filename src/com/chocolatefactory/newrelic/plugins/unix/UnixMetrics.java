@@ -16,10 +16,18 @@ public class UnixMetrics {
 	public static final String kDefaultAgentName = "AIX";
 	public static final String kAgentVersion = "0.1";
 	public static final String kAgentGuid = "com.chocolatefactory.newrelic.plugins.unix";
+	public HashMap<String, MetricDetail> dfMetrics = new HashMap<String, MetricDetail>();
 	public HashMap<String, MetricDetail> vmstatMetrics = new HashMap<String, MetricDetail>();
 	public HashMap<String, MetricDetail> netstatMetrics = new HashMap<String, MetricDetail>();
 	
-	public UnixMetrics() {		
+	public UnixMetrics() {
+		
+		dfMetrics.put("1024-blocks", new MetricDetail("Total Size", "k", MetricDetail.metricTypes.NORMAL, 1));
+		dfMetrics.put("Free", new MetricDetail("Free Size", "k", MetricDetail.metricTypes.NORMAL, 1));
+		dfMetrics.put("%Used", new MetricDetail("Used", "%", MetricDetail.metricTypes.NORMAL, 1));
+		dfMetrics.put("Iused", new MetricDetail("INodes Used", "inodes", MetricDetail.metricTypes.NORMAL, 1));
+		dfMetrics.put("%Iused", new MetricDetail("INodes Used", "%", MetricDetail.metricTypes.NORMAL, 1));
+		
 		vmstatMetrics.put("r", new MetricDetail("Kernel Threads/Runnable", "threads", MetricDetail.metricTypes.NORMAL, 1));
 		vmstatMetrics.put("b", new MetricDetail("Kernel Threads/In Wait Queue", "threads", MetricDetail.metricTypes.NORMAL, 1));
 		vmstatMetrics.put("avm", new MetricDetail("Memory/Active Virtual Pages", "bytes", MetricDetail.metricTypes.NORMAL, 4096));

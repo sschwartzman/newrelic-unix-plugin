@@ -13,6 +13,7 @@ public class UnixAgent extends Agent {
 	CommandMetricUtils metricUtils = new CommandMetricUtils();
 	boolean useFile = false;
 	UnixMetrics aixmetrics = new UnixMetrics();
+	HashMap<String, MetricOutput> dfMetricOutput = new HashMap<String, MetricOutput>();
 	HashMap<String, MetricOutput> vmstatMetricOutput = new HashMap<String, MetricOutput>();
 
 	public UnixAgent(String GUID, String version) {
@@ -32,6 +33,18 @@ public class UnixAgent extends Agent {
 			e.printStackTrace();
 		}
 		metricUtils.printMetrics(vmstatMetricOutput);
+		
+		// DF Metrics
+		
+		String[] dfArgs = {"df", "-k"};
+		BufferedReader dfCommand = metricUtils.executeCommand(dfArgs, false);
+		try {
+			metricUtils.parseMultiMetricOutput(dfMetricOutput, aixmetrics.dfMetrics, dfCommand);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		metricUtils.printMetrics(dfMetricOutput);
 	}
 
 	@Override

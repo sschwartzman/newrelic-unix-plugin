@@ -6,7 +6,6 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.lang.reflect.Array;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
@@ -20,10 +19,12 @@ public class CommandMetricUtils {
 
 	private Runtime rt;
 	private Logger logger;
-	private Pattern headerPattern = Pattern.compile("\\w+(\\s+\\w+)*");
+	// private Pattern headerPattern = Pattern.compile("\\w+(\\s+\\w+)*");
+	private Pattern headerPattern = Pattern.compile("\\S+(\\s+\\S+)+");
 	private Pattern singleLineValuePattern = Pattern.compile("\\d+\\.*\\d*%?(\\s+\\d+\\.*\\d*%?)*");
 	private Pattern multiLineValuePattern = Pattern.compile("\\S+(\\s+\\S+)+");
 	private Pattern lineHasNumbersPattern = Pattern.compile(".*\\d.*");
+	private Pattern lineHasWordsAndDashesPattern = Pattern.compile(".*[-]+.*\\w+.*");
 	
 	public CommandMetricUtils() {
 		setLogger(Context.getLogger());
@@ -54,6 +55,7 @@ public class CommandMetricUtils {
 			Process proc;
 			try {
 				if (command != null) {
+					System.out.println("Running: " + Arrays.toString(command));
 					proc = rt.exec(command);
 				} else {
 					return null;
@@ -76,7 +78,7 @@ public class CommandMetricUtils {
 		while((line = commandOutput.readLine()) != null) {
 			line = line.trim();
 			if (headerPattern.matcher(line).matches()) {
-				metricNames = line.split("\\s+");
+				metricNames = line.replace("% ", "%").split("\\s+");
 				System.out.println("Names: " + Arrays.toString(metricNames));
 				while ((nextLine = commandOutput.readLine()) != null && !(nextLine.trim().isEmpty())) {
 					nextLine = nextLine.trim();
@@ -90,11 +92,12 @@ public class CommandMetricUtils {
 					} else if (multiLineValuePattern.matcher(nextLine).matches() && 
 							lineHasNumbersPattern.matcher(nextLine).matches()) {
 						// Assume 1st column is prefix to metric
-						metricValues = nextLine.split("\\s+");
+						metricValues = nextLine.replace('%', ' ').split("\\s+");
+						System.out.println("Multi-Dim Values: " + Arrays.toString(metricValues));
 						for (int j=1;j<metricValues.length;j++) {
 							insertMetric(currentMetrics, metricDeets, metricNames[j], metricValues[0], metricValues[j]);
 						}
-					} else {
+					} else if (!lineHasWordsAndDashesPattern.matcher(nextLine).matches()) {
 						break;
 					}
 				}
