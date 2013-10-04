@@ -154,6 +154,7 @@ public class CommandMetricUtils {
 		if(currentMetrics.containsKey(fullMetricName)) {
 			MetricOutput thisMetric = currentMetrics.get(fullMetricName);
 			thisMetric.setValue(metricValue);
+			currentMetrics.put(fullMetricName, thisMetric);
 		} else if (metricDeets.containsKey(metricName)) {
 			currentMetrics.put(fullMetricName, new MetricOutput(metricDeets.get(metricName), metricPrefix, metricValue));
 		}		
