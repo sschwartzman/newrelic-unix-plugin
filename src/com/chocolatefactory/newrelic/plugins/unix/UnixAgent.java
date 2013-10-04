@@ -4,65 +4,78 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.HashMap;
 
+import com.chocolatefactory.newrelic.plugins.unix.UnixMetrics.UnixCommand;
 import com.chocolatefactory.newrelic.plugins.utils.CommandMetricUtils;
+import com.chocolatefactory.newrelic.plugins.utils.MetricDetail;
 import com.chocolatefactory.newrelic.plugins.utils.MetricOutput;
 import com.newrelic.metrics.publish.Agent;
 
 public class UnixAgent extends Agent {
 
-	CommandMetricUtils metricUtils = new CommandMetricUtils();
-	boolean useFile = false;
-	UnixMetrics aixmetrics = new UnixMetrics();
-	HashMap<String, MetricOutput> dfMetricOutput = new HashMap<String, MetricOutput>();
-	HashMap<String, MetricOutput> iostatMetricOutput = new HashMap<String, MetricOutput>();
-	HashMap<String, MetricOutput> vmstatMetricOutput = new HashMap<String, MetricOutput>();
-
-	public UnixAgent(String GUID, String version) {
+	CommandMetricUtils metricUtils;
+	boolean isDebug = false;
+	
+	UnixMetrics umetrics = new UnixMetrics();
+	HashMap<String, MetricOutput> thisMetricOutput = new HashMap<String, MetricOutput>();
+	String commandName, fullCommand;
+	UnixCommand thisCommand;
+	
+	public UnixAgent(String GUID, String version, String os, String command, Boolean debug) {
 		super(GUID, version);
-		// TODO Auto-generated constructor stub
+		metricUtils = new CommandMetricUtils();
+		fullCommand = umetrics.mungeString(os, command);
+		commandName = command;
+		isDebug = debug;
+		if (umetrics.allCommands.containsKey(fullCommand)) {
+			thisCommand = umetrics.allCommands.get(fullCommand);			
+		} else {
+			thisCommand = null;
+		}
+
 	}
 
 	@Override
 	public void pollCycle() {
-		// VMSTAT Metrics
-		String[] vmstatArgs = {"vmstat", "-l"};
-		BufferedReader vmstatCommand = metricUtils.executeCommand(vmstatArgs, false);
-		try {
-			metricUtils.parseMultiMetricOutput(vmstatMetricOutput, aixmetrics.vmstatMetrics, vmstatCommand);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		if (thisCommand != null) {
+			BufferedReader commandReader = metricUtils.executeCommand(thisCommand.getCommand(), false);
+			try {
+				if (thisCommand.getType().equals(UnixMetrics.commandTypes.MULTIDIM)) {
+					metricUtils.parseMultiMetricOutput(commandName, thisMetricOutput, umetrics.allMetrics, commandReader);
+				}
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			if (isDebug) {
+				metricUtils.printMetrics(thisMetricOutput);
+			} else {
+				reportMetrics(thisMetricOutput);				
+			}
 		}
-		metricUtils.printMetrics(vmstatMetricOutput);
-		
-		// DF Metrics
-		
-		String[] dfArgs = {"df", "-k"};
-		BufferedReader dfCommand = metricUtils.executeCommand(dfArgs, false);
-		try {
-			metricUtils.parseMultiMetricOutput(dfMetricOutput, aixmetrics.dfMetrics, dfCommand);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		metricUtils.printMetrics(dfMetricOutput);
-		
-		//IOSTAT Metrics
-		
-		String[] iostatArgs = {"iostat", "-s", "-f"};
-		BufferedReader iostatCommand = metricUtils.executeCommand(iostatArgs, false);
-		try {
-			metricUtils.parseMultiMetricOutput(iostatMetricOutput, aixmetrics.iostatMetrics, iostatCommand);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		metricUtils.printMetrics(iostatMetricOutput);
 	}
 
 	@Override
 	public String getComponentHumanLabel() {
 		// TODO Auto-generated method stub
-		return null;
+		try {
+			return java.net.InetAddress.getLocalHost().getHostName();
+		} catch (Exception e) {
+			return "testserver";
+		}
+		
+	}
+	
+	public void reportMetrics(HashMap<String, MetricOutput> thisMetricOutput) {
+		for(MetricOutput jaun : thisMetricOutput.values()) {
+			MetricDetail jaunDetail = jaun.getMetricDetail();
+			
+			if (jaun.getNamePrefix().isEmpty()) {
+				reportMetric(jaunDetail.getPrefix() + "/" + jaunDetail.getName(), 
+					jaunDetail.getUnits(), jaun.getValue());	
+			} else {
+				reportMetric(jaunDetail.getPrefix() + "/" + jaun.getNamePrefix() + "/" + jaunDetail.getName(),
+					jaunDetail.getUnits(), jaun.getValue());
+			}
+		}
 	}
 }

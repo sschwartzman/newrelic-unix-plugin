@@ -2,13 +2,14 @@ package com.chocolatefactory.newrelic.plugins.utils;
 
 public class MetricDetail {
 	
-	private String name, units;
+	private String name, units, prefix;
 	private int ratio;
 	
 	public static enum metricTypes{NORMAL, DELTA, INCREMENT};
 	private metricTypes this_type;
 	
-	public MetricDetail(String mname, String munits, metricTypes mtype, int mratio) {		
+	public MetricDetail(String pname, String mname, String munits, metricTypes mtype, int mratio) {		
+		setPrefix(pname);
 		setName(mname);
 		setRatio(mratio);
 		setUnits(munits);
@@ -45,5 +46,13 @@ public class MetricDetail {
 
 	public void setRatio(int ratio) {
 		this.ratio = ratio;
+	}
+
+	public String getPrefix() {
+		return prefix;
+	}
+
+	public void setPrefix(String prefix) {
+		this.prefix = prefix;
 	}
 }

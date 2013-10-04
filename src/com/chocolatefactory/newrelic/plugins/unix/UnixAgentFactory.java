@@ -22,7 +22,13 @@ public class UnixAgentFactory extends AgentFactory {
 	public Agent createConfiguredAgent(Map<String, Object> properties)
 			throws ConfigurationException {
 		// TODO Auto-generated method stub
-		return new UnixAgent(UnixMetrics.kAgentGuid, UnixMetrics.kAgentVersion);
+		return null;
 	}
 
+	// @Override
+	//public Agent createConfiguredAgent(Map<String, Object> properties)
+		//	throws ConfigurationException {
+		// TODO Auto-generated method stub
+		// return new UnixAgent(UnixMetrics.kAgentGuid, UnixMetrics.kAgentVersion);
+	//}
 }

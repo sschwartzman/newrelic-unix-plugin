@@ -29,7 +29,7 @@ public class CommandMetricUtils {
 	
 	public CommandMetricUtils() {
 		setLogger(Context.getLogger());
-		rt = Runtime.getRuntime();
+		rt = Runtime.getRuntime();		
 	}
 		
 	public BufferedReader executeCommand(String[] command, Boolean useFile) {
@@ -56,7 +56,7 @@ public class CommandMetricUtils {
 			Process proc;
 			try {
 				if (command != null) {
-					System.out.println("Running: " + Arrays.toString(command));
+					// System.out.println("Running: " + Arrays.toString(command));
 					proc = rt.exec(command);
 				} else {
 					return null;
@@ -72,7 +72,7 @@ public class CommandMetricUtils {
 		return br;
 	}
 	
-	public void parseMultiMetricOutput(HashMap<String, MetricOutput> currentMetrics, HashMap<String,MetricDetail> metricDeets, BufferedReader commandOutput) throws IOException {
+	public void parseMultiMetricOutput(String thisCommand, HashMap<String, MetricOutput> currentMetrics, HashMap<String,MetricDetail> metricDeets, BufferedReader commandOutput) throws IOException {
 		String line, nextLine;
 		String[] metricNames, metricValues;
 		
@@ -98,13 +98,17 @@ public class CommandMetricUtils {
 						// Debug
 						// System.out.println("Values: " + Arrays.toString(metricValues));
 						for (int i=0;i<metricValues.length;i++) {
-							insertMetric(currentMetrics, metricDeets, metricNames[i], "", metricValues[i]);
+							insertMetric(currentMetrics, metricDeets, mungeString(thisCommand, metricNames[i]),
+									"", metricValues[i]);
 						}
 						break;
 					} else if (multiLineValuePattern.matcher(nextLine).matches() && 
 							lineHasNumbersPattern.matcher(nextLine).matches()) {
 						// Assume 1st column is prefix to metric
-						metricValues = nextLine.replace('%', ' ').replace('/', '\\').split("\\s+");
+						metricValues = nextLine.replace('%', ' ').replace('/', '_').split("\\s+");
+						if (metricValues[0].charAt(0) == '_') {
+							metricValues[0] = metricValues[0].substring(1);
+						}
 						// Debug
 						// System.out.println("Multi-Dim Values: " + Arrays.toString(metricValues));
 						int j, k;
@@ -114,7 +118,8 @@ public class CommandMetricUtils {
 							} else {
 								k = j;
 							}
-							insertMetric(currentMetrics, metricDeets, metricNames[k], metricValues[0], metricValues[j]);
+							insertMetric(currentMetrics, metricDeets, mungeString(thisCommand, metricNames[k]), 
+									metricValues[0], metricValues[j]);
 						}
 					} else if (headerPattern.matcher(nextLine).matches()) {
 						metricNames = nextLine.replace("% ", "%").replaceAll("([A-Z]+)\\s{0,1}([A-Z]*[a-z]+):","$1$2").replaceAll("[a-z-]+:", "").split("\\s+");
@@ -141,7 +146,7 @@ public class CommandMetricUtils {
 		}
 		
 		if(!metricPrefix.isEmpty()) {
-			fullMetricName = metricPrefix + "/" + metricName;
+			fullMetricName = mungeString(metricPrefix, metricName);
 		} else {
 			fullMetricName = metricName;
 		}
@@ -161,8 +166,14 @@ public class CommandMetricUtils {
 		   String thisKey = outputIterator.next().toString();  
 		   MetricOutput thisMetric = outputMetrics.get(thisKey);
 		   MetricDetail thisMetricDetail = thisMetric.getMetricDetail();
-		   System.out.println(thisMetric.getNamePrefix() + "/" + thisMetricDetail.getName() +
-				   ", " + thisMetric.getValue() + " " + thisMetricDetail.getUnits());
+		   if (thisMetric.getNamePrefix().isEmpty()) {
+			   System.out.println(mungeString(thisMetricDetail.getPrefix(), thisMetricDetail.getName()) +
+					   ", " + thisMetric.getValue() + " " + thisMetricDetail.getUnits());
+		   } else {
+			   System.out.println(mungeString(thisMetricDetail.getPrefix(), mungeString(thisMetric.getNamePrefix(), thisMetricDetail.getName())) +
+					   ", " + thisMetric.getValue() + " " + thisMetricDetail.getUnits());
+		   }
+		   
 		}
 	}
 	
@@ -172,5 +183,9 @@ public class CommandMetricUtils {
 
 	public void setLogger(Logger logger) {
 		this.logger = logger;
+	}
+	
+	public String mungeString(String str1, String str2) {
+		return str1 + "/" + str2;
 	}
 }
