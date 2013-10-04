@@ -8,12 +8,10 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
-
-import com.newrelic.metrics.publish.binding.Context;
-
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Iterator;
+
+import com.newrelic.metrics.publish.binding.Context;
 
 public class CommandMetricUtils {
 
@@ -26,6 +24,7 @@ public class CommandMetricUtils {
 	private Pattern multiLineValuePattern = Pattern.compile("\\S+(\\s+\\S+)+");
 	private Pattern lineHasNumbersPattern = Pattern.compile(".*\\d.*");
 	private Pattern lineHasWordsAndDashesPattern = Pattern.compile(".*[-]+.*\\w+.*");
+	private Pattern singleLineMetricsPattern = Pattern.compile("\\S*(\\d+)\\s+([\\w-%\\(\\)])(\\s{0,1}[\\w-%\\(\\)])*");
 	
 	public CommandMetricUtils() {
 		setLogger(Context.getLogger());
@@ -135,7 +134,30 @@ public class CommandMetricUtils {
 		commandOutput.close();
 	}
 	
-	public void insertMetric(HashMap<String, MetricOutput> currentMetrics, HashMap<String,MetricDetail> metricDeets, String metricName, String metricPrefix, String metricValueString) {
+	public HashMap<String,Number> parseOnePerLineMetricOutput(String thisCommand, BufferedReader commandOutput) throws IOException {
+		HashMap<String,Number> output = new HashMap<String,Number>();
+		
+		String line;
+		
+		while((line = commandOutput.readLine()) != null) {
+			line = line.trim();
+			if (singleLineMetricsPattern.matcher(line).matches() && !headerDashesPattern.matcher(line).matches()) {
+				String[] lineSplit = line.split("\\s+");	
+				try {
+					String metricName = Arrays.toString(Arrays.copyOfRange(lineSplit, 1, lineSplit.length)).replaceAll("[\\[\\],]*", "");
+					double metricValue = Double.parseDouble(lineSplit[0]);
+					output.put(mungeString(thisCommand, metricName), metricValue);
+				} catch(NumberFormatException e) {
+					// Means the 1st field is not a number. Ignored.
+				}
+			}
+		}
+		commandOutput.close();
+		return output;
+	}
+	
+	public void insertMetric(HashMap<String, MetricOutput> currentMetrics, HashMap<String,MetricDetail> metricDeets, 
+			String metricName, String metricPrefix, String metricValueString) {
 		String fullMetricName;
 		double metricValue;
 		
@@ -158,24 +180,6 @@ public class CommandMetricUtils {
 		} else if (metricDeets.containsKey(metricName)) {
 			currentMetrics.put(fullMetricName, new MetricOutput(metricDeets.get(metricName), metricPrefix, metricValue));
 		}		
-	}
-	
-	public void printMetrics(HashMap<String, MetricOutput> outputMetrics) {
-		Iterator<String> outputIterator = outputMetrics.keySet().iterator();  
-		   
-		while (outputIterator.hasNext()) {  
-		   String thisKey = outputIterator.next().toString();  
-		   MetricOutput thisMetric = outputMetrics.get(thisKey);
-		   MetricDetail thisMetricDetail = thisMetric.getMetricDetail();
-		   if (thisMetric.getNamePrefix().isEmpty()) {
-			   System.out.println(mungeString(thisMetricDetail.getPrefix(), thisMetricDetail.getName()) +
-					   ", " + thisMetric.getValue() + " " + thisMetricDetail.getUnits());
-		   } else {
-			   System.out.println(mungeString(thisMetricDetail.getPrefix(), mungeString(thisMetric.getNamePrefix(), thisMetricDetail.getName())) +
-					   ", " + thisMetric.getValue() + " " + thisMetricDetail.getUnits());
-		   }
-		   
-		}
 	}
 	
 	public Logger getLogger() {
