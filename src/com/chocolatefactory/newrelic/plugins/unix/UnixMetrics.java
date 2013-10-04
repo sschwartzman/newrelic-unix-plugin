@@ -62,13 +62,14 @@ public class UnixMetrics {
 		allCommands.put(mungeString("linux","iostat"), new UnixCommand(new String[]{"iostat","-x"}, commandTypes.MULTIDIM));
 		allCommands.put(mungeString("linux","netstat"), new UnixCommand(new String[]{"netstat","-n"}, commandTypes.MULTIDIM));
 		allCommands.put(mungeString("linux","vmstat"), new UnixCommand(new String[]{"vmstat","-l"}, commandTypes.MULTIDIM));
+		allCommands.put(mungeString("linux","free"), new UnixCommand(new String[]{"free"}, commandTypes.MULTIDIM));
 		
 		// Solaris Commands
-		allCommands.put(mungeString("linux", "df"), new UnixCommand(new String[]{"df","-k"}, commandTypes.MULTIDIM));
+		allCommands.put(mungeString("sunos", "df"), new UnixCommand(new String[]{"df","-k"}, commandTypes.MULTIDIM));
 		allCommands.put(mungeString("sunos","iostat"), new UnixCommand(new String[]{"iostat","-xtc"}, commandTypes.MULTIDIM));
-		allCommands.put(mungeString("linux","netstat"), new UnixCommand(new String[]{"netstat","-n","-f","inet"}, commandTypes.MULTIDIM));
-		allCommands.put(mungeString("linux","vmstat"), new UnixCommand(new String[]{"vmstat","-l"}, commandTypes.MULTIDIM));
-
+		allCommands.put(mungeString("sunos","netstat"), new UnixCommand(new String[]{"netstat","-n","-f","inet"}, commandTypes.MULTIDIM));
+		allCommands.put(mungeString("sunos","vmstat"), new UnixCommand(new String[]{"vmstat"}, commandTypes.MULTIDIM));
+		allCommands.put(mungeString("sunos","VmstatTotals"), new UnixCommand(new String[]{"vmstat","-s"}, commandTypes.SINGLEDIM));
 				
 		// Metrics - based on AIX, subject to change
 		allMetrics.put(mungeString("df", "1024-blocks"), new MetricDetail("Disk", "Total Size", "k", metricTypes.NORMAL, 1));
@@ -121,11 +122,12 @@ public class UnixMetrics {
 		allMetrics.put(mungeString("netstat", "LAST_ACK"), new MetricDetail("Connections", "LAST_ACK", "connections", metricTypes.INCREMENT, 1));
 		allMetrics.put(mungeString("netstat", "CLOSING"), new MetricDetail("Connections", "CLOSING", "connections", metricTypes.INCREMENT, 1));
 		allMetrics.put(mungeString("netstat", "UNKNOWN"), new MetricDetail("Connections", "UNKNOWN", "connections", metricTypes.INCREMENT, 1));
-
+		
 		// Linux-specific Metrics
-		allMetrics.put(mungeString("vmstat", "swpd"), new MetricDetail("Memory", "Used", "bytes", metricTypes.NORMAL, 4096));
-		allMetrics.put(mungeString("vmstat", "free"), new MetricDetail("Memory", "Idle", "bytes", metricTypes.NORMAL, 4096));
-		allMetrics.put(mungeString("vmstat", "buff"), new MetricDetail("Memory", "Buffer", "bytes", metricTypes.NORMAL, 4096));
+		allMetrics.put(mungeString("vmstat", "swap"), new MetricDetail("Memory", "Swap Available", "kb", metricTypes.NORMAL, 4096));
+		allMetrics.put(mungeString("vmstat", "swpd"), new MetricDetail("Memory", "Used", "kb", metricTypes.NORMAL, 4096));
+		allMetrics.put(mungeString("vmstat", "free"), new MetricDetail("Memory", "Idle", "kb", metricTypes.NORMAL, 4096));
+		allMetrics.put(mungeString("vmstat", "buff"), new MetricDetail("Memory", "Buffer", "kb", metricTypes.NORMAL, 4096));
 		allMetrics.put(mungeString("vmstat", "si"), new MetricDetail("Swap", "In From Disk", "KB/s", metricTypes.NORMAL, 1));
 		allMetrics.put(mungeString("vmstat", "so"), new MetricDetail("Swap", "Out To Disk", "KB/s", metricTypes.NORMAL, 1));
 		allMetrics.put(mungeString("vmstat", "bi"), new MetricDetail("IO", "Sent", "Blocks/s", metricTypes.NORMAL, 1));
@@ -157,6 +159,10 @@ public class UnixMetrics {
 		allMetrics.put(mungeString("iostat", "id"), new MetricDetail("CPU", "Idle", "%", metricTypes.NORMAL, 1));
 		allMetrics.put(mungeString("iostat", "wt"), new MetricDetail("CPU", "IOWait", "%", metricTypes.NORMAL, 1));
 
-		
+		allMetrics.put(mungeString("vmstat", "w"), new MetricDetail("Kernel Threads", "Swapped", "threads", metricTypes.NORMAL, 1));
+		allMetrics.put(mungeString("vmstat", "swap"), new MetricDetail("Memory", "Swap Available", "kb", metricTypes.NORMAL, 4096));
+		allMetrics.put(mungeString("vmstat", "mf"), new MetricDetail("Page", "Minor Faults", "faults", metricTypes.NORMAL, 1));
+		allMetrics.put(mungeString("vmstat", "de"), new MetricDetail("Page", "Anticipated Short-term Shortfall", "kb", metricTypes.NORMAL, 4096));
+		allMetrics.put(mungeString("vmstat", "sr"), new MetricDetail("Page", "Pages Scanned by Clock Algorithm", "pages", metricTypes.NORMAL, 4096));
 	}
 }
