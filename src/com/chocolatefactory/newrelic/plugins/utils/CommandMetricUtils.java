@@ -2,14 +2,15 @@ package com.chocolatefactory.newrelic.plugins.utils;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Map.Entry;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 import com.newrelic.metrics.publish.binding.Context;
 
@@ -32,21 +33,19 @@ public class CommandMetricUtils {
 	}
 		
 	public BufferedReader executeCommand(String[] command, Boolean useFile) {
-		BufferedReader br;
+		BufferedReader br = null;
 		if(useFile) {
 			File commandFile = new File(command + ".out");
 			getLogger().finer("Opening file: " + commandFile.getAbsolutePath());
 			if (!commandFile.exists()) {
-				getLogger().severe(commandFile.getAbsolutePath() + " does not exist.");
-				br = null;
+				getLogger().severe("Error: " + commandFile.getAbsolutePath() + " does not exist.");
 			} else if(!commandFile.isFile()) {
-				br = null;
-				getLogger().severe(commandFile.getAbsolutePath() + " is not a file.");
+				getLogger().severe("Error: " + commandFile.getAbsolutePath() + " is not a file.");
 			} else {
 				try {
 					br = new BufferedReader(new FileReader(commandFile));
-				} catch (FileNotFoundException e) {
-					getLogger().severe(commandFile.getAbsolutePath() + " does not exist.");
+				} catch (Exception e) {
+					getLogger().severe("Error: " + commandFile.getAbsolutePath() + " does not exist.");
 					e.printStackTrace();
 					br = null;
 				}
@@ -57,13 +56,13 @@ public class CommandMetricUtils {
 				if (command != null) {
 					// System.out.println("Running: " + Arrays.toString(command));
 					proc = rt.exec(command);
+					br = new BufferedReader(new InputStreamReader(proc.getInputStream()));
 				} else {
-					return null;
+					getLogger().severe("Error: command was null.");
 				}
-				br = new BufferedReader(new InputStreamReader(proc.getInputStream()));
-			} catch (IOException e) {
+			} catch (Exception e) {
+				getLogger().severe("Error: Execution of " + Arrays.toString(command) + " failed.");
 				e.printStackTrace();
-				getLogger().severe(Arrays.toString(command) + " failed.");
 				br = null;
 			}
 		}
@@ -71,7 +70,7 @@ public class CommandMetricUtils {
 		return br;
 	}
 	
-	public void parseMultiMetricOutput(String thisCommand, HashMap<String, MetricOutput> currentMetrics, HashMap<String,MetricDetail> metricDeets, BufferedReader commandOutput) throws IOException {
+	public void parseMultiMetricOutput(String thisCommand, HashMap<String, MetricOutput> currentMetrics, HashMap<String,MetricDetail> metricDeets, BufferedReader commandOutput) throws Exception {
 		String line, nextLine;
 		String[] metricNames, metricValues;
 		
@@ -88,14 +87,9 @@ public class CommandMetricUtils {
 					if (nextLine.isEmpty()) {
 						break;
 					}
-					
-					// Debug
-					// System.out.println("Next Line: " + nextLine);
-					
+										
 					if (singleLineValuePattern.matcher(nextLine).matches()) {
 						metricValues = nextLine.split("\\s+");
-						// Debug
-						// System.out.println("Values: " + Arrays.toString(metricValues));
 						for (int i=0;i<metricValues.length;i++) {
 							insertMetric(currentMetrics, metricDeets, mungeString(thisCommand, metricNames[i]),
 									"", metricValues[i]);
@@ -108,8 +102,6 @@ public class CommandMetricUtils {
 						if (metricValues[0].charAt(0) == '_') {
 							metricValues[0] = metricValues[0].substring(1);
 						}
-						// Debug
-						// System.out.println("Multi-Dim Values: " + Arrays.toString(metricValues));
 						int j, k;
 						for (j=1;j<metricValues.length;j++) {
 							if (metricValues.length > metricNames.length) {
@@ -122,8 +114,6 @@ public class CommandMetricUtils {
 						}
 					} else if (headerPattern.matcher(nextLine).matches()) {
 						metricNames = nextLine.replace("% ", "%").replaceAll("([A-Z]+)\\s{0,1}([A-Z]*[a-z]+):","$1$2").replaceAll("[a-z-]+:", "").split("\\s+");
-						// Debug
-						// System.out.println("Names: " + Arrays.toString(metricNames));
 						continue;
 					} else if (!lineHasWordsAndDashesPattern.matcher(nextLine).matches()) {
 						break;
@@ -134,7 +124,7 @@ public class CommandMetricUtils {
 		commandOutput.close();
 	}
 	
-	public HashMap<String,Number> parseOnePerLineMetricOutput(String thisCommand, BufferedReader commandOutput) throws IOException {
+	public HashMap<String,Number> parseOnePerLineMetricOutput(String thisCommand, BufferedReader commandOutput) throws Exception {
 		HashMap<String,Number> output = new HashMap<String,Number>();
 		
 		String line;
@@ -148,7 +138,7 @@ public class CommandMetricUtils {
 					double metricValue = Double.parseDouble(lineSplit[0]);
 					output.put(mungeString(thisCommand, metricName), metricValue);
 				} catch(NumberFormatException e) {
-					// Means the 1st field is not a number. Ignored.
+					// Means the 1st field is not a number. Value is ignored.
 				}
 			}
 		}
@@ -164,6 +154,7 @@ public class CommandMetricUtils {
 		try {
 		    metricValue = Double.parseDouble(metricValueString);
 		} catch(NumberFormatException e) {
+			// If not a number, don't insert (return from method)
 		    return;
 		}
 		
@@ -192,5 +183,45 @@ public class CommandMetricUtils {
 	
 	public String mungeString(String str1, String str2) {
 		return str1 + "/" + str2;
+	}
+	
+	public String getMetricType(String metricInput) {
+		if (metricInput.contains("percentage")) {
+			return "%";
+		} else {
+			for(String thisKeyword : metricInput.split("\\s")) {
+				if (thisKeyword.endsWith("s")) {
+					return thisKeyword;
+				}
+			}
+		}
+		return "ms";
+	}
+	
+	public void printMetrics(HashMap<String, MetricOutput> outputMetrics) {
+		Iterator<String> outputIterator = outputMetrics.keySet().iterator();  
+		   
+		while (outputIterator.hasNext()) {  
+		   String thisKey = outputIterator.next().toString();  
+		   MetricOutput thisMetric = outputMetrics.get(thisKey);
+		   MetricDetail thisMetricDetail = thisMetric.getMetricDetail();
+		   if (thisMetric.getNamePrefix().isEmpty()) {
+			   System.out.println(mungeString(thisMetricDetail.getPrefix(), thisMetricDetail.getName()) +
+					   ", " + thisMetric.getValue() + " " + thisMetricDetail.getUnits());
+		   } else {
+			   System.out.println(mungeString(thisMetricDetail.getPrefix(), 
+					   mungeString(thisMetric.getNamePrefix(), thisMetricDetail.getName())) +
+					   ", " + thisMetric.getValue() + " " + thisMetricDetail.getUnits());
+		   }
+		   
+		}
+	}
+
+	public void printMetricsSimple(HashMap<String, Number> outputMetrics) {
+		Iterator<Entry<String, Number>> outputIterator = outputMetrics.entrySet().iterator();  
+		while (outputIterator.hasNext()) { 
+			Map.Entry<String, Number> pairs = outputIterator.next();
+			System.out.println(pairs.getKey() + ", " + getMetricType(pairs.getKey()) + ", " + pairs.getValue());   
+		}
 	}
 }
