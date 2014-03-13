@@ -1,6 +1,9 @@
 package com.chocolatefactory.newrelic.plugins.unix;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 
 import com.chocolatefactory.newrelic.plugins.utils.MetricDetail;
 import com.chocolatefactory.newrelic.plugins.utils.MetricDetail.metricTypes;
@@ -25,10 +28,12 @@ public class UnixMetrics {
 	class UnixCommand {
 		private String[] command;
 		private commandTypes type;
+		private List<Integer> skipColumns;
 		
-		UnixCommand(String[] tc, commandTypes tt) {
+		UnixCommand(String[] tc, commandTypes tt, List<Integer> sc) {
 			setCommand(tc);
 			setType(tt);
+			setSkipColumns(sc);
 		}
 		
 		public String[] getCommand() {
@@ -43,6 +48,14 @@ public class UnixMetrics {
 		public void setType(commandTypes type) {
 			this.type = type;
 		}
+
+		public List<Integer> getSkipColumns() {
+			return skipColumns;
+		}
+
+		public void setSkipColumns(List<Integer> skipColumns) {
+			this.skipColumns = skipColumns;
+		}
     }
 	
 	public String mungeString(String str1, String str2) {
@@ -50,26 +63,33 @@ public class UnixMetrics {
 	}
 	
 	public UnixMetrics() {
+		// Use defaultignores in "new UnixCommand(...)" when retrieving all columns of a table,
+		// or when retrieving single-dimensional metrics (1 metric per line)
+		List<Integer> defaultignores = new ArrayList<Integer>();
+				
 		// AIX Commands - first to go in
-		allCommands.put(mungeString("aix", "df"), new UnixCommand(new String[]{"df","-k"}, commandTypes.MULTIDIM));
-		allCommands.put(mungeString("aix","iostat"), new UnixCommand(new String[]{"iostat","-s","-f"}, commandTypes.MULTIDIM));
-		allCommands.put(mungeString("aix","netstat"), new UnixCommand(new String[]{"netstat","-n","-f","inet"}, commandTypes.MULTIDIM));
-		allCommands.put(mungeString("aix","vmstat"), new UnixCommand(new String[]{"vmstat","-l"}, commandTypes.MULTIDIM));
-		allCommands.put(mungeString("aix","VirtualMemory"), new UnixCommand(new String[]{"vmstat","-v"}, commandTypes.SINGLEDIM));
+		// Ignore fields 14-17 (CPU measurements) from VMSTAT, get from iostat instead.
+		List<Integer> aixvmstatignores = Arrays.asList(14,15,16,17);
+		
+		allCommands.put(mungeString("aix", "df"), new UnixCommand(new String[]{"df","-k"}, commandTypes.MULTIDIM, defaultignores));
+		allCommands.put(mungeString("aix","iostat"), new UnixCommand(new String[]{"iostat","-s","-f"}, commandTypes.MULTIDIM, defaultignores));
+		allCommands.put(mungeString("aix","netstat"), new UnixCommand(new String[]{"netstat","-n","-f","inet"}, commandTypes.MULTIDIM, defaultignores));
+		allCommands.put(mungeString("aix","vmstat"), new UnixCommand(new String[]{"vmstat","-l"}, commandTypes.MULTIDIM, aixvmstatignores));
+		allCommands.put(mungeString("aix","VirtualMemory"), new UnixCommand(new String[]{"vmstat","-v"}, commandTypes.SINGLEDIM, defaultignores));
 		
 		// Linux Commands
-		allCommands.put(mungeString("linux", "df"), new UnixCommand(new String[]{"df","-k"}, commandTypes.MULTIDIM));
-		allCommands.put(mungeString("linux","iostat"), new UnixCommand(new String[]{"iostat","-x"}, commandTypes.MULTIDIM));
-		allCommands.put(mungeString("linux","netstat"), new UnixCommand(new String[]{"netstat","-n"}, commandTypes.MULTIDIM));
-		allCommands.put(mungeString("linux","vmstat"), new UnixCommand(new String[]{"vmstat","-l"}, commandTypes.MULTIDIM));
-		allCommands.put(mungeString("linux","free"), new UnixCommand(new String[]{"free"}, commandTypes.MULTIDIM));
+		allCommands.put(mungeString("linux", "df"), new UnixCommand(new String[]{"df","-k"}, commandTypes.MULTIDIM, defaultignores));
+		allCommands.put(mungeString("linux","iostat"), new UnixCommand(new String[]{"iostat","-x"}, commandTypes.MULTIDIM, defaultignores));
+		allCommands.put(mungeString("linux","netstat"), new UnixCommand(new String[]{"netstat","-n"}, commandTypes.MULTIDIM, defaultignores));
+		allCommands.put(mungeString("linux","vmstat"), new UnixCommand(new String[]{"vmstat","-l"}, commandTypes.MULTIDIM, defaultignores));
+		allCommands.put(mungeString("linux","free"), new UnixCommand(new String[]{"free"}, commandTypes.MULTIDIM, defaultignores));
 		
 		// Solaris Commands
-		allCommands.put(mungeString("sunos", "df"), new UnixCommand(new String[]{"df","-k"}, commandTypes.MULTIDIM));
-		allCommands.put(mungeString("sunos","iostat"), new UnixCommand(new String[]{"iostat","-xtc"}, commandTypes.MULTIDIM));
-		allCommands.put(mungeString("sunos","netstat"), new UnixCommand(new String[]{"netstat","-n","-f","inet"}, commandTypes.MULTIDIM));
-		allCommands.put(mungeString("sunos","vmstat"), new UnixCommand(new String[]{"vmstat"}, commandTypes.MULTIDIM));
-		allCommands.put(mungeString("sunos","VmstatTotals"), new UnixCommand(new String[]{"vmstat","-s"}, commandTypes.SINGLEDIM));
+		allCommands.put(mungeString("sunos", "df"), new UnixCommand(new String[]{"df","-k"}, commandTypes.MULTIDIM, defaultignores));
+		allCommands.put(mungeString("sunos","iostat"), new UnixCommand(new String[]{"iostat","-xtc"}, commandTypes.MULTIDIM, defaultignores));
+		allCommands.put(mungeString("sunos","netstat"), new UnixCommand(new String[]{"netstat","-n","-f","inet"}, commandTypes.MULTIDIM, defaultignores));
+		allCommands.put(mungeString("sunos","vmstat"), new UnixCommand(new String[]{"vmstat"}, commandTypes.MULTIDIM, defaultignores));
+		allCommands.put(mungeString("sunos","VmstatTotals"), new UnixCommand(new String[]{"vmstat","-s"}, commandTypes.SINGLEDIM, defaultignores));
 				
 		// Metrics - based on AIX, subject to change
 		allMetrics.put(mungeString("df", "1024-blocks"), new MetricDetail("Disk", "Total Size", "k", metricTypes.NORMAL, 1));

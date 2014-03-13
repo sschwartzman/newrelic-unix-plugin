@@ -10,6 +10,7 @@ import java.util.regex.Pattern;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import com.newrelic.metrics.publish.binding.Context;
@@ -70,7 +71,7 @@ public class CommandMetricUtils {
 		return br;
 	}
 	
-	public void parseMultiMetricOutput(String thisCommand, HashMap<String, MetricOutput> currentMetrics, HashMap<String,MetricDetail> metricDeets, BufferedReader commandOutput) throws Exception {
+	public void parseMultiMetricOutput(String thisCommand, HashMap<String, MetricOutput> currentMetrics, HashMap<String,MetricDetail> metricDeets, BufferedReader commandOutput, List<Integer> skipColumns) throws Exception {
 		String line, nextLine;
 		String[] metricNames, metricValues;
 		
@@ -92,7 +93,7 @@ public class CommandMetricUtils {
 						metricValues = nextLine.split("\\s+");
 						for (int i=0;i<metricValues.length;i++) {
 							insertMetric(currentMetrics, metricDeets, mungeString(thisCommand, metricNames[i]),
-									"", metricValues[i]);
+								"", metricValues[i]);
 						}
 						break;
 					} else if (multiLineValuePattern.matcher(nextLine).matches() && 
@@ -109,8 +110,10 @@ public class CommandMetricUtils {
 							} else {
 								k = j;
 							}
-							insertMetric(currentMetrics, metricDeets, mungeString(thisCommand, metricNames[k]), 
+							if(skipColumns == null || !skipColumns.contains(k-1)) {
+								insertMetric(currentMetrics, metricDeets, mungeString(thisCommand, metricNames[k]), 
 									metricValues[0], metricValues[j]);
+							}
 						}
 					} else if (headerPattern.matcher(nextLine).matches()) {
 						metricNames = nextLine.replace("% ", "%").replaceAll("([A-Z]+)\\s{0,1}([A-Z]*[a-z]+):","$1$2").replaceAll("[a-z-]+:", "").split("\\s+");

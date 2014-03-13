@@ -45,7 +45,7 @@ public class UnixAgent extends Agent {
 			} else {
 				try {
 					if (thisCommand.getType().equals(UnixMetrics.commandTypes.MULTIDIM)) {
-						metricUtils.parseMultiMetricOutput(commandName, thisMetricOutput, umetrics.allMetrics, commandReader);
+						metricUtils.parseMultiMetricOutput(commandName, thisMetricOutput, umetrics.allMetrics, commandReader, thisCommand.getSkipColumns());
 						if (isDebug) {
 							metricUtils.printMetrics(thisMetricOutput);
 						} else {
