@@ -1,1 +1,8 @@
-bin/*/*.class
+*.class
+bin/*.class
+
+bin/com/chocolatefactory/newrelic/plugins/utils/CommandMetricUtils.class
+
+bin/com/chocolatefactory/newrelic/plugins/unix/UnixMetrics.class
+
+bin/com/chocolatefactory/newrelic/plugins/unix/UnixAgent.class
