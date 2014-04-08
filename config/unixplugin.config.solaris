@@ -4,6 +4,7 @@
     	"vmstat",
     	"iostat",
     	"df",
+    	"IostatTtyCpu",
 		"VmstatTotals"
     	]
 }
