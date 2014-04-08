@@ -120,8 +120,8 @@ public class UnixMetrics {
 		
 		allMetrics.put(mungeString("vmstat", "r"), new MetricDetail("Kernel Threads", "Runnable", "threads", metricTypes.NORMAL, 1));
 		allMetrics.put(mungeString("vmstat", "b"), new MetricDetail("Kernel Threads", "In Wait Queue", "threads", metricTypes.NORMAL, 1));
-		allMetrics.put(mungeString("vmstat", "avm"), new MetricDetail("Memory", "Active Virtual Pages", "bytes", metricTypes.NORMAL, 4096));
-		allMetrics.put(mungeString("vmstat", "fre"), new MetricDetail("Memory", "Free List", "bytes", metricTypes.NORMAL, 4096));
+		allMetrics.put(mungeString("vmstat", "avm"), new MetricDetail("Memory", "Active Virtual Pages", "pages", metricTypes.NORMAL, 4096));
+		allMetrics.put(mungeString("vmstat", "fre"), new MetricDetail("Memory", "Free List", "pages", metricTypes.NORMAL, 4096));
 		allMetrics.put(mungeString("vmstat", "re"), new MetricDetail("Page", "Pager IO List", "pages", metricTypes.NORMAL, 1024));
 		allMetrics.put(mungeString("vmstat", "pi"), new MetricDetail("Page", "Pages Paged In From Paging Space", "pages", metricTypes.NORMAL, 1024));
 		allMetrics.put(mungeString("vmstat", "po"), new MetricDetail("Page", "Pages Paged Out To Paging Space", "pages", metricTypes.NORMAL, 1024));
@@ -149,7 +149,7 @@ public class UnixMetrics {
 		// Linux-specific Metrics
 		allMetrics.put(mungeString("vmstat", "swap"), new MetricDetail("Memory", "Swap Available", "kb", metricTypes.NORMAL, 4096));
 		allMetrics.put(mungeString("vmstat", "swpd"), new MetricDetail("Memory", "Used", "kb", metricTypes.NORMAL, 4096));
-		allMetrics.put(mungeString("vmstat", "free"), new MetricDetail("Memory", "Idle", "kb", metricTypes.NORMAL, 4096));
+		allMetrics.put(mungeString("vmstat", "free"), new MetricDetail("Memory", "Free List", "kb", metricTypes.NORMAL, 4096));
 		allMetrics.put(mungeString("vmstat", "buff"), new MetricDetail("Memory", "Buffer", "kb", metricTypes.NORMAL, 4096));
 		allMetrics.put(mungeString("vmstat", "si"), new MetricDetail("Swap", "In From Disk", "kb/s", metricTypes.NORMAL, 1));
 		allMetrics.put(mungeString("vmstat", "so"), new MetricDetail("Swap", "Out To Disk", "kb", metricTypes.NORMAL, 1));
@@ -157,7 +157,7 @@ public class UnixMetrics {
 		allMetrics.put(mungeString("vmstat", "bo"), new MetricDetail("IO", "Received", "Blocks/s", metricTypes.NORMAL, 1));
 		allMetrics.put(mungeString("free", "total"), new MetricDetail("Memory", "Total", "kb", metricTypes.NORMAL, 1));
 		allMetrics.put(mungeString("free", "used"), new MetricDetail("Memory", "Used", "kb", metricTypes.NORMAL, 1));
-		allMetrics.put(mungeString("free", "free"), new MetricDetail("Memory", "Free", "kb", metricTypes.NORMAL, 1));
+		allMetrics.put(mungeString("free", "free"), new MetricDetail("Memory", "Free List", "kb", metricTypes.NORMAL, 1));
 		allMetrics.put(mungeString("free", "shared"), new MetricDetail("Memory", "Shared", "kb", metricTypes.NORMAL, 1));
 		allMetrics.put(mungeString("free", "buffers"), new MetricDetail("Memory", "Buffers", "kb", metricTypes.NORMAL, 1));
 		allMetrics.put(mungeString("free", "cached"), new MetricDetail("Memory", "Cached", "kb", metricTypes.NORMAL, 1));
