@@ -3,7 +3,7 @@
     "run": [
     	"vmstat",
     	"iostat",
-    	"df"
+    	"df",
 		"VmstatTotals"
     	]
 }

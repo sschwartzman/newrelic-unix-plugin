@@ -97,11 +97,11 @@ public class CommandMetricUtils {
 				int j = 1;
 				// If there are more values than names, first header is blank (AIX df case), skip
 				if (metricNames.length < metricValues.length) {
-					getLogger().warning("Number of Values (" + metricValues.length + ") exceeds number of Names (" + metricNames.length + ")");
+					getLogger().finer("Number of Values (" + metricValues.length + ") exceeds number of Names (" + metricNames.length + ")");
 					ulimit = metricNames.length;
 					j = 0;
 				} else if (metricNames.length > metricValues.length) {
-					getLogger().warning("Number of Names (" + metricNames.length + ") exceeds number of Values (" + metricValues.length + ")");
+					getLogger().finer("Number of Names (" + metricNames.length + ") exceeds number of Values (" + metricValues.length + ")");
 				}
 				
 				for (int i=1; i<ulimit; i++) {

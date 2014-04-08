@@ -90,7 +90,7 @@ public class UnixMetrics {
 		
 		// Solaris Commands
 		allCommands.put(mungeString("sunos", "df"), new UnixCommand(new String[]{"df","-k"}, commandTypes.COMPLEXDIM, defaultignores));
-		allCommands.put(mungeString("sunos","iostat"), new UnixCommand(new String[]{"iostat","-x"}, commandTypes.COMPLEXDIM, defaultignores));
+		allCommands.put(mungeString("sunos","iostat"), new UnixCommand(new String[]{"iostat","-xtc"}, commandTypes.COMPLEXDIM, defaultignores));
 		allCommands.put(mungeString("sunos","iostat_tty"), new UnixCommand(new String[]{"iostat","-t"}, commandTypes.MULTIDIM, defaultignores));
 		allCommands.put(mungeString("sunos","iostat_cpu"), new UnixCommand(new String[]{"iostat","-c"}, commandTypes.MULTIDIM, defaultignores));
 		allCommands.put(mungeString("sunos","netstat"), new UnixCommand(new String[]{"netstat","-n","-f","inet"}, commandTypes.MULTIDIM, defaultignores));
@@ -132,11 +132,6 @@ public class UnixMetrics {
 		allMetrics.put(mungeString("vmstat", "in"), new MetricDetail("Faults", "Device Interrupts", "interrupts", metricTypes.NORMAL, 1));
 		allMetrics.put(mungeString("vmstat", "sy"), new MetricDetail("Faults", "System Calls", "threads", metricTypes.NORMAL, 1));
 		allMetrics.put(mungeString("vmstat", "cs"), new MetricDetail("Faults", "Context Switches", "switches", metricTypes.NORMAL, 1));
-		// Get from iostat instead
-		// allMetrics.put(mungeString("vmstat", "us"), new MetricDetail("CPU", "User", "%", metricTypes.NORMAL, 1));
-		// allMetrics.put(mungeString("vmstat", "sy"), new MetricDetail("CPU", "System", "%", metricTypes.NORMAL, 1));
-		// allMetrics.put(mungeString("vmstat", "id"), new MetricDetail("CPU", "Idle", "%", metricTypes.NORMAL, 1));
-		// allMetrics.put(mungeString("vmstat", "wa"), new MetricDetail("CPU", "IOWait", "%", metricTypes.NORMAL, 1));
 		allMetrics.put(mungeString("vmstat", "alp"), new MetricDetail("LargePage", "In Use", "large pages", metricTypes.NORMAL, 1));
 		allMetrics.put(mungeString("vmstat", "flp"), new MetricDetail("LargePage", "Free List", "large pages", metricTypes.NORMAL, 1));
 		
@@ -181,11 +176,11 @@ public class UnixMetrics {
 		allMetrics.put(mungeString("iostat", "us"), new MetricDetail("CPU", "User", "%", metricTypes.NORMAL, 1));
 		allMetrics.put(mungeString("iostat", "sy"), new MetricDetail("CPU", "System", "%", metricTypes.NORMAL, 1));
 		allMetrics.put(mungeString("iostat", "id"), new MetricDetail("CPU", "Idle", "%", metricTypes.NORMAL, 1));
-		allMetrics.put(mungeString("iostat", "wt"), new MetricDetail("CPU", "IOWait", "%", metricTypes.NORMAL, 1));
+		allMetrics.put(mungeString("iostat", "wt"), new MetricDetail("CPU", "Waiting", "%", metricTypes.NORMAL, 1));
 		allMetrics.put(mungeString("iostat", "kps"), new MetricDetail("Disk", "kb per Second", "kb", metricTypes.NORMAL, 1));
 		allMetrics.put(mungeString("iostat", "bps"), new MetricDetail("Disk", "Blocks per Second", "blocks", metricTypes.NORMAL, 1));
 		allMetrics.put(mungeString("iostat", "serv"), new MetricDetail("Disk", "Average service time", "ms", metricTypes.NORMAL, 1));
-		
+
 		allMetrics.put(mungeString("vmstat", "w"), new MetricDetail("Kernel Threads", "Swapped", "threads", metricTypes.NORMAL, 1));
 		allMetrics.put(mungeString("vmstat", "swap"), new MetricDetail("Memory", "Swap Available", "kb", metricTypes.NORMAL, 4096));
 		allMetrics.put(mungeString("vmstat", "mf"), new MetricDetail("Page", "Minor Faults", "faults", metricTypes.NORMAL, 1));
