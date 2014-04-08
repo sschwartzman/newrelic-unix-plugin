@@ -44,7 +44,14 @@ public class UnixAgent extends Agent {
 				metricUtils.getLogger().severe("Error: Command response is null. No result processing attempted.");
 			} else {
 				try {
-					if (thisCommand.getType().equals(UnixMetrics.commandTypes.MULTIDIM)) {
+					if (thisCommand.getType().equals(UnixMetrics.commandTypes.COMPLEXDIM)) {
+						metricUtils.parseComplexMetricOutput(commandName, thisMetricOutput, umetrics.allMetrics, commandReader, thisCommand.getSkipColumns());
+						if (isDebug) {
+							metricUtils.printMetrics(thisMetricOutput);
+						} else {
+							reportMetrics(thisMetricOutput);				
+						}
+					} else if (thisCommand.getType().equals(UnixMetrics.commandTypes.MULTIDIM)) {
 						metricUtils.parseMultiMetricOutput(commandName, thisMetricOutput, umetrics.allMetrics, commandReader, thisCommand.getSkipColumns());
 						if (isDebug) {
 							metricUtils.printMetrics(thisMetricOutput);
@@ -52,7 +59,7 @@ public class UnixAgent extends Agent {
 							reportMetrics(thisMetricOutput);				
 						}
 					} else if (thisCommand.getType().equals(UnixMetrics.commandTypes.SINGLEDIM)) {
-						simpleMetricOutput = metricUtils.parseOnePerLineMetricOutput(commandName, commandReader);
+						simpleMetricOutput = metricUtils.parseSingleMetricOutput(commandName, commandReader);
 						if (isDebug) {
 							metricUtils.printMetricsSimple(simpleMetricOutput);
 						} else {

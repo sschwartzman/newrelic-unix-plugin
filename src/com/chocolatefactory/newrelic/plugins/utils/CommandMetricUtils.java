@@ -19,14 +19,15 @@ public class CommandMetricUtils {
 
 	private Runtime rt;
 	private Logger logger;
-	private Pattern headerPattern = Pattern.compile("[\\w-%:]+(\\s+[\\w-%:]+)*");
-	//private Pattern headerPattern = Pattern.compile("\\S+(\\s+\\S+)+");
-	private Pattern headerDashesPattern = Pattern.compile("[-]+(\\s+[-]+)+");
-	private Pattern singleLineValuePattern = Pattern.compile("\\d+\\.*\\d*%?(\\s+\\d+\\.*\\d*%?)*");
-	private Pattern multiLineValuePattern = Pattern.compile("\\S+(\\s+\\S+)+");
-	private Pattern lineHasNumbersPattern = Pattern.compile(".*\\d.*");
-	private Pattern lineHasWordsAndDashesPattern = Pattern.compile(".*[-]+.*\\w+.*");
-	private Pattern singleLineMetricsPattern = Pattern.compile("\\S*(\\d+)\\s+([\\w-%\\(\\)])(\\s{0,1}[\\w-%\\(\\)])*");
+	
+	private Pattern dashesPattern = Pattern.compile("\\s*[\\w-]+(\\s+[-]+)+(\\s[\\w-]*)*");
+	private Pattern singleMetricLinePattern = Pattern.compile("\\S*(\\d+)\\s+([\\w-%\\(\\)])(\\s{0,1}[\\w-%\\(\\)])*");
+	private Pattern multiHeaderLinePattern = Pattern.compile("\\s*[\\w-%]+(\\s+[\\w-%]+)+");
+	private Pattern multiValueLinePattern = Pattern.compile("\\s*[\\d.]+(\\s+[\\d.]+)+");
+	private Pattern complexHeaderLinePattern = Pattern.compile("\\s*[\\w-_%]+(\\s+[\\w-_%]+)*");
+	private Pattern complexValueLinePattern = Pattern.compile("\\s*[\\w-_]*(\\s+[\\d.-]+[%]*)+(\\s+[\\w-_]*)*");
+	
+	int BUFFER_SIZE = 1000;
 	
 	public CommandMetricUtils() {
 		setLogger(Context.getLogger());
@@ -55,7 +56,7 @@ public class CommandMetricUtils {
 			Process proc;
 			try {
 				if (command != null) {
-					// System.out.println("Running: " + Arrays.toString(command));
+					getLogger().finer("Begin execution of " + Arrays.toString(command));
 					proc = rt.exec(command);
 					br = new BufferedReader(new InputStreamReader(proc.getInputStream()));
 				} else {
@@ -71,70 +72,143 @@ public class CommandMetricUtils {
 		return br;
 	}
 	
+	public void parseComplexMetricOutput(String thisCommand, HashMap<String, MetricOutput> currentMetrics, HashMap<String,MetricDetail> metricDeets, BufferedReader commandOutput, List<Integer> skipColumns) throws Exception {
+		String line, nextLine;
+		String[] metricNames = null, metricValues;	
+		while((line = commandOutput.readLine()) != null) {
+			getLogger().finest("Origin Line: " + line);
+			line = line.replaceAll("([A-Za-z-]+): ", " ").replaceAll("% ", " ").replaceAll("/", "-").trim();
+			getLogger().finest("Modded Line: " + line);
+			getLogger().finest("complexHeaderLinePattern: " + complexHeaderLinePattern.matcher(line).matches());
+			getLogger().finest("dashesPattern: " + dashesPattern.matcher(line).matches());
+			getLogger().finest("multiValueLinePattern: " + multiValueLinePattern.matcher(line).matches());
+			getLogger().finest("complexValueLinePattern: " + complexValueLinePattern.matcher(line).matches());	
+			if((metricNames != null) && complexValueLinePattern.matcher(line).matches()) {	
+				getLogger().finest("Complex Value Ahoy!");
+				// Assume 1st column is prefix to metric
+				metricValues = line.replaceAll("/", "-").replaceAll("%", "").split("\\s+");
+				if (metricValues[0].charAt(0) == '-') {
+					metricValues[0] = metricValues[0].substring(1);
+				}
+				getLogger().finer("Complex - Names (count " + metricNames.length + "): " + Arrays.toString(metricNames));
+				getLogger().finer("Complex - Values (count " + metricValues.length + "): " + Arrays.toString(metricValues));	
+				
+				int ulimit = metricValues.length;
+				int j = 1;
+				// If there are more values than names, first header is blank (AIX df case), skip
+				if (metricNames.length < metricValues.length) {
+					getLogger().warning("Number of Values (" + metricValues.length + ") exceeds number of Names (" + metricNames.length + ")");
+					ulimit = metricNames.length;
+					j = 0;
+				} else if (metricNames.length > metricValues.length) {
+					getLogger().warning("Number of Names (" + metricNames.length + ") exceeds number of Values (" + metricValues.length + ")");
+				}
+				
+				for (int i=1; i<ulimit; i++) {
+					if(skipColumns == null || !skipColumns.contains(i-1)) {
+						insertMetric(currentMetrics, metricDeets, mungeString(thisCommand, metricNames[j]), metricValues[0], metricValues[i]);
+					}
+					j++;
+				}
+			} else if((metricNames != null) && multiValueLinePattern.matcher(line).matches()) {	
+				getLogger().finer("We have a number line!");
+				metricValues = line.split("\\s+");
+				getLogger().finer("Multi - Names (count " + metricNames.length + "): " + Arrays.toString(metricNames));
+				getLogger().finer("Multi - Values (count " + metricValues.length + "): " + Arrays.toString(metricValues));
+				int ulimit = metricValues.length;
+				if (metricNames.length < metricValues.length) {
+					getLogger().finer("Number of Values (" + metricValues.length + ") exceeds number of Names (" + metricNames.length + ")");
+					ulimit = metricNames.length;
+				} else if (metricNames.length > metricValues.length) {
+					getLogger().finer("Number of Names (" + metricNames.length + ") exceeds number of Values (" + metricValues.length + ")");
+					
+				}
+				for (int i=0; i<ulimit; i++) {
+					insertMetric(currentMetrics, metricDeets, mungeString(thisCommand, metricNames[i]), "", metricValues[i]);
+				}
+			} else if (complexHeaderLinePattern.matcher(line).matches() && !dashesPattern.matcher(line).matches()) {
+				getLogger().finest("Complex Header Line Ahoy!");
+				commandOutput.mark(BUFFER_SIZE);
+				if((nextLine = commandOutput.readLine()) != null) {
+					nextLine = nextLine.trim();
+					getLogger().finer("Checking next line: " + nextLine);
+					if(dashesPattern.matcher(nextLine).matches()) {
+						getLogger().finer("Line of dashes detected");
+						continue;
+					} else if(complexHeaderLinePattern.matcher(nextLine).matches()) {
+						getLogger().finer("Next line is header line");
+						line = nextLine;
+					} else {
+						getLogger().finer("Next line is value line");
+						// Next line is values, so reset to 'mark' point such that this line will be read on the next cycle
+						commandOutput.reset();
+					}
+					metricNames = line.replaceAll("([A-Z]+[a-z]+) ([a-z]+)","$1_$2").split("\\s+");
+				}
+			}		
+		}
+		commandOutput.close();
+	}
+	
 	public void parseMultiMetricOutput(String thisCommand, HashMap<String, MetricOutput> currentMetrics, HashMap<String,MetricDetail> metricDeets, BufferedReader commandOutput, List<Integer> skipColumns) throws Exception {
 		String line, nextLine;
-		String[] metricNames, metricValues;
-		
+		String[] metricNames = null, metricValues;
 		while((line = commandOutput.readLine()) != null) {
 			line = line.trim();
-			if (headerPattern.matcher(line).matches() && !headerDashesPattern.matcher(line).matches()) {
-				metricNames = line.replace("% ", "%").replaceAll("([A-Z]+)\\s{0,1}([A-Z]*[a-z]+):","$1$2").replaceAll("[a-z-]+:", "").split("\\s+");
-				
-				// Debug
-				// System.out.println("Names: " + Arrays.toString(metricNames));
-				
-				while ((nextLine = commandOutput.readLine()) != null) {
+			getLogger().finer("Line: " + line);
+			if((metricNames != null) && multiValueLinePattern.matcher(line).matches()) {	
+				getLogger().finer("We have a number line!");
+				metricValues = line.split("\\s+");
+				getLogger().finer("Multi - Names (count " + metricNames.length + "): " + Arrays.toString(metricNames));
+				getLogger().finer("Multi - Values (count " + metricValues.length + "): " + Arrays.toString(metricValues));
+				int ulimit = metricValues.length;
+				if (metricNames.length < metricValues.length) {
+					getLogger().finer("Number of Values (" + metricValues.length + ") exceeds number of Names (" + metricNames.length + ")");
+					ulimit = metricNames.length;
+				} else if (metricNames.length > metricValues.length) {
+					getLogger().finer("Number of Names (" + metricNames.length + ") exceeds number of Values (" + metricValues.length + ")");
+					
+				}
+				for (int i=0; i<ulimit; i++) {
+					insertMetric(currentMetrics, metricDeets, mungeString(thisCommand, metricNames[i]), "", metricValues[i]);
+				}
+				break;
+			} else if (multiHeaderLinePattern.matcher(line).matches() && !dashesPattern.matcher(line).matches()) {
+				getLogger().finer("We have a header line!");
+				commandOutput.mark(BUFFER_SIZE);
+				if((nextLine = commandOutput.readLine()) != null) {
 					nextLine = nextLine.trim();
-					if (nextLine.isEmpty()) {
-						break;
-					}
-										
-					if (singleLineValuePattern.matcher(nextLine).matches()) {
-						metricValues = nextLine.split("\\s+");
-						for (int i=0;i<metricValues.length;i++) {
-							insertMetric(currentMetrics, metricDeets, mungeString(thisCommand, metricNames[i]),
-								"", metricValues[i]);
-						}
-						break;
-					} else if (multiLineValuePattern.matcher(nextLine).matches() && 
-							lineHasNumbersPattern.matcher(nextLine).matches()) {
-						// Assume 1st column is prefix to metric
-						metricValues = nextLine.replace('%', ' ').replace('/', '_').split("\\s+");
-						if (metricValues[0].charAt(0) == '_') {
-							metricValues[0] = metricValues[0].substring(1);
-						}
-						int j, k;
-						for (j=1;j<metricValues.length;j++) {
-							if (metricValues.length > metricNames.length) {
-								k = j-1;
-							} else {
-								k = j;
-							}
-							if(skipColumns == null || !skipColumns.contains(k-1)) {
-								insertMetric(currentMetrics, metricDeets, mungeString(thisCommand, metricNames[k]), 
-									metricValues[0], metricValues[j]);
-							}
-						}
-					} else if (headerPattern.matcher(nextLine).matches()) {
-						metricNames = nextLine.replace("% ", "%").replaceAll("([A-Z]+)\\s{0,1}([A-Z]*[a-z]+):","$1$2").replaceAll("[a-z-]+:", "").split("\\s+");
+					getLogger().finer("Checking next line: " + nextLine);
+					if(dashesPattern.matcher(nextLine).matches()) {
+						getLogger().finer("Line of dashes detected");
+						metricNames = line.split("\\s+");
 						continue;
-					} else if (!lineHasWordsAndDashesPattern.matcher(nextLine).matches()) {
-						break;
+					} else if(multiValueLinePattern.matcher(nextLine).matches()) {
+						getLogger().finer("Next line is value line");
+						// Next line is values, so reset to 'mark' point such that this line will be read on the next cycle
+						commandOutput.reset();
+					} else if(multiHeaderLinePattern.matcher(nextLine).matches()) {
+						getLogger().finer("Next line is actual header line");
+						line = nextLine;
+					} else {
+						getLogger().finer("Nothing to see here");
+						continue;
 					}
+					metricNames = line.split("\\s+");
 				}
 			}
 		}
 		commandOutput.close();
 	}
 	
-	public HashMap<String,Number> parseOnePerLineMetricOutput(String thisCommand, BufferedReader commandOutput) throws Exception {
+	public HashMap<String,Number> parseSingleMetricOutput(String thisCommand, BufferedReader commandOutput) throws Exception {
 		HashMap<String,Number> output = new HashMap<String,Number>();
 		
 		String line;
 		
 		while((line = commandOutput.readLine()) != null) {
 			line = line.trim();
-			if (singleLineMetricsPattern.matcher(line).matches() && !headerDashesPattern.matcher(line).matches()) {
+			if (singleMetricLinePattern.matcher(line).matches() && !dashesPattern.matcher(line).matches()) {
 				String[] lineSplit = line.split("\\s+");	
 				try {
 					String metricName = Arrays.toString(Arrays.copyOfRange(lineSplit, 1, lineSplit.length)).replaceAll("[\\[\\],]*", "");
@@ -209,10 +283,10 @@ public class CommandMetricUtils {
 		   MetricOutput thisMetric = outputMetrics.get(thisKey);
 		   MetricDetail thisMetricDetail = thisMetric.getMetricDetail();
 		   if (thisMetric.getNamePrefix().isEmpty()) {
-			   System.out.println(mungeString(thisMetricDetail.getPrefix(), thisMetricDetail.getName()) +
+			   getLogger().finer(mungeString(thisMetricDetail.getPrefix(), thisMetricDetail.getName()) +
 					   ", " + thisMetric.getValue() + " " + thisMetricDetail.getUnits());
 		   } else {
-			   System.out.println(mungeString(thisMetricDetail.getPrefix(), 
+			   getLogger().finer(mungeString(thisMetricDetail.getPrefix(), 
 					   mungeString(thisMetric.getNamePrefix(), thisMetricDetail.getName())) +
 					   ", " + thisMetric.getValue() + " " + thisMetricDetail.getUnits());
 		   }
@@ -224,7 +298,7 @@ public class CommandMetricUtils {
 		Iterator<Entry<String, Number>> outputIterator = outputMetrics.entrySet().iterator();  
 		while (outputIterator.hasNext()) { 
 			Map.Entry<String, Number> pairs = outputIterator.next();
-			System.out.println(pairs.getKey() + ", " + getMetricType(pairs.getKey()) + ", " + pairs.getValue());   
+			getLogger().finer(pairs.getKey() + ", " + getMetricType(pairs.getKey()) + ", " + pairs.getValue());   
 		}
 	}
 }
