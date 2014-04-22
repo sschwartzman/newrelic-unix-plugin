@@ -6,7 +6,11 @@
 ### Set these as appropriate
 
 PLUGIN_PATH=/opt/newrelic/newrelic_unix_plugin
-PLUGIN_JAVA_HOME=/usr/java6
+
+# LINUX:
+PLUGIN_JAVA_HOME=/usr
+# AIX:
+# PLUGIN_JAVA_HOME=/usr/java6
 
 ### Do not change these unless instructed!
 
@@ -14,7 +18,7 @@ PLUGIN_NAME="New Relic Unix Plugin"
 PLUGIN_LOG_FILE=$PLUGIN_PATH/plugin.log
 PLUGIN_PID_FILE=$PLUGIN_PATH/plugin.pid
 PLUGIN_JAVA_CLASS=com.chocolatefactory.newrelic.plugins.unix.Main
-PLUGIN_JAVA_OPTS="-cp $PLUGIN_PATH/newrelic_unix_plugin.jar:$PLUGIN_PATH/lib/metrics_publish-1.2.2.jar:$PLUGIN_PATH/lib/config-1.0.1.jar:$PLUGIN_PATH/lib/json-simple-1.1.1.jar"
+PLUGIN_JAVA_OPTS="-cp $PLUGIN_PATH/bin/newrelic_unix_plugin.jar:$PLUGIN_PATH/lib/metrics_publish-1.2.2.jar:$PLUGIN_PATH/lib/config-1.0.1.jar:$PLUGIN_PATH/lib/json-simple-1.1.1.jar"
 PLUGIN_RESTART_ON_START=false
 
 check_plugin_status() {

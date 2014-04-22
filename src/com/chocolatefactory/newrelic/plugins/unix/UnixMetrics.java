@@ -85,8 +85,9 @@ public class UnixMetrics {
 		allCommands.put(mungeString("linux", "df"), new UnixCommand(new String[]{"df","-k"}, commandTypes.COMPLEXDIM, defaultignores));
 		allCommands.put(mungeString("linux","iostat"), new UnixCommand(new String[]{"iostat","-x"}, commandTypes.COMPLEXDIM, defaultignores));
 		allCommands.put(mungeString("linux","netstat"), new UnixCommand(new String[]{"netstat","-n"}, commandTypes.MULTIDIM, defaultignores));
-		allCommands.put(mungeString("linux","vmstat"), new UnixCommand(new String[]{"vmstat","-l"}, commandTypes.MULTIDIM, defaultignores));
-		allCommands.put(mungeString("linux","free"), new UnixCommand(new String[]{"free"}, commandTypes.MULTIDIM, defaultignores));
+		allCommands.put(mungeString("linux","vmstat"), new UnixCommand(new String[]{"vmstat"}, commandTypes.MULTIDIM, defaultignores));
+		allCommands.put(mungeString("linux","free"), new UnixCommand(new String[]{"free"}, commandTypes.COMPLEXDIM, defaultignores));
+		allCommands.put(mungeString("linux","VmstatTotals"), new UnixCommand(new String[]{"vmstat","-s"}, commandTypes.SINGLEDIM, defaultignores));
 		
 		// Solaris Commands
 		allCommands.put(mungeString("sunos", "df"), new UnixCommand(new String[]{"df","-k"}, commandTypes.COMPLEXDIM, defaultignores));
