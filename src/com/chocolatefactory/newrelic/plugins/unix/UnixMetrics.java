@@ -76,14 +76,15 @@ public class UnixMetrics {
 		List<Integer> aixvmstatignores = Arrays.asList(14,15,16,17);
 		
 		allCommands.put(mungeString("aix", "df"), new UnixCommand(new String[]{"df","-k"}, commandTypes.COMPLEXDIM, defaultignores));
-		allCommands.put(mungeString("aix","iostat"), new UnixCommand(new String[]{"iostat","-s","-f"}, commandTypes.COMPLEXDIM, defaultignores));
+		allCommands.put(mungeString("aix","iostat"), new UnixCommand(new String[]{"iostat","-s","-d"}, commandTypes.COMPLEXDIM, defaultignores));
 		allCommands.put(mungeString("aix","netstat"), new UnixCommand(new String[]{"netstat","-n","-f","inet"}, commandTypes.MULTIDIM, defaultignores));
 		allCommands.put(mungeString("aix","vmstat"), new UnixCommand(new String[]{"vmstat","-l"}, commandTypes.MULTIDIM, aixvmstatignores));
 		allCommands.put(mungeString("aix","VirtualMemory"), new UnixCommand(new String[]{"vmstat","-v"}, commandTypes.SINGLEDIM, defaultignores));
+		allCommands.put(mungeString("aix","IostatTtyCpu"), new UnixCommand(new String[]{"iostat","-t"}, commandTypes.MULTIDIM, defaultignores));
 		
 		// Linux Commands
 		allCommands.put(mungeString("linux", "df"), new UnixCommand(new String[]{"df","-k"}, commandTypes.COMPLEXDIM, defaultignores));
-		allCommands.put(mungeString("linux","iostat"), new UnixCommand(new String[]{"iostat","-x"}, commandTypes.COMPLEXDIM, defaultignores));
+		allCommands.put(mungeString("linux","iostat"), new UnixCommand(new String[]{"iostat"}, commandTypes.COMPLEXDIM, defaultignores));
 		allCommands.put(mungeString("linux","netstat"), new UnixCommand(new String[]{"netstat","-n"}, commandTypes.MULTIDIM, defaultignores));
 		allCommands.put(mungeString("linux","vmstat"), new UnixCommand(new String[]{"vmstat"}, commandTypes.MULTIDIM, defaultignores));
 		allCommands.put(mungeString("linux","free"), new UnixCommand(new String[]{"free"}, commandTypes.COMPLEXDIM, defaultignores));
@@ -91,7 +92,7 @@ public class UnixMetrics {
 		
 		// Solaris Commands
 		allCommands.put(mungeString("sunos", "df"), new UnixCommand(new String[]{"df","-k"}, commandTypes.COMPLEXDIM, defaultignores));
-		allCommands.put(mungeString("sunos","iostat"), new UnixCommand(new String[]{"iostat","-xtc"}, commandTypes.COMPLEXDIM, defaultignores));
+		allCommands.put(mungeString("sunos","iostat"), new UnixCommand(new String[]{"iostat","-x"}, commandTypes.COMPLEXDIM, defaultignores));
 		allCommands.put(mungeString("sunos","netstat"), new UnixCommand(new String[]{"netstat","-n","-f","inet"}, commandTypes.MULTIDIM, defaultignores));
 		allCommands.put(mungeString("sunos","vmstat"), new UnixCommand(new String[]{"vmstat"}, commandTypes.MULTIDIM, defaultignores));
 		allCommands.put(mungeString("sunos","IostatTtyCpu"), new UnixCommand(new String[]{"iostat","-tc"}, commandTypes.MULTIDIM, defaultignores));
@@ -105,7 +106,6 @@ public class UnixMetrics {
 		allMetrics.put(mungeString("df", "Iused"), new MetricDetail("Disk", "INodes Used", "inodes", metricTypes.NORMAL, 1));
 		allMetrics.put(mungeString("df", "%Iused"), new MetricDetail("Disk", "INodes Used", "%", metricTypes.NORMAL, 1));
 		allMetrics.put(mungeString("df", "Available"), new MetricDetail("Disk", "Free Size", "kb", metricTypes.NORMAL, 1));
-		allMetrics.put(mungeString("df", "Capacity"), new MetricDetail("Disk", "Total", "kb", metricTypes.NORMAL, 1));
 
 		allMetrics.put(mungeString("iostat", "tin"), new MetricDetail("IO", "Total Read", "chars", metricTypes.NORMAL, 1));
 		allMetrics.put(mungeString("iostat", "tout"), new MetricDetail("IO", "Total Written", "chars", metricTypes.NORMAL, 1));
@@ -146,7 +146,12 @@ public class UnixMetrics {
 		allMetrics.put(mungeString("netstat", "LAST_ACK"), new MetricDetail("Connections", "LAST_ACK", "connections", metricTypes.INCREMENT, 1));
 		allMetrics.put(mungeString("netstat", "CLOSING"), new MetricDetail("Connections", "CLOSING", "connections", metricTypes.INCREMENT, 1));
 		allMetrics.put(mungeString("netstat", "UNKNOWN"), new MetricDetail("Connections", "UNKNOWN", "connections", metricTypes.INCREMENT, 1));
-		
+
+		allMetrics.put(mungeString("IostatTtyCpu", "%user"), new MetricDetail("CPU", "User", "%", metricTypes.NORMAL, 1));
+		allMetrics.put(mungeString("IostatTtyCpu", "%sys"), new MetricDetail("CPU", "System", "%", metricTypes.NORMAL, 1));
+		allMetrics.put(mungeString("IostatTtyCpu", "%iowait"), new MetricDetail("CPU", "Waiting", "%", metricTypes.NORMAL, 1));
+		allMetrics.put(mungeString("IostatTtyCpu", "%idle"), new MetricDetail("CPU", "Idle", "%", metricTypes.NORMAL, 1));
+
 		// Linux-specific Metrics
 		allMetrics.put(mungeString("vmstat", "swap"), new MetricDetail("Memory", "Swap Available", "kb", metricTypes.NORMAL, 4096));
 		allMetrics.put(mungeString("vmstat", "swpd"), new MetricDetail("Memory", "Used", "kb", metricTypes.NORMAL, 4096));
@@ -162,8 +167,22 @@ public class UnixMetrics {
 		allMetrics.put(mungeString("free", "shared"), new MetricDetail("Memory", "Shared", "kb", metricTypes.NORMAL, 1));
 		allMetrics.put(mungeString("free", "buffers"), new MetricDetail("Memory", "Buffers", "kb", metricTypes.NORMAL, 1));
 		allMetrics.put(mungeString("free", "cached"), new MetricDetail("Memory", "Cached", "kb", metricTypes.NORMAL, 1));
+		allMetrics.put(mungeString("iostat", "%user"), new MetricDetail("CPU", "User", "%", metricTypes.NORMAL, 1));
+		allMetrics.put(mungeString("iostat", "%nice"), new MetricDetail("CPU", "Nice", "%", metricTypes.NORMAL, 1));
+		allMetrics.put(mungeString("iostat", "%system"), new MetricDetail("CPU", "System", "%", metricTypes.NORMAL, 1));
+		allMetrics.put(mungeString("iostat", "%iowait"), new MetricDetail("CPU", "Waiting", "%", metricTypes.NORMAL, 1));
+		allMetrics.put(mungeString("iostat", "%steal"), new MetricDetail("CPU", "Steal", "%", metricTypes.NORMAL, 1));
+		allMetrics.put(mungeString("iostat", "%idle"), new MetricDetail("CPU", "Idle", "%", metricTypes.NORMAL, 1));
+		allMetrics.put(mungeString("iostat", "Blk_read-s"), new MetricDetail("Disk", "Read Rate", "blocks/sec", metricTypes.NORMAL, 1));
+		allMetrics.put(mungeString("iostat", "Blk_read"), new MetricDetail("Disk", "Read", "blocks", metricTypes.NORMAL, 1));
+		allMetrics.put(mungeString("iostat", "Blk_wrtn-s"), new MetricDetail("Disk", "Write Rate", "blocks/sec", metricTypes.NORMAL, 1));
+		allMetrics.put(mungeString("iostat", "Blk_wrtn"), new MetricDetail("Disk", "Written", "blocks", metricTypes.NORMAL, 1));
+		allMetrics.put(mungeString("df", "1K-blocks"), new MetricDetail("Disk", "Total Size", "kb", metricTypes.NORMAL, 1));
+		allMetrics.put(mungeString("df", "Use%"), new MetricDetail("Disk", "Used", "%", metricTypes.NORMAL, 1));
 		
 		// Solaris-specific Metrics
+		allMetrics.put(mungeString("df", "Capacity"), new MetricDetail("Disk", "Used", "%", metricTypes.NORMAL, 1));
+		
 		allMetrics.put(mungeString("iostat", "r-s"), new MetricDetail("Disk", "Reads per Second", "reads", metricTypes.NORMAL, 1));
 		allMetrics.put(mungeString("iostat", "w-s"), new MetricDetail("Disk", "Writes per Second", "reads", metricTypes.NORMAL, 1));
 		allMetrics.put(mungeString("iostat", "kr-s"), new MetricDetail("Disk", "Kbytes read per Second", "kb", metricTypes.NORMAL, 1));

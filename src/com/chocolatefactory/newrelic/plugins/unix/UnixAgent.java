@@ -103,6 +103,7 @@ public class UnixAgent extends Agent {
 		try {
 			return java.net.InetAddress.getLocalHost().getHostName();
 		} catch (Exception e) {
+			metricUtils.getLogger().finer("Naming failed: " + e.toString());
 			return "testserver";
 		}
 		

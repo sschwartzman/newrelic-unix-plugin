@@ -3,7 +3,8 @@
     "run": [
     	"vmstat",
     	"iostat",
-    	"df"
-		"VirtualMemory"
+    	"df",
+		"VirtualMemory",
+		"IostatTtyCpu"
     	]
 }
