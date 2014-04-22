@@ -89,6 +89,7 @@ public class UnixMetrics {
 		allCommands.put(mungeString("linux","vmstat"), new UnixCommand(new String[]{"vmstat"}, commandTypes.MULTIDIM, defaultignores));
 		allCommands.put(mungeString("linux","free"), new UnixCommand(new String[]{"free"}, commandTypes.COMPLEXDIM, defaultignores));
 		allCommands.put(mungeString("linux","VmstatTotals"), new UnixCommand(new String[]{"vmstat","-s"}, commandTypes.SINGLEDIM, defaultignores));
+		allCommands.put(mungeString("linux","iostatMb"), new UnixCommand(new String[]{"iostat","-m","-d"}, commandTypes.COMPLEXDIM, defaultignores));
 		
 		// Solaris Commands
 		allCommands.put(mungeString("sunos", "df"), new UnixCommand(new String[]{"df","-k"}, commandTypes.COMPLEXDIM, defaultignores));
@@ -114,10 +115,10 @@ public class UnixMetrics {
 		allMetrics.put(mungeString("iostat", "idle"), new MetricDetail("CPU", "Idle", "%", metricTypes.NORMAL, 1));
 		allMetrics.put(mungeString("iostat", "iowait"), new MetricDetail("CPU", "Waiting", "%", metricTypes.NORMAL, 1));
 		allMetrics.put(mungeString("iostat", "tm_act"), new MetricDetail("Disk", "Percentage of Time Active", "%", metricTypes.NORMAL, 1));
-		allMetrics.put(mungeString("iostat", "Kbps"), new MetricDetail("Disk", "Data Transferred Per Second", "kb", metricTypes.NORMAL, 1));
+		allMetrics.put(mungeString("iostat", "Kbps"), new MetricDetail("Disk", "Data Transferred per Second", "kb", metricTypes.NORMAL, 1));
 		allMetrics.put(mungeString("iostat", "tps"), new MetricDetail("Disk", "Transfers per Second", "transfers", metricTypes.NORMAL, 1));
-		allMetrics.put(mungeString("iostat", "Kb_read"), new MetricDetail("Disk", "KB Read", "k", metricTypes.NORMAL, 1));
-		allMetrics.put(mungeString("iostat", "Kb_wrtn"), new MetricDetail("Disk", "KB Written", "kb", metricTypes.NORMAL, 1));
+		allMetrics.put(mungeString("iostat", "Kb_read"), new MetricDetail("Disk", "Data Read", "kb", metricTypes.NORMAL, 1));
+		allMetrics.put(mungeString("iostat", "Kb_wrtn"), new MetricDetail("Disk", "Data Written", "kb", metricTypes.NORMAL, 1));
 		
 		allMetrics.put(mungeString("vmstat", "r"), new MetricDetail("Kernel Threads", "Runnable", "threads", metricTypes.NORMAL, 1));
 		allMetrics.put(mungeString("vmstat", "b"), new MetricDetail("Kernel Threads", "In Wait Queue", "threads", metricTypes.NORMAL, 1));
@@ -157,10 +158,10 @@ public class UnixMetrics {
 		allMetrics.put(mungeString("vmstat", "swpd"), new MetricDetail("Memory", "Used", "kb", metricTypes.NORMAL, 4096));
 		allMetrics.put(mungeString("vmstat", "free"), new MetricDetail("Memory", "Free List", "kb", metricTypes.NORMAL, 4096));
 		allMetrics.put(mungeString("vmstat", "buff"), new MetricDetail("Memory", "Buffer", "kb", metricTypes.NORMAL, 4096));
-		allMetrics.put(mungeString("vmstat", "si"), new MetricDetail("Swap", "In From Disk", "kb/s", metricTypes.NORMAL, 1));
+		allMetrics.put(mungeString("vmstat", "si"), new MetricDetail("Swap", "In From Disk", "kb", metricTypes.NORMAL, 1));
 		allMetrics.put(mungeString("vmstat", "so"), new MetricDetail("Swap", "Out To Disk", "kb", metricTypes.NORMAL, 1));
-		allMetrics.put(mungeString("vmstat", "bi"), new MetricDetail("IO", "Sent", "Blocks/s", metricTypes.NORMAL, 1));
-		allMetrics.put(mungeString("vmstat", "bo"), new MetricDetail("IO", "Received", "Blocks/s", metricTypes.NORMAL, 1));
+		allMetrics.put(mungeString("vmstat", "bi"), new MetricDetail("IO", "Sent", "Blocks", metricTypes.NORMAL, 1));
+		allMetrics.put(mungeString("vmstat", "bo"), new MetricDetail("IO", "Received", "Blocks", metricTypes.NORMAL, 1));
 		allMetrics.put(mungeString("free", "total"), new MetricDetail("Memory", "Total", "kb", metricTypes.NORMAL, 1));
 		allMetrics.put(mungeString("free", "used"), new MetricDetail("Memory", "Used", "kb", metricTypes.NORMAL, 1));
 		allMetrics.put(mungeString("free", "free"), new MetricDetail("Memory", "Free List", "kb", metricTypes.NORMAL, 1));
@@ -173,26 +174,30 @@ public class UnixMetrics {
 		allMetrics.put(mungeString("iostat", "%iowait"), new MetricDetail("CPU", "Waiting", "%", metricTypes.NORMAL, 1));
 		allMetrics.put(mungeString("iostat", "%steal"), new MetricDetail("CPU", "Steal", "%", metricTypes.NORMAL, 1));
 		allMetrics.put(mungeString("iostat", "%idle"), new MetricDetail("CPU", "Idle", "%", metricTypes.NORMAL, 1));
-		allMetrics.put(mungeString("iostat", "Blk_read-s"), new MetricDetail("Disk", "Read Rate", "blocks/sec", metricTypes.NORMAL, 1));
-		allMetrics.put(mungeString("iostat", "Blk_read"), new MetricDetail("Disk", "Read", "blocks", metricTypes.NORMAL, 1));
-		allMetrics.put(mungeString("iostat", "Blk_wrtn-s"), new MetricDetail("Disk", "Write Rate", "blocks/sec", metricTypes.NORMAL, 1));
-		allMetrics.put(mungeString("iostat", "Blk_wrtn"), new MetricDetail("Disk", "Written", "blocks", metricTypes.NORMAL, 1));
+		allMetrics.put(mungeString("iostat", "Blk_read-s"), new MetricDetail("Disk", "Blocks Read per Second", "blocks", metricTypes.NORMAL, 1));
+		allMetrics.put(mungeString("iostat", "Blk_read"), new MetricDetail("Disk", "Blocks Read", "blocks", metricTypes.NORMAL, 1));
+		allMetrics.put(mungeString("iostat", "Blk_wrtn-s"), new MetricDetail("Disk", "Blocks Written per Second", "blocks", metricTypes.NORMAL, 1));
+		allMetrics.put(mungeString("iostat", "Blk_wrtn"), new MetricDetail("Disk", "Blocks Written", "blocks", metricTypes.NORMAL, 1));
 		allMetrics.put(mungeString("df", "1K-blocks"), new MetricDetail("Disk", "Total Size", "kb", metricTypes.NORMAL, 1));
 		allMetrics.put(mungeString("df", "Use%"), new MetricDetail("Disk", "Used", "%", metricTypes.NORMAL, 1));
+		allMetrics.put(mungeString("iostatMb", "MB_read-s"), new MetricDetail("Disk", "Data Read per Second", "MB", metricTypes.NORMAL, 1));
+		allMetrics.put(mungeString("iostatMb", "MB_read"), new MetricDetail("Disk", "Data Read", "MB", metricTypes.NORMAL, 1));
+		allMetrics.put(mungeString("iostatMb", "MB_wrtn-s"), new MetricDetail("Disk", "Data Written per Second", "MB", metricTypes.NORMAL, 1));
+		allMetrics.put(mungeString("iostatMb", "MB_wrtn"), new MetricDetail("Disk", "Data Written", "MB", metricTypes.NORMAL, 1));
 		
 		// Solaris-specific Metrics
 		allMetrics.put(mungeString("df", "Capacity"), new MetricDetail("Disk", "Used", "%", metricTypes.NORMAL, 1));
 		
 		allMetrics.put(mungeString("iostat", "r-s"), new MetricDetail("Disk", "Reads per Second", "reads", metricTypes.NORMAL, 1));
-		allMetrics.put(mungeString("iostat", "w-s"), new MetricDetail("Disk", "Writes per Second", "reads", metricTypes.NORMAL, 1));
-		allMetrics.put(mungeString("iostat", "kr-s"), new MetricDetail("Disk", "Kbytes read per Second", "kb", metricTypes.NORMAL, 1));
-		allMetrics.put(mungeString("iostat", "kw-s"), new MetricDetail("Disk", "Kbytes written per Second", "kb", metricTypes.NORMAL, 1));
+		allMetrics.put(mungeString("iostat", "w-s"), new MetricDetail("Disk", "Writes per Second", "writes", metricTypes.NORMAL, 1));
+		allMetrics.put(mungeString("iostat", "kr-s"), new MetricDetail("Disk", "Data Read per Second", "kb", metricTypes.NORMAL, 1));
+		allMetrics.put(mungeString("iostat", "kw-s"), new MetricDetail("Disk", "Data Written per Second", "kb", metricTypes.NORMAL, 1));
 		allMetrics.put(mungeString("iostat", "wait"), new MetricDetail("Disk", "Average queue length", "transfers", metricTypes.NORMAL, 1));
 		allMetrics.put(mungeString("iostat", "actv"), new MetricDetail("Disk", "Active transactions", "transfers", metricTypes.NORMAL, 1));
 		allMetrics.put(mungeString("iostat", "svc_t"), new MetricDetail("Disk", "Average service time", "ms", metricTypes.NORMAL, 1));
 		allMetrics.put(mungeString("iostat", "%w"), new MetricDetail("Disk", "% Time that queue is not empty", "%", metricTypes.NORMAL, 1));
 		allMetrics.put(mungeString("iostat", "%b"), new MetricDetail("Disk", "% Time that disk is busy", "%", metricTypes.NORMAL, 1));
-		allMetrics.put(mungeString("iostat", "kps"), new MetricDetail("Disk", "kb per Second", "kb", metricTypes.NORMAL, 1));
+		allMetrics.put(mungeString("iostat", "kps"), new MetricDetail("Disk", "Data per Second", "kb", metricTypes.NORMAL, 1));
 		allMetrics.put(mungeString("iostat", "bps"), new MetricDetail("Disk", "Blocks per Second", "blocks", metricTypes.NORMAL, 1));
 		allMetrics.put(mungeString("iostat", "serv"), new MetricDetail("Disk", "Average service time", "ms", metricTypes.NORMAL, 1));
 
@@ -209,13 +214,13 @@ public class UnixMetrics {
 		allMetrics.put(mungeString("vmstat", "de"), new MetricDetail("Page", "Anticipated Short-term Shortfall", "kb", metricTypes.NORMAL, 4096));
 		allMetrics.put(mungeString("vmstat", "sr"), new MetricDetail("Page", "Pages Scanned by Clock Algorithm", "pages", metricTypes.NORMAL, 1));
 
-		allMetrics.put(mungeString("vmstat", "s0"), new MetricDetail("Disk", "disk0/operations per second", "ops", metricTypes.NORMAL, 1));
-		allMetrics.put(mungeString("vmstat", "s1"), new MetricDetail("Disk", "disk1/operations per second", "ops", metricTypes.NORMAL, 1));
-		allMetrics.put(mungeString("vmstat", "s2"), new MetricDetail("Disk", "disk2/operations per second", "ops", metricTypes.NORMAL, 1));
-		allMetrics.put(mungeString("vmstat", "s3"), new MetricDetail("Disk", "disk3/operations per second", "ops", metricTypes.NORMAL, 1));
-		allMetrics.put(mungeString("vmstat", "i0"), new MetricDetail("Disk", "disk0/operations per second", "ops", metricTypes.NORMAL, 1));
-		allMetrics.put(mungeString("vmstat", "i1"), new MetricDetail("Disk", "disk1/operations per second", "ops", metricTypes.NORMAL, 1));
-		allMetrics.put(mungeString("vmstat", "i2"), new MetricDetail("Disk", "disk2/operations per second", "ops", metricTypes.NORMAL, 1));
-		allMetrics.put(mungeString("vmstat", "i3"), new MetricDetail("Disk", "disk3/operations per second", "ops", metricTypes.NORMAL, 1));		
+		allMetrics.put(mungeString("vmstat", "s0"), new MetricDetail("Disk", "disk0/Operations per Second", "ops", metricTypes.NORMAL, 1));
+		allMetrics.put(mungeString("vmstat", "s1"), new MetricDetail("Disk", "disk1/Operations per Second", "ops", metricTypes.NORMAL, 1));
+		allMetrics.put(mungeString("vmstat", "s2"), new MetricDetail("Disk", "disk2/Operations per Second", "ops", metricTypes.NORMAL, 1));
+		allMetrics.put(mungeString("vmstat", "s3"), new MetricDetail("Disk", "disk3/Operations per Second", "ops", metricTypes.NORMAL, 1));
+		allMetrics.put(mungeString("vmstat", "i0"), new MetricDetail("Disk", "disk0/Operations per Second", "ops", metricTypes.NORMAL, 1));
+		allMetrics.put(mungeString("vmstat", "i1"), new MetricDetail("Disk", "disk1/Operations per Second", "ops", metricTypes.NORMAL, 1));
+		allMetrics.put(mungeString("vmstat", "i2"), new MetricDetail("Disk", "disk2/Operations per Second", "ops", metricTypes.NORMAL, 1));
+		allMetrics.put(mungeString("vmstat", "i3"), new MetricDetail("Disk", "disk3/Operations per Second", "ops", metricTypes.NORMAL, 1));		
 	}
 }
