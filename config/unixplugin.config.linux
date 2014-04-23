@@ -1,10 +1,11 @@
 {
 	"OS": "auto",
     "run": [
-    	"vmstat",
-    	"iostat",
     	"df",
 		"free",
+    	"iostat",
+    	"vmstat",
+    	"IostatMb",
 		"VmstatTotals"
     	]
 }

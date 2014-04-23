@@ -1,10 +1,10 @@
 {
 	"OS": "auto",
     "run": [
-    	"vmstat",
-    	"iostat",
     	"df",
-		"VirtualMemory",
-		"IostatTtyCpu"
+    	"iostat",
+		"lparstat",
+    	"vmstat",
+		"VirtualMemory"
     	]
 }
