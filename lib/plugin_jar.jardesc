@@ -12,8 +12,8 @@
     </manifest>
     <selectedElements exportClassFiles="true" exportJavaFiles="false" exportOutputFolder="false">
         <javaElement handleIdentifier="=newrelic_unix_plugin/src"/>
-        <folder path="/newrelic_unix_plugin/META-INF"/>
         <folder path="/newrelic_unix_plugin/config"/>
+        <folder path="/newrelic_unix_plugin/META-INF"/>
         <file path="/newrelic_unix_plugin/README.md"/>
     </selectedElements>
 </jardesc>

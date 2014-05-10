@@ -23,7 +23,7 @@ public class CommandMetricUtils {
 	private Pattern dashesPattern = Pattern.compile("\\s*[\\w-]+(\\s+[-]+)+(\\s[\\w-]*)*");
 	private Pattern singleMetricLinePattern = Pattern.compile("\\S*(\\d+)\\s+([\\w-%\\(\\)])(\\s{0,1}[\\w-%\\(\\)])*");
 	private Pattern multiHeaderLinePattern = Pattern.compile("\\s*[\\w-%]+(\\s+[\\w-%]+)+");
-	private Pattern multiValueLinePattern = Pattern.compile("\\s*[\\d.]+(\\s+[\\d.]+)+");
+	private Pattern multiValueLinePattern = Pattern.compile("\\s*[\\d.-]+(\\s+[\\d.-]+)+");
 	private Pattern complexHeaderLinePattern = Pattern.compile("\\s*[\\w-_%:]+(\\s+[\\w-_%]+)*");
 	private Pattern complexValueLinePattern = Pattern.compile("\\s*[\\w-_:]*(\\s+[\\d.-]+[%]*)+(\\s+[\\w-_]*)*");
 	
