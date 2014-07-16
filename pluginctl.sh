@@ -15,10 +15,9 @@ PLUGIN_JAVA_HOME=/usr
 ### Do not change these unless instructed!
 
 PLUGIN_NAME="New Relic Unix Plugin"
-PLUGIN_LOG_FILE=$PLUGIN_PATH/plugin.log
-PLUGIN_PID_FILE=$PLUGIN_PATH/plugin.pid
+PLUGIN_PID_FILE=$PLUGIN_PATH/logs/plugin.pid
 PLUGIN_JAVA_CLASS=com.chocolatefactory.newrelic.plugins.unix.Main
-PLUGIN_JAVA_OPTS="-cp $PLUGIN_PATH/bin/newrelic_unix_plugin.jar:$PLUGIN_PATH/lib/metrics_publish-1.2.2.jar:$PLUGIN_PATH/lib/config-1.0.1.jar:$PLUGIN_PATH/lib/json-simple-1.1.1.jar"
+PLUGIN_JAVA_OPTS="-cp $PLUGIN_PATH/bin/newrelic_unix_plugin.jar:$PLUGIN_PATH/lib/metrics_publish-2.0.0.jar:$PLUGIN_PATH/lib/json-simple-1.1.1.jar"
 PLUGIN_RESTART_ON_START=false
 
 check_plugin_status() {
@@ -56,11 +55,11 @@ stop_plugin() {
 start_plugin() {
 	check_plugin_status
 	procstatus=$?
-	if [ "$procstatus" == 1 ]; then
-		if [ "$PLUGIN_RESTART_ON_START" == false ]; then
+	if [ "$procstatus" -eq 1 ]; then
+		if [ "$PLUGIN_RESTART_ON_START" -eq false ]; then
 			echo "Plugin is already running, restart will not occur"
 			exit 2
-		elif [ "$PLUGIN_RESTART_ON_START" == true ]; then
+		elif [ "$PLUGIN_RESTART_ON_START" -eq true ]; then
 			echo "Restarting $PLUGIN_NAME"
 			stop_plugin
 		else
@@ -70,7 +69,7 @@ start_plugin() {
 	fi
 	
 	echo "Starting $PLUGIN_NAME"
-	PID=`nohup $PLUGIN_JAVA_HOME/bin/java $PLUGIN_JAVA_OPTS $PLUGIN_JAVA_CLASS > $PLUGIN_LOG_FILE 2>&1 & echo $!`
+	PID=`nohup $PLUGIN_JAVA_HOME/bin/java $PLUGIN_JAVA_OPTS $PLUGIN_JAVA_CLASS > >/dev/null 2>&1 & echo $!`
 	
     if [ -z $PID ]; then
     	echo "$PLUGIN_NAME failed to start"
