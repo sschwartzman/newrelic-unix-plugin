@@ -6,14 +6,15 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import com.chocolatefactory.newrelic.plugins.unix.UnixMetrics.UnixCommand;
+import com.chocolatefactory.newrelic.plugins.unix.UnixMetrics.*;
 import com.chocolatefactory.newrelic.plugins.utils.CommandMetricUtils;
 import com.chocolatefactory.newrelic.plugins.utils.MetricDetail;
 import com.chocolatefactory.newrelic.plugins.utils.MetricOutput;
+import com.newrelic.metrics.publish.util.Logger;
 import com.newrelic.metrics.publish.Agent;
 
 public class UnixAgent extends Agent {
-
+    
 	CommandMetricUtils metricUtils;
 	boolean isDebug = false;
 	
@@ -22,9 +23,10 @@ public class UnixAgent extends Agent {
 	HashMap<String, Number> simpleMetricOutput = new HashMap<String, Number>();
 	String commandName, fullCommand;
 	UnixCommand thisCommand;
+	private static final Logger logger = Logger.getLogger(UnixAgent.class);
 	
-	public UnixAgent(String GUID, String version, String os, String command, Boolean debug) {
-		super(GUID, version);
+	public UnixAgent(String os, String command, Boolean debug) {
+		super(UnixMetrics.kAgentGuid, UnixMetrics.kAgentVersion);
 		metricUtils = new CommandMetricUtils();
 		fullCommand = umetrics.mungeString(os, command);
 		commandName = command;
@@ -37,11 +39,21 @@ public class UnixAgent extends Agent {
 	}
 
 	@Override
+    public String getComponentHumanLabel() {
+		try {
+			return java.net.InetAddress.getLocalHost().getHostName();
+		} catch (Exception e) {
+			logger.debug("Naming failed: " + e.toString());
+			return "testserver";
+		}
+    }
+    
+	@Override
 	public void pollCycle() {
 		if (thisCommand != null) {
 			BufferedReader commandReader = metricUtils.executeCommand(thisCommand.getCommand(), false);
 			if (commandReader == null) {
-				metricUtils.getLogger().severe("Error: Command response is null. No result processing attempted.");
+				logger.error("Error: Command response is null. No result processing attempted.");
 			} else {
 				try {
 					if (thisCommand.getType().equals(UnixMetrics.commandTypes.COMPLEXDIM)) {
@@ -68,7 +80,7 @@ public class UnixAgent extends Agent {
 					}
 					
 				} catch (Exception e) {
-					metricUtils.getLogger().severe("Error: Parsing of " + thisCommand.getCommand() + "could not be completed.");
+					logger.error("Error: Parsing of " + thisCommand.getCommand() + "could not be completed.");
 					e.printStackTrace();
 				}
 			}
@@ -96,16 +108,5 @@ public class UnixAgent extends Agent {
 			String metricType = metricUtils.getMetricType(pairs.getKey());
 			reportMetric(pairs.getKey(), metricType, pairs.getValue());
 		}
-	}
-
-	@Override
-	public String getComponentHumanLabel() {
-		try {
-			return java.net.InetAddress.getLocalHost().getHostName();
-		} catch (Exception e) {
-			metricUtils.getLogger().finer("Naming failed: " + e.toString());
-			return "testserver";
-		}
-		
 	}
 }

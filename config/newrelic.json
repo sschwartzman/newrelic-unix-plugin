@@ -1,0 +1,9 @@
+{
+  "license_key": "74be02dabd5e7287d94158a4b0098eac59f650a2",
+  "log_level": "info",
+  "log_file_name": "newrelic_unix_plugin.log",
+  "log_file_path": "logs",
+  "log_limit_in_kbytes": 10000,
+  "proxy_host": "http-proxy.corporate.ge.com",
+  "proxy_port": 80
+}

@@ -1,0 +1,29 @@
+{
+  "agents": [
+  	{
+    	"debug": true,
+    	"OS": "auto",
+    	"command": "df"
+    },
+    {
+    	"debug": true,
+    	"OS": "auto",
+		"command": "iostat"
+    },
+    {
+		"debug": true,
+		"OS": "auto",
+		"command": "vmstat"
+    },
+    {
+		"debug": true,
+		"OS": "auto",
+		"command": "IostatTtyCpu"
+    },
+    {
+		"debug": true,
+		"OS": "auto",
+		"command": "VmstatTotals"
+    }
+  ]
+}

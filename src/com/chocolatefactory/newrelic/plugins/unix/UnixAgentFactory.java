@@ -7,28 +7,30 @@ import com.newrelic.metrics.publish.AgentFactory;
 import com.newrelic.metrics.publish.configuration.ConfigurationException;
 
 public class UnixAgentFactory extends AgentFactory {
-
-	public UnixAgentFactory(String agentConfigFileName) {
-		super(agentConfigFileName);
-		// TODO Auto-generated constructor stub
-	}
-
+	
 	public UnixAgentFactory() {
 		// TODO Auto-generated constructor stub
-		super("UnixPlugin.conf");
+		super();
 	}
 
 	@Override
-	public Agent createConfiguredAgent(Map<String, Object> properties)
-			throws ConfigurationException {
-		// TODO Auto-generated method stub
-		return null;
-	}
+	public Agent createConfiguredAgent(Map<String, Object> properties) throws ConfigurationException {
+		String os, command;
+		Boolean debug;
 
-	// @Override
-	//public Agent createConfiguredAgent(Map<String, Object> properties)
-		//	throws ConfigurationException {
-		// TODO Auto-generated method stub
-		// return new UnixAgent(UnixMetrics.kAgentGuid, UnixMetrics.kAgentVersion);
-	//}
+		if (properties.containsKey("OS") && !((String) properties.get("OS")).toLowerCase().equals("auto")) {
+			os = ((String) properties.get("OS")).toLowerCase();
+		} else {
+			os = System.getProperty("os.name").toLowerCase();
+		}
+		command = ((String) properties.get("command")).toLowerCase();
+		
+		if (properties.containsKey("debug")) {
+			debug = (Boolean) properties.get("debug");
+		} else {
+			debug = false;
+		}
+		
+    	return new UnixAgent(os, command, debug);
+	}
 }

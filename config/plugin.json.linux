@@ -1,0 +1,28 @@
+{
+  "agents": [
+  	{
+    	"OS": "auto",
+    	"command": "df"
+    },
+    {
+		"OS": "auto",
+		"command": "free"
+    },
+    {
+		"OS": "auto",
+		"command": "iostat"
+    },
+    {
+		"OS": "auto",
+		"command": "vmstat"
+    },
+    {
+		"OS": "auto",
+		"command": "IostatMb"
+    },
+    {
+		"OS": "auto",
+		"command": "VmstatTotals"
+    }
+  ]
+}

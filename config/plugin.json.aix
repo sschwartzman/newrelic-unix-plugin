@@ -1,0 +1,24 @@
+{
+  "agents": [
+  	{
+    	"OS": "auto",
+    	"command": "df"
+    },
+    {
+    	"OS": "auto",
+		"command": "iostat"
+    },
+    {
+    	"OS": "auto",
+		"command": "lparstat"
+    },
+    {
+    	"OS": "auto",
+		"command": "vmstat"
+    },
+    {
+    	"OS": "auto",
+		"command": "VirtualMemory"
+    }
+  ]
+}
