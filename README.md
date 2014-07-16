@@ -1,11 +1,10 @@
-newrelic-unix-plugin
-====================
+# newrelic-unix-plugin
 
-# New Relic Plugin for Unix (AIX, Linux, Solaris/SunOS) systems
+## New Relic Plugin for Unix (AIX, Linux, Solaris/SunOS) systems
 
 ----
 
-## What's new in V2?
+### What's new in V2?
 
 This plugin has been upgraded to V2 of the New Relic Platform Java SDK, which helps to simplify and the installation experience, and adds a couple of key features:
 
@@ -13,10 +12,11 @@ This plugin has been upgraded to V2 of the New Relic Platform Java SDK, which he
 * Plugin configuration is now done through 'plugin.json'
 * Logging configuration has been simplified and consolidated to 'newrelic.json'
 * HTTP/S proxies are now supported using 'newrelic.json'
+  * [Click here for proxy config details](#proxyconfig)
 
 ----
 
-## Requirements
+### Requirements
 
 - A New Relic account. Sign up for a free account [here](http://newrelic.com)
 - A unix server that you want to monitor
@@ -25,33 +25,35 @@ This plugin has been upgraded to V2 of the New Relic Platform Java SDK, which he
 
 ----
 
-## Installation & Usage Overview
+### Installation & Usage Overview
 
 1. Download the latest version of the agent: https://github.com/sschwartzman/newrelic-unix-plugin/archive/master.zip
 2. Unzip on Unix server that you want to monitor
-3. Configure `config/newrelic.json`
-4. Copy `config/plugin.json` from the OS-specific templates in `config` and configure that file
+3. Configure `config/newrelic.json` 
+  * [Click here for newrelic.json config details](#nrjson)
+4. Copy `config/plugin.json` from the OS-specific templates in `config` and configure that file. 
+  * [Click here for plugin.json config details](#pluginjson)
 5. Configure `pluginctl.sh` to have the correct paths to Java and your plugin location
   * Set `PLUGIN_JAVA_HOME` to location of Java on your server (up to but excluding the /bin directory)
   * Set `PLUGIN_PATH` to fully qualified location of the Unix Plugin
 6. Run `./pluginctl.sh start` from command-line
-7. Check `logs/newrelic_unix_plugin.log` for errors
+7. Check logs (in `logs` directory by default) for errors
 8. Login to New Relic UI and find your plugin instance
   * In the New Relic UI, select "Plugins" from the top level accordion menu 
   * Check for the "Unix" plugin in left-hand column.  Click on it, your instance should appear in the list.
 
 ----
 
-### Configuring the `newrelic.json` file
+### <a name="nrjson"></a> Configuring the `newrelic.json` file
 
 The `newrelic.json` is a standardized file containing configuration information that applies to any plugin (e.g. license key, logging, proxy settings), so going forward you will be able to copy a single `newrelic.json` file from one plugin to another.  Below is a list of the configuration fields that can be managed through this file:
 
 #### Configuring your New Relic License Key
 
-* Your New Relic license key is the only required field in the `newrelic.json` file as it is used to determine what account you are reporting to.  If you do not know what your license key is, you can learn about it [here](https://newrelic.com/docs/subscriptions/license-key).
+* Your New Relic license key is the only required field in the `newrelic.json` file as it is used to determine what account you are reporting to.
 * Your license key can be found in New Relic UI, on 'Account settings' page.
 
-##### Example: 
+##### Example
 
 ```
 {
@@ -61,7 +63,7 @@ The `newrelic.json` is a standardized file containing configuration information 
 
 #### Logging configuration
 
-* By default Platform plugins will have their logging turned on; however, you can manage these settings with the following configurations:
+By default, this plugins will have logging turned on; however, you can manage these settings with the following configurations:
 
 * `log_level` - The log level. Valid values: [`debug`, `info`, `warn`, `error`, `fatal`]. Defaults to `info`.
 * `log_file_name` - The log file name. Defaults to `newrelic_plugin.log`.
@@ -76,18 +78,17 @@ The `newrelic.json` is a standardized file containing configuration information 
   "log_level": "info",
   "log_file_path": "/var/log/newrelic",
   "log_limit_in_kbytes": "4096"
-  
 }
 ```
 
-#### Proxy configuration
+#### <a name="proxyconfig"></a> Proxy configuration
 
 If you are running your plugin from a machine that runs outbound traffic through a proxy, you can use the following optional configurations in your `newrelic.json` file:
 
-`proxy_host` - The proxy host (e.g. `webcache.example.com`)
-`proxy_port` - The proxy port (e.g. `8080`).  Defaults to `80` if a `proxy_host` is set
-`proxy_username` - The proxy username
-`proxy_password` - The proxy password
+* `proxy_host` - The proxy host (e.g. `webcache.example.com`)
+* `proxy_port` - The proxy port (e.g. `8080`).  Defaults to `80` if a `proxy_host` is set
+* `proxy_username` - The proxy username
+* `proxy_password` - The proxy password
 
 ##### Examples
 
@@ -109,7 +110,9 @@ If you are running your plugin from a machine that runs outbound traffic through
 }
 ```
 
-### Configuring the `plugin.json` file
+----
+
+###  <a name="pluginjson"></a> Configuring the `plugin.json` file
 
 The `plugin.json` file contains the list of OS level commands that you want to execute as part of the plugin. All current possibilities for each OS are found in the `config/plugin.json.[OS]` template files.
 To properly set up the agent for your OS, copy one of these template to `plugin.json`. 
@@ -117,21 +120,20 @@ To properly set up the agent for your OS, copy one of these template to `plugin.
 Each command will get its own object in the `agents` array, as seen in the Example below.
 `command` is the only required configuration for each object. Commands in lowercase are ones literally defined in the plugin (i.e. 'iostat'), whereas commands in Caps are specialized variations on those commands (i.e. `VirtualMemory`). 
 
-##### Optional Configurations for `plugin.json`
+#### Optional Configurations for `plugin.json`
 
 For each command, the following optional configurations are available:
 
-`OS` - The OS you are monitoring. If left out, it will use the "auto" setting, in which the plugin will detect your OS type. 
- * Normally the "auto" setting works fine. If not, you can define it as any of: [aix, linux, sunos].
-`debug` - This is an extra debug setting to use when a specific command isn't reporting properly. Enabling it will do 2 things:
-  1. It will expose the parsing details of that command
-  2. It will not send metrics to New Relic
-  * Note: Normally, you will use the `debug` setting in newrelic.json to log extra information, such as agent connectivity info. This debug setting is specific to command parsing issues.
-  
-##### Examples 
+* `OS` - The OS you are monitoring. 
+  - If left out, it will use the "auto" setting, in which the plugin will detect your OS type. 
+  - Normally the "auto" setting works fine. If not, you can define it as any of: [aix, linux, sunos].
+* `debug` - This is an extra debug setting to use when a specific command isn't reporting properly. 
+  - Enabling it will expose the parsing details of that command AND it will not send metrics to New Relic.
+  - Normally, you will use the `debug` setting in newrelic.json to log extra information, such as agent connectivity info.
+
+#### Examples 
 
 Normally, this is what your plugin.json should look like (this example is pulled from the linux template):
-
 ```
 {
   "agents": [
@@ -156,9 +158,7 @@ Normally, this is what your plugin.json should look like (this example is pulled
   ]
 }
 ```
-
 Here is an example with the optional configurations:
-
 ```
 {
   "agents": [
@@ -180,7 +180,3 @@ Here is an example with the optional configurations:
   ]
 }
 ```
-
-
-
-
