@@ -69,9 +69,9 @@ start_plugin() {
 	fi
 	
 	echo "Starting $PLUGIN_NAME"
-	PID=`nohup $PLUGIN_JAVA_HOME/bin/java $PLUGIN_JAVA_OPTS $PLUGIN_JAVA_CLASS > >/dev/null 2>&1 & echo $!`
-	
-    if [ -z $PID ]; then
+	nohup $PLUGIN_JAVA_HOME/bin/java $PLUGIN_JAVA_OPTS $PLUGIN_JAVA_CLASS 2>&1 &
+	PID=`echo $!`
+	if [ -z $PID ]; then
     	echo "$PLUGIN_NAME failed to start"
     	exit 1
     else
