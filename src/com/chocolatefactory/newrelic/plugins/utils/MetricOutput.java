@@ -5,7 +5,7 @@ import com.newrelic.metrics.publish.processors.EpochCounter;
 public class MetricOutput {
 
 	private MetricDetail mdetail;
-	private String mname_pre; 
+	private String mname_prefix; 
 	private Number mvalue;
 	private EpochCounter dvalue;
 	
@@ -23,11 +23,11 @@ public class MetricOutput {
 	}
 
 	public String getNamePrefix() {
-		return mname_pre;
+		return mname_prefix;
 	}
 
-	public void setNamePrefix(String mnp) {
-		this.mname_pre = mnp;
+	public void setNamePrefix(String mp) {
+		this.mname_prefix = mp;
 	}
 
 	public Number getValue() {

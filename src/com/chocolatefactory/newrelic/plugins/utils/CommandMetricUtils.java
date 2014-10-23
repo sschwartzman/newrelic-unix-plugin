@@ -5,7 +5,9 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.InputStreamReader;
 import java.util.Map.Entry;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -72,7 +74,7 @@ public class CommandMetricUtils {
 		return br;
 	}
 	
-	public void parseComplexMetricOutput(String thisCommand, HashMap<String, MetricOutput> currentMetrics, HashMap<String,MetricDetail> metricDeets, BufferedReader commandOutput, List<Integer> skipColumns) throws Exception {
+	public void parseComplexMetricOutput(String thisCommand, List<Integer> skipColumns, HashMap<String, MetricOutput> currentMetrics, HashMap<String,MetricDetail> metricDeets, BufferedReader commandOutput) throws Exception {
 		String line, nextLine;
 		String[] metricNames = null, metricValues;	
 		while((line = commandOutput.readLine()) != null) {
@@ -91,8 +93,8 @@ public class CommandMetricUtils {
 				if (metricValues[0].charAt(0) == '-') {
 					metricValues[0] = metricValues[0].substring(1);
 				}
-				logger.debug("Complex - Names (count " + metricNames.length + "): " + Arrays.toString(metricNames));
-				logger.debug("Complex - Values (count " + metricValues.length + "): " + Arrays.toString(metricValues));	
+				//logger.debug("Complex - Names (count " + metricNames.length + "): " + Arrays.toString(metricNames));
+				//logger.debug("Complex - Values (count " + metricValues.length + "): " + Arrays.toString(metricValues));	
 				
 				
 				int j = 1;
@@ -100,52 +102,62 @@ public class CommandMetricUtils {
 				if ((metricNames.length + 1) == metricValues.length) {
 					j = 0;
 				} else if ((metricNames.length + 1) < metricValues.length) {
-					logger.debug("Number of Values (" + metricValues.length + ") exceeds number of Names (" + metricNames.length + ")");
+					//logger.debug("Number of Values (" + metricValues.length + ") exceeds number of Names (" + metricNames.length + ")");
 					ulimit = metricNames.length;
 				} else if (metricNames.length > metricValues.length) {
-					logger.debug("Number of Names (" + metricNames.length + ") exceeds number of Values (" + metricValues.length + ")");
+					//logger.debug("Number of Names (" + metricNames.length + ") exceeds number of Values (" + metricValues.length + ")");
 				}
 
+				// Skipping columns explicitly listed in command's definition
+				// Also skipping columns where name appears more than once (Solaris vmstat "sy" case)
+				ArrayList<String> theseNames = new ArrayList<String>();
 				for (int i=1; i<ulimit; i++) {
-					if(skipColumns == null || !skipColumns.contains(i-1)) {
+					if(!skipColumns.contains(i-1) && !theseNames.contains(metricNames[j])) {
 						insertMetric(currentMetrics, metricDeets, mungeString(thisCommand, metricNames[j]), metricValues[0], metricValues[i]);
 					}
+					theseNames.add(metricNames[j]);
 					j++;
 				}
 			} else if((metricNames != null) && multiValueLinePattern.matcher(line).matches()) {	
-				logger.debug("We have a number line!");
+				//logger.debug("We have a number line!");
 				metricValues = line.split("\\s+");
-				logger.debug("Multi - Names (count " + metricNames.length + "): " + Arrays.toString(metricNames));
-				logger.debug("Multi - Values (count " + metricValues.length + "): " + Arrays.toString(metricValues));
+				//logger.debug("Multi - Names (count " + metricNames.length + "): " + Arrays.toString(metricNames));
+				//logger.debug("Multi - Values (count " + metricValues.length + "): " + Arrays.toString(metricValues));
 				int ulimit = metricValues.length;
 				if (metricNames.length < metricValues.length) {
-					logger.debug("Number of Values (" + metricValues.length + ") exceeds number of Names (" + metricNames.length + ")");
+					//logger.debug("Number of Values (" + metricValues.length + ") exceeds number of Names (" + metricNames.length + ")");
 					ulimit = metricNames.length;
 				} else if (metricNames.length > metricValues.length) {
-					logger.debug("Number of Names (" + metricNames.length + ") exceeds number of Values (" + metricValues.length + ")");
-					
+					//logger.debug("Number of Names (" + metricNames.length + ") exceeds number of Values (" + metricValues.length + ")");	
 				}
+				
+				// Skipping columns explicitly listed in command's definition
+				// Also skipping columns where name appears more than once (Solaris vmstat "sy" case)
+				ArrayList<String> theseNames = new ArrayList<String>();
 				for (int i=0; i<ulimit; i++) {
-					insertMetric(currentMetrics, metricDeets, mungeString(thisCommand, metricNames[i]), "", metricValues[i]);
+					if(!skipColumns.contains(i-1) && !theseNames.contains(metricNames[i])) {
+						insertMetric(currentMetrics, metricDeets, mungeString(thisCommand, metricNames[i]), "", metricValues[i]);
+					}
+					theseNames.add(metricNames[i]);
 				}
 			} else if (complexHeaderLinePattern.matcher(line).matches() && !dashesPattern.matcher(line).matches()) {
 				// logger.debug("Complex Header Line Ahoy!");
 				commandOutput.mark(BUFFER_SIZE);
 				if((nextLine = commandOutput.readLine()) != null) {
 					nextLine = nextLine.trim();
-					logger.debug("Checking next line: " + nextLine);
+					//logger.debug("Checking next line: " + nextLine);
 					if(dashesPattern.matcher(nextLine).matches()) {
-						logger.debug("Line of dashes detected");
+						//logger.debug("Line of dashes detected");
 						continue;
 					} else if (complexValueLinePattern.matcher(nextLine).matches()) {
-						logger.debug("Next line is value line");
+						//logger.debug("Next line is value line");
 						// Next line is values, so reset to 'mark' point such that this line will be read on the next cycle
 						commandOutput.reset();
 					} else if(complexHeaderLinePattern.matcher(nextLine).matches()) {
-						logger.debug("Next line is header line");
+						//logger.debug("Next line is header line");
 						line = nextLine;
 					} else {
-						logger.debug("Next line is value line");
+						//logger.debug("Next line is value line");
 						// Next line is values, so reset to 'mark' point such that this line will be read on the next cycle
 						commandOutput.reset();
 					}
@@ -156,47 +168,53 @@ public class CommandMetricUtils {
 		commandOutput.close();
 	}
 	
-	public void parseMultiMetricOutput(String thisCommand, HashMap<String, MetricOutput> currentMetrics, HashMap<String,MetricDetail> metricDeets, BufferedReader commandOutput, List<Integer> skipColumns) throws Exception {
+	public void parseMultiMetricOutput(String thisCommand, List<Integer> skipColumns, HashMap<String, MetricOutput> currentMetrics, HashMap<String,MetricDetail> metricDeets, BufferedReader commandOutput) throws Exception {
 		String line, nextLine;
 		String[] metricNames = null, metricValues;
 		while((line = commandOutput.readLine()) != null) {
 			line = line.replaceAll("([a-z-]+):", "").replaceAll(" % ", " %").trim();
-			logger.debug("Line: " + line);
+			//logger.debug("Line: " + line);
 			if((metricNames != null) && multiValueLinePattern.matcher(line).matches()) {	
-				logger.debug("We have a number line!");
+				//logger.debug("We have a number line!");
 				metricValues = line.split("\\s+");
-				logger.debug("Multi - Names (count " + metricNames.length + "): " + Arrays.toString(metricNames));
-				logger.debug("Multi - Values (count " + metricValues.length + "): " + Arrays.toString(metricValues));
+				//logger.debug("Multi - Names (count " + metricNames.length + "): " + Arrays.toString(metricNames));
+				//logger.debug("Multi - Values (count " + metricValues.length + "): " + Arrays.toString(metricValues));
 				int ulimit = metricValues.length;
 				if (metricNames.length < metricValues.length) {
-					logger.debug("Number of Values (" + metricValues.length + ") exceeds number of Names (" + metricNames.length + ")");
+					//logger.debug("Number of Values (" + metricValues.length + ") exceeds number of Names (" + metricNames.length + ")");
 					ulimit = metricNames.length;
 				} else if (metricNames.length > metricValues.length) {
-					logger.debug("Number of Names (" + metricNames.length + ") exceeds number of Values (" + metricValues.length + ")");
+					//logger.debug("Number of Names (" + metricNames.length + ") exceeds number of Values (" + metricValues.length + ")");
 				}
+				// Skipping columns explicitly listed in command's definition
+				// Also skipping columns where name appears more than once (Solaris vmstat "sy" case)
+				ArrayList<String> theseNames = new ArrayList<String>();
 				for (int i=0; i<ulimit; i++) {
-					insertMetric(currentMetrics, metricDeets, mungeString(thisCommand, metricNames[i]), "", metricValues[i]);
+					if(!skipColumns.contains(i-1) && !theseNames.contains(metricNames[i])) {
+						insertMetric(currentMetrics, metricDeets, mungeString(thisCommand, metricNames[i]), "", metricValues[i]);
+					}
+					theseNames.add(metricNames[i]);
 				}
 				break;
 			} else if (multiHeaderLinePattern.matcher(line).matches() && !dashesPattern.matcher(line).matches()) {
-				logger.debug("We have a header line!");
+				//logger.debug("We have a header line!");
 				commandOutput.mark(BUFFER_SIZE);
 				if((nextLine = commandOutput.readLine()) != null) {
 					nextLine = nextLine.trim();
-					logger.debug("Checking next line: " + nextLine);
+					//logger.debug("Checking next line: " + nextLine);
 					if(dashesPattern.matcher(nextLine).matches()) {
-						logger.debug("Line of dashes detected");
+						//logger.debug("Line of dashes detected");
 						metricNames = line.replaceAll("[\\w-]+:\\s+", "").split("\\s+");
 						continue;
 					} else if(multiValueLinePattern.matcher(nextLine).matches()) {
-						logger.debug("Next line is value line");
+						//logger.debug("Next line is value line");
 						// Next line is values, so reset to 'mark' point such that this line will be read on the next cycle
 						commandOutput.reset();
 					} else if(multiHeaderLinePattern.matcher(nextLine).matches()) {
-						logger.debug("Next line is actual header line");
+						//logger.debug("Next line is actual header line");
 						line = nextLine;
 					} else {
-						logger.debug("Nothing to see here");
+						//logger.debug("Nothing to see here");
 						continue;
 					}
 					metricNames = line.split("\\s+");
@@ -206,7 +224,7 @@ public class CommandMetricUtils {
 		commandOutput.close();
 	}
 	
-	public HashMap<String,Number> parseSingleMetricOutput(String thisCommand, BufferedReader commandOutput) throws Exception {
+	public HashMap<String,Number> parseSimpleMetricOutput(String thisCommand, BufferedReader commandOutput) throws Exception {
 		HashMap<String,Number> output = new HashMap<String,Number>();
 		
 		String line;
@@ -228,8 +246,40 @@ public class CommandMetricUtils {
 		return output;
 	}
 	
+	public void parseSingleLineMetricOutput(String thisCommand, HashMap<Pattern, String[]> lineMappings, int lineLimit, HashMap<String, MetricOutput> currentMetrics, HashMap<String, MetricDetail> metricDeets, BufferedReader commandOutput) throws Exception {
+		String line;
+		int lineCount = 0;
+		
+		lineloop:
+		while((line = commandOutput.readLine()) != null) {
+			regexloop:
+			for (Map.Entry<Pattern, String[]> lineMapping : lineMappings.entrySet()) {
+				Pattern lineRegex = lineMapping.getKey();
+				String[] lineColumns = lineMapping.getValue();
+				Matcher lineMatch = lineRegex.matcher(line.trim());
+				if (lineMatch.matches()) {
+					for(int l = 0; l < lineMatch.groupCount(); l++)
+						insertMetric(currentMetrics, metricDeets, mungeString(thisCommand, lineColumns[l]), "", lineMatch.group(l+1));
+					// Once we find a valid mapping for this line, stop looking for matches for this line.
+					break regexloop;
+				}
+			}
+		
+			// For commands like 'top', we probably only need the first few lines.
+			if (lineLimit > 0) {
+				lineCount++;
+				if (lineCount >= lineLimit)
+					break lineloop;
+			}
+		}
+	}
+	
 	public void insertMetric(HashMap<String, MetricOutput> currentMetrics, HashMap<String,MetricDetail> metricDeets, 
 			String metricName, String metricPrefix, String metricValueString) {
+		
+		// Set Metric names to lower-case to limit headache of OS version differences
+		String metricNameLower = metricName.toLowerCase();
+		
 		String fullMetricName;
 		double metricValue;
 		
@@ -241,17 +291,17 @@ public class CommandMetricUtils {
 		}
 		
 		if(!metricPrefix.isEmpty()) {
-			fullMetricName = mungeString(metricPrefix, metricName);
+			fullMetricName = mungeString(metricPrefix, metricNameLower);
 		} else {
-			fullMetricName = metricName;
+			fullMetricName = metricNameLower;
 		}
 		
 		if(currentMetrics.containsKey(fullMetricName)) {
 			MetricOutput thisMetric = currentMetrics.get(fullMetricName);
 			thisMetric.setValue(metricValue);
 			currentMetrics.put(fullMetricName, thisMetric);
-		} else if (metricDeets.containsKey(metricName)) {
-			currentMetrics.put(fullMetricName, new MetricOutput(metricDeets.get(metricName), metricPrefix, metricValue));
+		} else if (metricDeets.containsKey(metricNameLower)) {
+			currentMetrics.put(fullMetricName, new MetricOutput(metricDeets.get(metricNameLower), metricPrefix, metricValue));
 		}		
 	}
 
@@ -259,7 +309,7 @@ public class CommandMetricUtils {
 		return str1 + "/" + str2;
 	}
 	
-	public String getMetricType(String metricInput) {
+	public String getSimpleMetricType(String metricInput) {
 		if (metricInput.contains("percentage")) {
 			return "%";
 		} else {
@@ -295,7 +345,7 @@ public class CommandMetricUtils {
 		Iterator<Entry<String, Number>> outputIterator = outputMetrics.entrySet().iterator();  
 		while (outputIterator.hasNext()) { 
 			Map.Entry<String, Number> pairs = outputIterator.next();
-			logger.debug(pairs.getKey() + ", " + getMetricType(pairs.getKey()) + ", " + pairs.getValue());   
+			logger.debug(pairs.getKey() + ", " + getSimpleMetricType(pairs.getKey()) + ", " + pairs.getValue());   
 		}
 	}
 }

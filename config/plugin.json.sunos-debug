@@ -2,37 +2,32 @@
     "agents": [
         {
             "OS": "auto",
-            "debug": false,
+            "debug": true,
             "command": "df"
         },
         {
             "OS": "auto",
-            "debug": false,
+            "debug": true,
             "command": "iostat"
         },
         {
             "OS": "auto",
-            "debug": false,
-            "command": "lparstat"
+            "debug": true,
+            "command": "swap"
         },
         {
             "OS": "auto",
-            "debug": false,
-            "command": "svmon"
+            "debug": true,
+            "command": "top"
         },
         {
             "OS": "auto",
-            "debug": false,
-            "command": "uptime"
-        },
-        {
-            "OS": "auto",
-            "debug": false,
+            "debug": true,
             "command": "vmstat"
         },
         {
             "OS": "auto",
-            "debug": false,
+            "debug": true,
             "command": "VmstatTotals"
         }
     ]

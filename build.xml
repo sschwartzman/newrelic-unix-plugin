@@ -6,7 +6,7 @@
               as the first entry and export the buildfile again. -->
 <project basedir="." default="build" name="newrelic_unix_plugin">
     <property environment="env"/>
-    <property name="ECLIPSE_HOME" value="C:\Program Files\CA APM\Introscope9.1.0.0\product\enterprisemanager\plugins"/>
+    <property name="ECLIPSE_HOME" value="/Applications/eclipse"/>
     <property name="metrics_publish_java.location" value="../metrics_publish_java"/>
     <property name="debuglevel" value="source,lines,vars"/>
     <property name="target" value="1.5"/>
@@ -25,7 +25,7 @@
         <path refid="metrics_publish_java.classpath"/>
         <pathelement location="lib/config-1.0.1.jar"/>
         <pathelement location="lib/json-simple-1.1.1.jar"/>
-        <pathelement location="lib/metrics_publish-1.2.2.jar"/>
+        <pathelement location="lib/metrics_publish-2.0.0.jar"/>
     </path>
     <target name="init">
         <mkdir dir="bin"/>
@@ -42,7 +42,7 @@
     <target depends="clean" name="cleanall">
         <ant antfile="build.xml" dir="${metrics_publish_java.location}" inheritAll="false" target="clean"/>
     </target>
-    <target depends="build-subprojects,build-project" name="build"/>
+    <target depends="build-project" name="build"/>
     <target name="build-subprojects">
         <ant antfile="build.xml" dir="${metrics_publish_java.location}" inheritAll="false" target="build-project">
             <propertyset>

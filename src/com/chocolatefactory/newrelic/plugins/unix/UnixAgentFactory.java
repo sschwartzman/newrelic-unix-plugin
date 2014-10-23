@@ -23,7 +23,7 @@ public class UnixAgentFactory extends AgentFactory {
 		} else {
 			os = System.getProperty("os.name").toLowerCase();
 		}
-		command = ((String) properties.get("command")).toLowerCase();
+		command = ((String) properties.get("command"));
 		
 		if (properties.containsKey("debug")) {
 			debug = (Boolean) properties.get("debug");

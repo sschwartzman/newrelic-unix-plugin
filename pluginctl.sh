@@ -44,7 +44,7 @@ stop_plugin() {
     echo "Stopping $PLUGIN_NAME"
     PID=`cat $PLUGIN_PID_FILE`
     if [ -f $PLUGIN_PID_FILE ]; then
-        kill -HUP $PID
+        kill -9 $PID
         echo "$PLUGIN_NAME running with PID $PID stopped"
         rm -f $PLUGIN_PID_FILE
     else

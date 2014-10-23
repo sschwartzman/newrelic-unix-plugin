@@ -2,22 +2,22 @@
     "agents": [
         {
             "OS": "auto",
-            "debug": false,
+            "debug": true,
             "command": "df"
         },
         {
             "OS": "auto",
-            "debug": false,
+            "debug": true,
             "command": "iostat"
         },
         {
             "OS": "auto",
-            "debug": false,
+            "debug": true,
             "command": "lparstat"
         },
         {
             "OS": "auto",
-            "debug": false,
+            "debug": true,
             "command": "svmon"
         },
         {
@@ -27,12 +27,12 @@
         },
         {
             "OS": "auto",
-            "debug": false,
+            "debug": true,
             "command": "vmstat"
         },
         {
             "OS": "auto",
-            "debug": false,
+            "debug": true,
             "command": "VmstatTotals"
         }
     ]

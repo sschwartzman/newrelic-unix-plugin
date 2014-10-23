@@ -15,25 +15,41 @@ import com.newrelic.metrics.publish.Agent;
 
 public class UnixAgent extends Agent {
     
+	// Required for New Relic Plugins
+	public static final String kAgentVersion = "0.2";
+	public static final String kAgentGuid = "com.chocolatefactory.newrelic.plugins.unix";
+			
 	CommandMetricUtils metricUtils;
 	boolean isDebug = false;
-	
-	UnixMetrics umetrics = new UnixMetrics();
+	UnixMetrics umetrics;
 	HashMap<String, MetricOutput> thisMetricOutput = new HashMap<String, MetricOutput>();
 	HashMap<String, Number> simpleMetricOutput = new HashMap<String, Number>();
-	String commandName, fullCommand;
+	String commandName;
 	UnixCommand thisCommand;
 	private static final Logger logger = Logger.getLogger(UnixAgent.class);
 	
 	public UnixAgent(String os, String command, Boolean debug) {
-		super(UnixMetrics.kAgentGuid, UnixMetrics.kAgentVersion);
-		metricUtils = new CommandMetricUtils();
-		fullCommand = umetrics.mungeString(os, command);
+		super(kAgentGuid, kAgentVersion);
 		commandName = command;
-		isDebug = debug;
-		if (umetrics.allCommands.containsKey(fullCommand)) {
-			thisCommand = umetrics.allCommands.get(fullCommand);			
+		
+		if(os.contains("linux")) {
+			umetrics = new LinuxMetrics();
+		} else if (os.contains("aix")) {
+			umetrics = new AIXMetrics();
+		} else if (os.contains("sunos")) {
+			umetrics = new SolarisMetrics();
 		} else {
+			logger.error("Unix Agent could not detect an OS version that it supports.");
+			logger.error("OS detected: " + os);
+			return;
+		}
+		
+		metricUtils = new CommandMetricUtils();
+		isDebug = debug;
+		if (umetrics.allCommands.containsKey(command)) {
+			thisCommand = umetrics.allCommands.get(command);
+		} else {
+			logger.error("Unix Agent does not support this command for your OS: "+ commandName);
 			thisCommand = null;
 		}
 	}
@@ -50,40 +66,56 @@ public class UnixAgent extends Agent {
     
 	@Override
 	public void pollCycle() {
-		if (thisCommand != null) {
-			BufferedReader commandReader = metricUtils.executeCommand(thisCommand.getCommand(), false);
-			if (commandReader == null) {
-				logger.error("Error: Command response is null. No result processing attempted.");
-			} else {
-				try {
-					if (thisCommand.getType().equals(UnixMetrics.commandTypes.COMPLEXDIM)) {
-						metricUtils.parseComplexMetricOutput(commandName, thisMetricOutput, umetrics.allMetrics, commandReader, thisCommand.getSkipColumns());
-						if (isDebug) {
-							metricUtils.printMetrics(thisMetricOutput);
-						} else {
-							reportMetrics(thisMetricOutput);				
-						}
-					} else if (thisCommand.getType().equals(UnixMetrics.commandTypes.MULTIDIM)) {
-						metricUtils.parseMultiMetricOutput(commandName, thisMetricOutput, umetrics.allMetrics, commandReader, thisCommand.getSkipColumns());
-						if (isDebug) {
-							metricUtils.printMetrics(thisMetricOutput);
-						} else {
-							reportMetrics(thisMetricOutput);				
-						}
-					} else if (thisCommand.getType().equals(UnixMetrics.commandTypes.SINGLEDIM)) {
-						simpleMetricOutput = metricUtils.parseSingleMetricOutput(commandName, commandReader);
-						if (isDebug) {
-							metricUtils.printMetricsSimple(simpleMetricOutput);
-						} else {
-							reportMetricsSimple(simpleMetricOutput);				
-						}
-					}
-					
-				} catch (Exception e) {
-					logger.error("Error: Parsing of " + thisCommand.getCommand() + "could not be completed.");
-					e.printStackTrace();
+		if (thisCommand == null) {
+			logger.error("Unix Agent does not support this command for your OS: "+ commandName);
+			return;
+		}
+		
+		BufferedReader commandReader = metricUtils.executeCommand(thisCommand.getCommand(), false);
+		if (commandReader == null) {
+			logger.error("Error: Command response is null. No result processing attempted.");
+			return;
+		} 
+		
+		// public void parseSingleLineMetricOutput(String thisCommand, HashMap<String, String[]> lineMappings, int lineLimit, HashMap<String, MetricOutput> currentMetrics, 
+			// HashMap<String, MetricDetail> metricDeets, BufferedReader commandOutput) throws Exception {
+		
+		try {
+			if (thisCommand.getType().equals(UnixMetrics.commandTypes.COMPLEXDIM)) {
+				metricUtils.parseComplexMetricOutput(commandName, thisCommand.getSkipColumns(), thisMetricOutput, umetrics.allMetrics, commandReader);
+				if (isDebug) {
+					metricUtils.printMetrics(thisMetricOutput);
+				} else {
+					reportMetrics(thisMetricOutput);				
 				}
+			} else if (thisCommand.getType().equals(UnixMetrics.commandTypes.MULTIDIM)) {
+				metricUtils.parseMultiMetricOutput(commandName, thisCommand.getSkipColumns(), thisMetricOutput, umetrics.allMetrics, commandReader);
+				if (isDebug) {
+					metricUtils.printMetrics(thisMetricOutput);
+				} else {
+					reportMetrics(thisMetricOutput);				
+				}
+			} else if (thisCommand.getType().equals(UnixMetrics.commandTypes.SIMPLEMULTIDIM)) {
+				simpleMetricOutput = metricUtils.parseSimpleMetricOutput(commandName, commandReader);
+				if (isDebug) {
+					metricUtils.printMetricsSimple(simpleMetricOutput);
+				} else {
+					reportMetricsSimple(simpleMetricOutput);				
+				}
+			} else if (thisCommand.getType().equals(UnixMetrics.commandTypes.SINGLELINEDIM)) {
+				metricUtils.parseSingleLineMetricOutput(commandName, thisCommand.getLineMappings(), thisCommand.getLineLimit(), thisMetricOutput, umetrics.allMetrics, commandReader);
+				if (isDebug) {
+					metricUtils.printMetrics(thisMetricOutput);
+				} else {
+					reportMetrics(thisMetricOutput);				
+				}
+			} else {
+				logger.error("Command Type " + thisCommand.getType() + " is invalid.");
+				return;
 			}
+		} catch (Exception e) {
+			logger.error("Error: Parsing of " + thisCommand.getCommand() + "could not be completed.");
+			e.printStackTrace();
 		}
 	}
 	
@@ -105,7 +137,7 @@ public class UnixAgent extends Agent {
 		Iterator<Entry<String, Number>> outputIterator = outputMetrics.entrySet().iterator();  
 		while (outputIterator.hasNext()) { 
 			Map.Entry<String, Number> pairs = outputIterator.next();
-			String metricType = metricUtils.getMetricType(pairs.getKey());
+			String metricType = metricUtils.getSimpleMetricType(pairs.getKey());
 			reportMetric(pairs.getKey(), metricType, pairs.getValue());
 		}
 	}
