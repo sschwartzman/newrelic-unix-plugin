@@ -26,7 +26,7 @@ public class CommandMetricUtils {
 	private Pattern multiHeaderLinePattern = Pattern.compile("\\s*[\\w-%]+(\\s+[\\w-%]+)+");
 	private Pattern multiValueLinePattern = Pattern.compile("\\s*[\\d.-]+(\\s+[\\d.-]+)+");
 	private Pattern complexHeaderLinePattern = Pattern.compile("\\s*[\\w-_%:]+(\\s+[\\w-_%]+)*");
-	private Pattern complexValueLinePattern = Pattern.compile("\\s*[\\w-_:]*(\\s+[\\d.-]+[%]*)+(\\s+[\\w-_]*)*");
+	private Pattern complexValueLinePattern = Pattern.compile("\\s*[^\\n\\s]*(\\s+[\\d.-]+[%]*)+(\\s+[^\\d]+.*)*");
 	
 	int BUFFER_SIZE = 1000;
 	
