@@ -1,7 +1,7 @@
 {
     "license_key": "YOUR_LICENSE_KEY_HERE",
-    "log_level": "info",
-    "log_file_name": "newrelic_unix_plugin.log",
+    "log_level": "debug",
+    "log_file_name": "newrelic_unix_plugin_debug.log",
     "log_file_path": "logs",
     "log_limit_in_kbytes": 10000
 }
