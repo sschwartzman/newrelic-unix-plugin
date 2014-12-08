@@ -44,9 +44,11 @@ public class LinuxMetrics extends UnixMetrics {
 		** LINUX-specific Metrics
 		*/
 		allMetrics.put(mungeString("df", "1k-blocks"), new MetricDetail("Disk", "Total", "kb", metricTypes.NORMAL, 1));
+		allMetrics.put(mungeString("df", "1024-blocks"), new MetricDetail("Disk", "Total", "kb", metricTypes.NORMAL, 1));
 		allMetrics.put(mungeString("df", "used"), new MetricDetail("Disk", "Used", "kb", metricTypes.NORMAL, 1));
 		allMetrics.put(mungeString("df", "available"), new MetricDetail("Disk", "Free", "kb", metricTypes.NORMAL, 1));
 		allMetrics.put(mungeString("df", "use%"), new MetricDetail("Disk", "Used", "%", metricTypes.NORMAL, 1));
+		allMetrics.put(mungeString("df", "capacity"), new MetricDetail("Disk", "Used", "%", metricTypes.NORMAL, 1));
 		
 		// free is unnecessary if using 'top'
 		allMetrics.put(mungeString("free", "total"), new MetricDetail("MemoryDetailed", "Total", "kb", metricTypes.NORMAL, 1));

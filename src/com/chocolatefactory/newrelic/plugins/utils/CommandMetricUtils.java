@@ -20,7 +20,7 @@ import com.newrelic.metrics.publish.util.Logger;
 public class CommandMetricUtils {
 
 	private Runtime rt;
-	
+	private Pattern isNumberPattern = Pattern.compile("[\\s-]*\\d+\\.*\\d*");
 	private Pattern dashesPattern = Pattern.compile("\\s*[\\w-]+(\\s+[-]+)+(\\s[\\w-]*)*");
 	private Pattern singleMetricLinePattern = Pattern.compile("\\S*(\\d+)\\s+([\\w-%\\(\\)])(\\s{0,1}[\\w-%\\(\\)])*");
 	private Pattern multiHeaderLinePattern = Pattern.compile("\\s*[\\w-%]+(\\s+[\\w-%]+)+");
@@ -88,35 +88,55 @@ public class CommandMetricUtils {
 			logger.debug("complexValueLinePattern: " + complexValueLinePattern.matcher(line).matches());	
 			if((metricNames != null) && complexValueLinePattern.matcher(line).matches()) {	
 				logger.debug("FOUND: Complex Value");
-				// Assume 1st column is prefix to metric
-				metricValues = line.replaceAll("/", "-").replaceAll("[%:]+ ", " ").split("\\s+");
-				if (metricValues[0].charAt(0) == '-') {
-					metricValues[0] = metricValues[0].substring(1);
-				}
+				
+				metricValues = line.replaceAll("/", "-").replaceAll("[%:]+ ", " ").split("\\s+");	
 				logger.debug("Complex Names (count " + metricNames.length + "): " + Arrays.toString(metricNames));
 				logger.debug("Complex Values (count " + metricValues.length + "): " + Arrays.toString(metricValues));	
-				
-				
-				int j = 1;
-				int ulimit = metricValues.length;
-				if ((metricNames.length + 1) == metricValues.length) {
-					j = 0;
-				} else if ((metricNames.length + 1) < metricValues.length) {
-					logger.debug("Number of Values (" + metricValues.length + ") exceeds number of Names (" + metricNames.length + ")");
-					ulimit = metricNames.length;
-				} else if (metricNames.length > metricValues.length) {
-					logger.debug("Number of Names (" + metricNames.length + ") exceeds number of Values (" + metricValues.length + ")");
-				}
 
-				// Skipping columns explicitly listed in command's definition
-				// Also skipping columns where name appears more than once (Solaris vmstat "sy" case)
-				ArrayList<String> theseNames = new ArrayList<String>();
-				for (int i=1; i<ulimit; i++) {
-					if(!skipColumns.contains(i-1) && !theseNames.contains(metricNames[j])) {
-						insertMetric(currentMetrics, metricDeets, mungeString(thisCommand, metricNames[j]), metricValues[0], metricValues[i]);
+				// Check if 1st column is prefix
+				if(isNumberPattern.matcher(metricValues[0]).matches()) {
+					logger.debug("First column is part of metric name: " + metricValues[0]);
+					if (metricValues[0].charAt(0) == '-') {
+						metricValues[0] = metricValues[0].substring(1);
 					}
-					theseNames.add(metricNames[j]);
-					j++;
+													
+					int j = 1;
+					int ulimit = metricValues.length;
+					if ((metricNames.length + 1) == metricValues.length) {
+						j = 0;
+					} else if ((metricNames.length + 1) < metricValues.length) {
+						logger.debug("Number of Values (" + metricValues.length + ") exceeds number of Names (" + metricNames.length + ")");
+						ulimit = metricNames.length;
+					} else if (metricNames.length > metricValues.length) {
+						logger.debug("Number of Names (" + metricNames.length + ") exceeds number of Values (" + metricValues.length + ")");
+					}
+
+					// Skipping columns explicitly listed in command's definition
+					for (int i=1; i<ulimit; i++) {
+						if(!skipColumns.contains(i-1)) {
+							insertMetric(currentMetrics, metricDeets, mungeString(thisCommand, metricNames[j]), metricValues[0], metricValues[i]);
+						}
+						j++;
+					}
+				// 1st column isn't prefix = simpler parsing!
+				} else {
+					int j = 0;
+					int ulimit = metricValues.length;
+					if(metricNames.length > metricValues.length) {
+						logger.debug("Number of Names (" + metricNames.length + ") exceeds number of Values (" + metricValues.length + ")");
+						j = 1;
+					} else if (metricNames.length < metricValues.length) {
+						logger.debug("Number of Values (" + metricValues.length + ") exceeds number of Names (" + metricNames.length + ")");
+						ulimit = metricNames.length;
+					}
+
+					// Skipping columns explicitly listed in command's definition
+					for (int i=0; i<ulimit; i++) {
+						if(!skipColumns.contains(i-1)) {
+							insertMetric(currentMetrics, metricDeets, mungeString(thisCommand, metricNames[j]), "", metricValues[i]);
+						}
+						j++;
+					}
 				}
 			} else if((metricNames != null) && multiValueLinePattern.matcher(line).matches()) {	
 				logger.debug("FOUND: Multi Value");
