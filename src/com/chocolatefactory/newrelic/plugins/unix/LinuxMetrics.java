@@ -17,7 +17,7 @@ public class LinuxMetrics extends UnixMetrics {
 		/*
 		** LINUX Commands
 		*/
-		allCommands.put("df", new UnixCommand(new String[]{"df","-k"}, commandTypes.COMPLEXDIM, defaultignores));
+		allCommands.put("df", new UnixCommand(new String[]{"df","-Pk"}, commandTypes.COMPLEXDIM, defaultignores));
 		// Free is unnecessary if using 'top', memory figures are the same
 		allCommands.put("free", new UnixCommand(new String[]{"free"}, commandTypes.COMPLEXDIM, defaultignores));
 		allCommands.put("iostat", new UnixCommand(new String[]{"iostat","-k"}, commandTypes.COMPLEXDIM, defaultignores));
