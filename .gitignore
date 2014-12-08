@@ -5,3 +5,5 @@
 newrelic_unix_plugin_V2_07162014.tar.gz
 
 pluginctl_old.sh
+
+lib/plugin_jar.jardesc
