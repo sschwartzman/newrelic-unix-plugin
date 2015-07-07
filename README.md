@@ -30,7 +30,7 @@ This plugin has been upgraded to V2.0.1 of the New Relic Platform Java SDK, whic
 
 ### Installation & Usage Overview
 
-1. Download the latest version of the agent: https://github.com/sschwartzman/newrelic-unix-plugin/blob/master/dist/newrelic_unix_plugin.tar.gz
+1. Download the latest version of the agent: [newrelic_unix_plugin.tar.gz](https://github.com/sschwartzman/newrelic-unix-plugin/blob/master/dist/newrelic_unix_plugin.tar.gz?raw=true)
 2. Gunzip & untar on Unix server that you want to monitor
 3. Configure `config/newrelic.json` 
   * [Click here for newrelic.json config details](#nrjson)
