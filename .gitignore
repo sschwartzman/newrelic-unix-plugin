@@ -1,4 +1,4 @@
+/bin/*
+/.settings/*
 *.class
 *.log
-bin/*
-.settings/*
