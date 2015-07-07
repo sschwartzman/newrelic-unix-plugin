@@ -10,6 +10,16 @@
             "debug": true,
             "command": "iostat"
         },
+                {
+            "OS": "auto",
+            "debug": true,
+            "command": "iostatCPU"
+        },
+        {
+            "OS": "auto",
+            "debug": true,
+            "command": "netstat"
+        },
         {
             "OS": "auto",
             "debug": true,

@@ -4,9 +4,12 @@
 
 ----
 
-### What's new in V2?
+### What's new in V3?
 
-This plugin has been upgraded to V2 of the New Relic Platform Java SDK, which helps to simplify and the installation experience, and adds a couple of key features:
+* Support for "netstat" commands on all platforms!
+* MUCH improved parsing of commands, now using regex!
+
+This plugin has been upgraded to V2.0.1 of the New Relic Platform Java SDK, which helps to simplify and the installation experience, and adds a couple of key features:
 
 * 'newrelic.properties' file is now 'newrelic.json'
 * Plugin configuration is now done through 'plugin.json'
@@ -27,8 +30,8 @@ This plugin has been upgraded to V2 of the New Relic Platform Java SDK, which he
 
 ### Installation & Usage Overview
 
-1. Download the latest version of the agent: https://github.com/sschwartzman/newrelic-unix-plugin/archive/master.zip
-2. Unzip on Unix server that you want to monitor
+1. Download the latest version of the agent: https://github.com/sschwartzman/newrelic-unix-plugin/blob/master/dist/newrelic_unix_plugin.tar.gz
+2. Gunzip & untar on Unix server that you want to monitor
 3. Configure `config/newrelic.json` 
   * [Click here for newrelic.json config details](#nrjson)
 4. Copy `config/plugin.json` from the OS-specific templates in `config` and configure that file. 
@@ -66,9 +69,10 @@ The `newrelic.json` is a standardized file containing configuration information 
 By default, this plugins will have logging turned on; however, you can manage these settings with the following configurations:
 
 * `log_level` - The log level. Valid values: [`debug`, `info`, `warn`, `error`, `fatal`]. Defaults to `info`.
+	* `debug` will expose the metrics being collected by each command.
 * `log_file_name` - The log file name. Defaults to `newrelic_plugin.log`.
 * `log_file_path` - The log file path. Defaults to `logs`.
-* `log_limit_in_kbytes` - The log file limit in kilobytes. Defaults to `25600` (25 MB). If limit is set to `0`, the log file size would not be limited.
+* `log_limit_in_kbytes` - The log file limit in kilobytes. Defaults to `25600` (25 MB). If limit is set to `0`, the log file size will not be limited.
 
 ##### Example
 
@@ -128,55 +132,62 @@ For each command, the following optional configurations are available:
   - If left out, it will use the "auto" setting, in which the plugin will detect your OS type. 
   - Normally the "auto" setting works fine. If not, you can define it as any of: [aix, linux, sunos].
 * `debug` - This is an extra debug setting to use when a specific command isn't reporting properly. 
-  - Enabling it will expose the parsing details of that command AND it will not send metrics to New Relic.
-  - Normally, you will use the `debug` setting in newrelic.json to log extra information, such as agent connectivity info.
+  - Enabling it will prevent metrics from being sent to New Relic.
+  - Seeing metrics in logs also requires setting `"log_level": "debug"` in `newrelic.json`.
 
 #### Examples 
 
 Normally, this is what your plugin.json should look like (this example is pulled from the linux template):
 ```
 {
-  "agents": [
-  	{
-    	"command": "df"
-    },
-    {
-		"command": "free"
-    },
-    {
-		"command": "iostat"
-    },
-    {
-		"command": "vmstat"
-    },
-    {
-		"command": "IostatMb"
-    },
-    {
-		"command": "VmstatTotals"
-    }
-  ]
+    "agents": [
+        {
+            "command": "df"
+        },
+        {
+            "command": "iostat"
+        },
+        {
+            "command": "top"
+        },
+        {
+            "command": "vmstat"
+        },
+        {
+            "command": "VmstatTotals"
+        }
+    ]
 }
 ```
 Here is an example with the optional configurations:
 ```
 {
-  "agents": [
-  	{
-    	"OS": "linux",
-    	"command": "df",
-    	"debug": true
-    },
-    {
-		"OS": "linux",
-		"command": "free",
-		"debug": false
-    },
-    {
-		"OS": "linux",
-		"command": "iostat"
-		"debug": true
-    }
-  ]
+    "agents": [
+        {
+            "OS": "auto",
+            "debug": true,
+            "command": "df"
+        },
+        {
+            "OS": "auto",
+            "debug": true,
+            "command": "iostat"
+        },
+        {
+            "OS": "auto",
+            "debug": true,
+            "command": "top"
+        },
+        {
+            "OS": "auto",
+            "debug": true,
+            "command": "vmstat"
+        },
+        {
+            "OS": "auto",
+            "debug": true,
+            "command": "VmstatTotals"
+        }
+    ]
 }
 ```

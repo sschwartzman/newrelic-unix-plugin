@@ -1,13 +1,13 @@
 package com.chocolatefactory.newrelic.plugins.utils;
 
-import com.newrelic.metrics.publish.processors.EpochCounter;
+import com.newrelic.metrics.publish.processors.EpochProcessor;
 
 public class MetricOutput {
 
 	private MetricDetail mdetail;
 	private String mname_prefix; 
 	private Number mvalue;
-	private EpochCounter dvalue;
+	private EpochProcessor dvalue;
 	
 	public MetricOutput(MetricDetail md, String mp, Number mv) {
 		setNamePrefix(mp);
@@ -16,7 +16,8 @@ public class MetricOutput {
 		// Initialize EpochCounter if this will measure a delta. 
 		// Precedes setValue such that the initial value gets set appropriately.
 		if (this.getMetricDetail().getType().equals(MetricDetail.metricTypes.DELTA)) {
-			dvalue = new EpochCounter();
+			dvalue = new EpochProcessor();
+			dvalue.process(mv);
 		}
 		
 		setValue(mv);
@@ -35,12 +36,23 @@ public class MetricOutput {
 	}
 
 	public void setValue(Number mv) {
-		if (this.getMetricDetail().getType().equals(MetricDetail.metricTypes.DELTA)) {
-			this.mvalue = dvalue.process(mv);
-		} else {
-			this.mvalue = mv;
+		switch(this.getMetricDetail().getType()) {
+			case DELTA:
+				this.mvalue = dvalue.process(mv);
+				if(this.mvalue == null) {
+					this.mvalue = (float) 0;
+				}
+				break;
+			case INCREMENT:
+				this.mvalue = mv.floatValue() + this.getValue().floatValue();
+				break;
+			case NORMAL:
+				this.mvalue = mv;
+				break;
+			default:
+				this.mvalue = mv;
+				break;
 		}
-		this.mvalue = mv;
 	}
 
 	public MetricDetail getMetricDetail() {

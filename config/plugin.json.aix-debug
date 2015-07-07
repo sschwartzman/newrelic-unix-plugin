@@ -8,6 +8,11 @@
         {
             "OS": "auto",
             "debug": true,
+            "command": "entstat"
+        },
+        {
+            "OS": "auto",
+            "debug": true,
             "command": "iostat"
         },
         {
@@ -18,11 +23,16 @@
         {
             "OS": "auto",
             "debug": true,
+            "command": "netstat"
+        },
+        {
+            "OS": "auto",
+            "debug": true,
             "command": "svmon"
         },
         {
             "OS": "auto",
-            "debug": false,
+            "debug": true,
             "command": "uptime"
         },
         {
