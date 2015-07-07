@@ -7,17 +7,18 @@
 
 PLUGIN_PATH=/opt/newrelic/newrelic_unix_plugin
 
-# LINUX:
-PLUGIN_JAVA_HOME=/usr
 # AIX:
 # PLUGIN_JAVA_HOME=/usr/java6
+# LINUX & SOLARIS:
+PLUGIN_JAVA_HOME=/usr
 
 ### Do not change these unless instructed!
 
 PLUGIN_NAME="New Relic Unix Plugin"
+PLUGIN_LOG_FILE=$PLUGIN_PATH/logs/plugin.log
 PLUGIN_PID_FILE=$PLUGIN_PATH/logs/plugin.pid
 PLUGIN_JAVA_CLASS=com.chocolatefactory.newrelic.plugins.unix.Main
-PLUGIN_JAVA_OPTS="-cp $PLUGIN_PATH/bin/newrelic_unix_plugin.jar:$PLUGIN_PATH/lib/metrics_publish-2.0.0.jar:$PLUGIN_PATH/lib/json-simple-1.1.1.jar"
+PLUGIN_JAVA_OPTS="-Xms16m -Xmx128m -cp $PLUGIN_PATH/bin/newrelic_unix_plugin.jar:$PLUGIN_PATH/lib/metrics_publish-2.0.1.jar:$PLUGIN_PATH/lib/json-simple-1.1.1.jar"
 PLUGIN_RESTART_ON_START=false
 
 check_plugin_status() {
@@ -41,18 +42,21 @@ check_plugin_status() {
 }
 
 stop_plugin() {
-    echo "Stopping $PLUGIN_NAME"
-    PID=`cat $PLUGIN_PID_FILE`
-    if [ -f $PLUGIN_PID_FILE ]; then
+	check_plugin_status
+	procstatus=$?
+	if [ "$procstatus" -eq 1 ] && [ -f $PLUGIN_PID_FILE ]; then
+	    echo "Stopping $PLUGIN_NAME"
+	    PID=`cat $PLUGIN_PID_FILE`
         kill -9 $PID
         echo "$PLUGIN_NAME running with PID $PID stopped"
-        rm -f $PLUGIN_PID_FILE
+		rm -f $PLUGIN_PID_FILE
     else
-        echo "$PLUGIN_PID_FILE not found"
+        echo "$PLUGIN_NAME is not running or $PLUGIN_PID_FILE not found"
     fi
 }
 
 start_plugin() {
+	mkdir -p $PLUGIN_PATH/logs
 	check_plugin_status
 	procstatus=$?
 	if [ "$procstatus" -eq 1 ]; then
@@ -69,7 +73,7 @@ start_plugin() {
 	fi
 	
 	echo "Starting $PLUGIN_NAME"
-	nohup $PLUGIN_JAVA_HOME/bin/java $PLUGIN_JAVA_OPTS $PLUGIN_JAVA_CLASS 2>&1 &
+	nohup $PLUGIN_JAVA_HOME/bin/java $PLUGIN_JAVA_OPTS $PLUGIN_JAVA_CLASS > $PLUGIN_LOG_FILE 2>&1 &
 	PID=`echo $!`
 	if [ -z $PID ]; then
     	echo "$PLUGIN_NAME failed to start"

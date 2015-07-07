@@ -18,7 +18,9 @@ public abstract class UnixMetrics {
 	public static final char kMetricTreeDivider='/';
 	public static final float kGigabytesToBytes=1073741824;
 	public static final float kMegabytesToBytes=1048576;
-
+	public static final String[] kInterfaceCommand = new String[]{"ifconfig", "-l"};
+	public static final String kColumnMetricName = "THIS_COLUMN_IS_PART_OF_METRIC_NAME";
+	
 	public HashMap<String, MetricDetail> allMetrics = new HashMap<String, MetricDetail>();
 	public HashMap<String, UnixCommand> allCommands = new HashMap<String, UnixCommand>();
 	// Use defaultignores in "new UnixCommand(...)" when retrieving all columns of a table,
@@ -28,7 +30,7 @@ public abstract class UnixMetrics {
 	// COMPLEXDIM: multiple metrics per line, can have words in value lines
 	// MULTIDIM: multiple metrics per line, can only have numbers (or dashes) in line
 	// SINGLEDIM: single metric per line (usually "name value")
-	public enum commandTypes{COMPLEXDIM, MULTIDIM, SIMPLEMULTIDIM, SINGLELINEDIM};
+	public static enum commandTypes{INTERFACEDIM, REGEXDIM, SIMPLEDIM};
 	
 	class UnixCommand {
 		private String[] command;
@@ -87,8 +89,4 @@ public abstract class UnixMetrics {
 			this.lineLimit = lineLimit;
 		}
     }
-	
-	public String mungeString(String str1, String str2) {
-		return str1 + "/" + str2;
-	}
 }

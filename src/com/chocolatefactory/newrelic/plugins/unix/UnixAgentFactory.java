@@ -15,7 +15,7 @@ public class UnixAgentFactory extends AgentFactory {
 
 	@Override
 	public Agent createConfiguredAgent(Map<String, Object> properties) throws ConfigurationException {
-		String os, command;
+		String os, command, hostname;
 		Boolean debug;
 
 		if (properties.containsKey("OS") && !((String) properties.get("OS")).toLowerCase().equals("auto")) {
@@ -31,6 +31,11 @@ public class UnixAgentFactory extends AgentFactory {
 			debug = false;
 		}
 		
-    	return new UnixAgent(os, command, debug);
+		if(properties.containsKey("hostname")) {
+			hostname = ((String) properties.get("hostname"));
+		} else {
+			hostname = "";
+		}
+    	return new UnixAgent(os, command, debug, hostname);
 	}
 }
