@@ -17,7 +17,7 @@ public class AIXMetrics extends UnixMetrics {
 		 */
 		HashMap<Pattern, String[]> dfMapping = new HashMap<Pattern, String[]>();
 		dfMapping.put(Pattern.compile("\\s*([\\/\\w\\d]+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)%\\s+(\\d+)\\s+(\\d+)%.*"),
-			new String[]{kColumnMetricName, "1024-blocks", "Free", "%Used", "Iused", "%Iused"});
+			new String[]{kColumnMetricPrefix, "1024-blocks", "Free", "%Used", "Iused", "%Iused"});
 		allCommands.put("df", new UnixCommand(new String[]{"df","-k"}, commandTypes.REGEXDIM, defaultignores, 0, dfMapping));
 		
 		allMetrics.put(CommandMetricUtils.mungeString("df", "1024-blocks"), new MetricDetail("Disk", "Total", "kb", metricTypes.NORMAL, 1));
@@ -73,13 +73,13 @@ public class AIXMetrics extends UnixMetrics {
 			new String[]{"Transmit/Multiple Collision Count"});
 		entstatMapping.put(Pattern.compile(".*Current HW Transmit Queue\\s+Length:\\s+([0-9\\.]+)"),
 			new String[]{"Transmit/Current HW Transmit Queue Length"});
-		allCommands.put("entstat", new UnixCommand(new String[]{"entstat"}, commandTypes.INTERFACEDIM, defaultignores, 0, entstatMapping));
+		allCommands.put("entstat", new UnixCommand(new String[]{"entstat", kInterfacePlaceholder}, commandTypes.INTERFACEDIM, defaultignores, 0, entstatMapping));
 		
 		allMetrics.put(CommandMetricUtils.mungeString("entstat", "Transmit/Packets"), new MetricDetail("Network", "Transmit/Packets", "packets", metricTypes.DELTA, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("entstat", "Transmit/Bytes"), new MetricDetail("Network", "Transmit/Bytes", "bytes", metricTypes.DELTA, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("entstat", "Transmit/Interrupts"), new MetricDetail("Network", "Transmit/Interrupts", "interrupts", metricTypes.DELTA, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("entstat", "Transmit/Transmit Errors"), new MetricDetail("Network", "Transmit/Transmit Errors", "errors", metricTypes.DELTA, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("entstat", "Transmit/Packets Dropped"), new MetricDetail("Network", "Transmit/Packets Dropped", "packets", metricTypes.DELTA, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("entstat", "Transmit/Transmit Errors"), new MetricDetail("Network", "Transmit/Errors", "errors", metricTypes.DELTA, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("entstat", "Transmit/Packets Dropped"), new MetricDetail("Network", "Transmit/Dropped", "packets", metricTypes.DELTA, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("entstat", "Transmit/Max Packets on SW Transmit Queue"), new MetricDetail("Network", "Transmit/Max Packets on SW Transmit Queue", "packets", metricTypes.DELTA, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("entstat", "Transmit/SW Transmit Queue Overflow"), new MetricDetail("Network", "Transmit/SW Transmit Queue Overflow", "packets", metricTypes.DELTA, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("entstat", "Transmit/Current SW+HW Transmit Queue Length"), new MetricDetail("Network", "Transmit/Current SW+HW Transmit Queue Length", "packets", metricTypes.DELTA, 1));
@@ -99,18 +99,18 @@ public class AIXMetrics extends UnixMetrics {
 		allMetrics.put(CommandMetricUtils.mungeString("entstat", "Receive/Packets"), new MetricDetail("Network", "Receive/Packets", "packets", metricTypes.DELTA, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("entstat", "Receive/Bytes"), new MetricDetail("Network", "Receive/Bytes", "bytes", metricTypes.DELTA, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("entstat", "Receive/Interrupts"), new MetricDetail("Network", "Receive/Interrupts", "interrupts", metricTypes.DELTA, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("entstat", "Receive/Receive Errors"), new MetricDetail("Network", "Receive/Receive Errors", "errors", metricTypes.DELTA, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("entstat", "Receive/Packets Dropped"), new MetricDetail("Network", "Receive/Packets Dropped", "packets", metricTypes.DELTA, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("entstat", "Receive/Receive Errors"), new MetricDetail("Network", "Receive/Errors", "errors", metricTypes.DELTA, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("entstat", "Receive/Packets Dropped"), new MetricDetail("Network", "Receive/Dropped", "packets", metricTypes.DELTA, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("entstat", "Receive/Bad Packets"), new MetricDetail("Network", "Receive/Bad Packets", "packets", metricTypes.DELTA, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("entstat", "Receive/Broadcast Packets"), new MetricDetail("Network", "Receive/Broadcast Packets", "packets", metricTypes.DELTA, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("entstat", "Receive/Multicast Packets"), new MetricDetail("Network", "Receive/Multicast Packets", "packets", metricTypes.DELTA, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("entstat", "Receive/CRC Errors"), new MetricDetail("Network", "Receive/CRC Errors", "packets", metricTypes.DELTA, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("entstat", "Receive/CRC Errors"), new MetricDetail("Network", "Receive/CRC Errors", "errors", metricTypes.DELTA, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("entstat", "Receive/DMA Overrun"), new MetricDetail("Network", "Receive/DMA Overrun", "packets", metricTypes.DELTA, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("entstat", "Receive/Alignment Errors"), new MetricDetail("Network", "Receive/Alignment Errors", "packets", metricTypes.DELTA, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("entstat", "Receive/No Resource Errors"), new MetricDetail("Network", "Receive/No Resource Errors", "packets", metricTypes.DELTA, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("entstat", "Receive/Receive Collision Errors"), new MetricDetail("Network", "Receive/Receive Collision Errors", "packets", metricTypes.DELTA, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("entstat", "Receive/Packet Too Short Errors"), new MetricDetail("Network", "Receive/Packet Too Short Errors", "packets", metricTypes.DELTA, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("entstat", "Receive/Packet Too Long Errors"), new MetricDetail("Network", "Receive/Packet Too Long Errors", "packets", metricTypes.DELTA, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("entstat", "Receive/Alignment Errors"), new MetricDetail("Network", "Receive/Alignment Errors", "errors", metricTypes.DELTA, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("entstat", "Receive/No Resource Errors"), new MetricDetail("Network", "Receive/No Resource Errors", "errors", metricTypes.DELTA, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("entstat", "Receive/Receive Collision Errors"), new MetricDetail("Network", "Receive/Receive Collision Errors", "errors", metricTypes.DELTA, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("entstat", "Receive/Packet Too Short Errors"), new MetricDetail("Network", "Receive/Packet Too Short Errors", "errors", metricTypes.DELTA, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("entstat", "Receive/Packet Too Long Errors"), new MetricDetail("Network", "Receive/Packet Too Long Errors", "errors", metricTypes.DELTA, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("entstat", "Receive/Packets Discarded by Adapter"), new MetricDetail("Network", "Receive/Packets Discarded by Adapter", "packets", metricTypes.DELTA, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("entstat", "Receive/Receiver Start Count"), new MetricDetail("Network", "Receive/Receiver Start Count", "count", metricTypes.DELTA, 1));
 
@@ -119,7 +119,7 @@ public class AIXMetrics extends UnixMetrics {
 		 */
 		HashMap<Pattern, String[]> iostatMapping = new HashMap<Pattern, String[]>();
 		iostatMapping.put(Pattern.compile("\\s*(\\w+\\d*)\\s+([0-9\\.]+)\\s+([0-9\\.]+)\\s+([0-9\\.]+)\\s+([0-9\\.]+)\\s+([0-9\\.]+)"),
-			new String[]{kColumnMetricName, "tm_act", "Kbps", "tps", "Kb_read", "Kb_wrtn"});
+			new String[]{kColumnMetricPrefix, "tm_act", "Kbps", "tps", "Kb_read", "Kb_wrtn"});
 		allCommands.put("iostat", new UnixCommand(new String[]{"iostat","-d"}, commandTypes.REGEXDIM, defaultignores, 0, iostatMapping));
 		
 		allMetrics.put(CommandMetricUtils.mungeString("iostat", "kbps"), new MetricDetail("DiskIO", "Data Transferred per Second", "kb/s", metricTypes.NORMAL, 1));
@@ -143,19 +143,19 @@ public class AIXMetrics extends UnixMetrics {
 		
 		/*
 		 * Parser & declaration for 'netstat' command
+		 * ** NOT USED IN FAVOR OF ENTSTAT **
 		 */
 		HashMap<Pattern, String[]> netstatMapping = new HashMap<Pattern, String[]>();
-		netstatMapping.put(Pattern.compile("\\s*\\w+\\d+\\s+(\\d+)\\s+(\\S+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)"),
-			new String[]{"MTU", kColumnMetricName, "Iptks", "Ierrs", "Optks", "Oerrs", "Coll"});
-		netstatMapping.put(Pattern.compile("\\s*\\w+\\d+\\s+(\\d+)\\s+(\\S+)\\s+\\S+\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)"),
-			new String[]{"MTU", kColumnMetricName, "Iptks", "Ierrs", "Optks", "Oerrs", "Coll"});	
-		allCommands.put("netstat", new UnixCommand(new String[]{"netstat", "-I"}, commandTypes.INTERFACEDIM, defaultignores, 0, netstatMapping));
+		netstatMapping.put(Pattern.compile("\\w+\\d*\\s+(\\d+)\\s+[\\d\\.]+\\s+[\\d\\.]+"
+			+ "\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)"),
+			new String[]{"MTU", "Iptks", "Ierrs", "Optks", "Oerrs", "Coll"});
+		allCommands.put("netstat", new UnixCommand(new String[]{"netstat", "-i", "-n"}, commandTypes.REGEXDIM, defaultignores, 0, netstatMapping));
 		
 		allMetrics.put(CommandMetricUtils.mungeString("netstat", "MTU"), new MetricDetail("Network", "MTU", "packets", metricTypes.NORMAL, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("netstat", "Ipkts"), new MetricDetail("Network", "Receive/Packets", "packets", metricTypes.DELTA, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("netstat", "Ierrs"), new MetricDetail("Network", "Receive/Errors", "packets", metricTypes.DELTA, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("netstat", "Ierrs"), new MetricDetail("Network", "Receive/Errors", "errors", metricTypes.DELTA, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("netstat", "Opkts"), new MetricDetail("Network", "Transmit/Packets", "packets", metricTypes.DELTA, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("netstat", "Oerrs"), new MetricDetail("Network", "Transmit/Errors", "packets", metricTypes.DELTA, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("netstat", "Oerrs"), new MetricDetail("Network", "Transmit/Errors", "errors", metricTypes.DELTA, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("netstat", "Coll"), new MetricDetail("Network", "Collisions", "packets", metricTypes.DELTA, 1));
 		
 		/*
@@ -163,13 +163,13 @@ public class AIXMetrics extends UnixMetrics {
 		 */
 		HashMap<Pattern, String[]> svmonMapping = new HashMap<Pattern, String[]>();
 		svmonMapping.put(Pattern.compile("\\s*(memory)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+).*"),
-			new String[]{kColumnMetricName, "size", "inuse", "free", "pin", "virtual", "available"});
+			new String[]{kColumnMetricPrefix, "size", "inuse", "free", "pin", "virtual", "available"});
 		svmonMapping.put(Pattern.compile("\\s*(pg\\s{1}space)\\s+(\\d+)\\s+(\\d+)"),
-			new String[]{kColumnMetricName, "size", "inuse"});
+			new String[]{kColumnMetricPrefix, "size", "inuse"});
 		svmonMapping.put(Pattern.compile("\\s*(pin)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)"),
-			new String[]{kColumnMetricName, "work", "pers", "clnt", "other"});
+			new String[]{kColumnMetricPrefix, "work", "pers", "clnt", "other"});
 		svmonMapping.put(Pattern.compile("\\s*(in\\s{1}use)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)"),
-			new String[]{kColumnMetricName, "work", "pers", "clnt"});
+			new String[]{kColumnMetricPrefix, "work", "pers", "clnt"});
 		allCommands.put("svmon", new UnixCommand(new String[]{"svmon","-G","-Ounit=KB"}, commandTypes.REGEXDIM, defaultignores, 0, svmonMapping));
 		
 		allMetrics.put(CommandMetricUtils.mungeString("svmon", "size"), new MetricDetail("MemoryDetailed", "Total", "kb", metricTypes.NORMAL, 1));

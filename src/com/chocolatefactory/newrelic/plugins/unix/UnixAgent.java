@@ -92,7 +92,7 @@ public class UnixAgent extends Agent {
 			switch(thisCommand.getType()) {
 			case INTERFACEDIM:
 				for(String thisinterface : interfaces) {
-					commandReader = this.getCommandReader(CommandMetricUtils.concatArrays(thisCommand.getCommand(), new String[]{thisinterface}));
+					commandReader = this.getCommandReader(CommandMetricUtils.replaceInArray(thisCommand.getCommand(), UnixMetrics.kInterfacePlaceholder, thisinterface));
 					CommandMetricUtils.parseRegexMetricOutput(commandName, thisCommand.getLineMappings(), thisinterface, thisCommand.getLineLimit(), thisMetricOutput, umetrics.allMetrics, commandReader);
 				}
 				reportMetrics(thisMetricOutput);
@@ -143,7 +143,7 @@ public class UnixAgent extends Agent {
 	
 	public void getInterfaces() {
 		BufferedReader interfacesReader = this.getCommandReader(interfaceCommand);
-		Pattern interfacePattern = Pattern.compile("(\\w+\\d+)[:]{0,1}\\s+.*");
+		Pattern interfacePattern = Pattern.compile("(?!\\s+)(\\w+\\d*)[:]{0,1}\\s+.*");
 		String line;
 		this.interfaces = new HashSet<String>();
 		try {

@@ -23,11 +23,6 @@
         {
             "OS": "auto",
             "debug": true,
-            "command": "netstat"
-        },
-        {
-            "OS": "auto",
-            "debug": true,
             "command": "svmon"
         },
         {

@@ -20,17 +20,7 @@ public class CommandMetricUtils {
 	private static Pattern dashesPattern = Pattern.compile("\\s*[\\w-]+(\\s+[-]+)+(\\s[\\w-]*)*");
 	private static Pattern singleMetricLinePattern = Pattern.compile("\\S*(\\d+)\\s+([\\w-%\\(\\)])(\\s{0,1}[\\w-%\\(\\)])*");
 	private static final Logger logger = Logger.getLogger(UnixAgent.class);
-
-	// Yes, I copied this from Stack Overflow. So sue me.
-	public static String[] concatArrays(String[] a, String[] b) {
-		int aLen = a.length;
-		int bLen = b.length;
-		String[] c = new String[aLen + bLen];
-		System.arraycopy(a, 0, c, 0, aLen);
-		System.arraycopy(b, 0, c, aLen, bLen);
-		return c;
-	}
-
+	
 	public static BufferedReader executeCommand(String[] command, Boolean useFile) {
 		
 		BufferedReader br = null;
@@ -144,7 +134,6 @@ public class CommandMetricUtils {
 		
 		String line;
 		int lineCount = 0;
-		
 		lineloop: while ((line = commandOutput.readLine()) != null) {
 			regexloop: for (Map.Entry<Pattern, String[]> lineMapping : lineMappings.entrySet()) {
 				Pattern lineRegex = lineMapping.getKey();
@@ -152,20 +141,21 @@ public class CommandMetricUtils {
 				Matcher lineMatch = lineRegex.matcher(line.trim());
 				if (lineMatch.matches()) {
 					String thisMetricPrefix = metricPrefix;
-					// Loop through line regex twice.
-					// First time, get prefixes.
+					String thisMetricName = "metric"; //default if somehow the metric name isn't set.
 					for (int l = 0; l < lineColumns.length; l++) {
-						if (lineColumns[l] == UnixMetrics.kColumnMetricName) {
+						if (lineColumns[l] == UnixMetrics.kColumnMetricPrefix) {
 							thisMetricPrefix = CommandMetricUtils.mungeString(
-									thisMetricPrefix, lineMatch.group(l + 1).replaceAll("/", "-"));
-						}
-					}
-					// Second time, get and insert metrics.
-					for (int m = 0; m < lineColumns.length; m++) {
-						if (lineColumns[m] != UnixMetrics.kColumnMetricName) {
+								thisMetricPrefix, lineMatch.group(l + 1).replaceAll("/", "-"));
+						} else if (lineColumns[l] == UnixMetrics.kColumnMetricName) {
+							thisMetricName = lineMatch.group(l + 1).replaceAll("/", "-");
+						} else if (lineColumns[l] == UnixMetrics.kColumnMetricValue) {
 							CommandMetricUtils.insertMetric(currentMetrics,
-							metricDeets, CommandMetricUtils.mungeString(thisCommand, lineColumns[m]),
-							thisMetricPrefix, lineMatch.group(m + 1));
+							metricDeets, CommandMetricUtils.mungeString(thisCommand, thisMetricName),
+							thisMetricPrefix, lineMatch.group(l + 1));
+						} else {
+							CommandMetricUtils.insertMetric(currentMetrics,
+							metricDeets, CommandMetricUtils.mungeString(thisCommand, lineColumns[l]),
+							thisMetricPrefix, lineMatch.group(l + 1));
 						}
 					}
 					// Once we find a valid mapping for this line, stop looking
@@ -208,5 +198,13 @@ public class CommandMetricUtils {
 		}
 		commandOutput.close();
 		return output;
+	}
+	
+	public static String[] replaceInArray(String[] thisArray, String findThis, String replaceWithThis) {
+		String[] outputArray = new String[thisArray.length];
+		for (int i=0; i < thisArray.length; i++) {
+			outputArray[i] = thisArray[i].replaceAll(findThis, replaceWithThis);
+		}
+		return outputArray;
 	}
 }

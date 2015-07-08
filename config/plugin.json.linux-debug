@@ -13,7 +13,7 @@
         {
             "OS": "auto",
             "debug": true,
-            "command": "netstat"
+            "command": "NetworkIO"
         },
         {
             "OS": "auto",

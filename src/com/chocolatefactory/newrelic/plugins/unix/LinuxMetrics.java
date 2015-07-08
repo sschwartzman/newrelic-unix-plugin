@@ -20,7 +20,7 @@ public class LinuxMetrics extends UnixMetrics {
 		 */
 		HashMap<Pattern, String[]> dfMapping = new HashMap<Pattern, String[]>();
 		dfMapping.put(Pattern.compile("\\s*([\\/\\w\\d]+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)%.*"),
-			new String[]{kColumnMetricName, "1024-blocks", "Used", "Available", "Capacity"});
+			new String[]{kColumnMetricPrefix, "1024-blocks", "Used", "Available", "Capacity"});
 		allCommands.put("df", new UnixCommand(new String[]{"df","-Pk"}, commandTypes.REGEXDIM, defaultignores, 0, dfMapping));
 		allMetrics.put(CommandMetricUtils.mungeString("df", "1024-blocks"), new MetricDetail("Disk", "Total", "kb", metricTypes.NORMAL, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("df", "Used"), new MetricDetail("Disk", "Used", "kb", metricTypes.NORMAL, 1));
@@ -31,10 +31,10 @@ public class LinuxMetrics extends UnixMetrics {
 		 * Parsers & declaration for 'iostat' command
 		 */
 		HashMap<Pattern, String[]> iostatMapping = new HashMap<Pattern, String[]>();
-		iostatMapping.put(Pattern.compile("\\s+([0-9\\.]+)\\s+([0-9\\.]+)\\s+([0-9\\.]+)\\s+([0-9\\.]+)\\s+([0-9\\.]+)\\s+([0-9\\.]+)"),
+		iostatMapping.put(Pattern.compile("\\s*([0-9\\.]+)\\s+([0-9\\.]+)\\s+([0-9\\.]+)\\s+([0-9\\.]+)\\s+([0-9\\.]+)\\s+([0-9\\.]+)"),
 			new String[]{"%user", "%nice", "%system", "%iowait", "%steal", "%idle"});
 		iostatMapping.put(Pattern.compile("(\\w+[-]{0,1}\\d*)\\s+([0-9\\.]+)\\s+([0-9\\.]+)\\s+([0-9\\.]+)\\s+(\\d+)\\s+(\\d+)"),
-			new String[]{kColumnMetricName, "tps", "kB_read-s", "kB_wrtn-s", "kB_read", "kB_wrtn"});
+			new String[]{kColumnMetricPrefix, "tps", "kB_read-s", "kB_wrtn-s", "kB_read", "kB_wrtn"});
 		allCommands.put("iostat", new UnixCommand(new String[]{"iostat","-k"}, commandTypes.REGEXDIM, defaultignores, 0, iostatMapping));
 		
 		allMetrics.put(CommandMetricUtils.mungeString("iostat", "%user"), new MetricDetail("CPU", "User", "%", metricTypes.NORMAL, 1));
@@ -48,26 +48,60 @@ public class LinuxMetrics extends UnixMetrics {
 		allMetrics.put(CommandMetricUtils.mungeString("iostat", "kB_read"), new MetricDetail("DiskIO", "Data Read", "kb", metricTypes.NORMAL, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("iostat", "kB_wrtn-s"), new MetricDetail("DiskIO", "Data Written per Second", "kb/s", metricTypes.NORMAL, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("iostat", "kB_wrtn"), new MetricDetail("DiskIO", "Data Written", "kb", metricTypes.NORMAL, 1));
-
+		
+		/*
+		 * Parser & declaration for "NetworkIO"
+		 */
+		HashMap<Pattern, String[]> networkIOMapping = new HashMap<Pattern, String[]>();
+		networkIOMapping.put(Pattern.compile("\\/sys\\/class\\/net\\/[\\w\\d]+\\/statistics\\/([\\w_]+):(\\d+)"),
+			new String[]{kColumnMetricName, kColumnMetricValue});	
+		allCommands.put("NetworkIO", new UnixCommand(new String[]{"grep", "-r", ".", "/sys/class/net/" + kInterfacePlaceholder + "/statistics", "2>&1"}, 
+				commandTypes.INTERFACEDIM, defaultignores, 0, networkIOMapping));
+		allMetrics.put(CommandMetricUtils.mungeString("NetworkIO", "collisions"), new MetricDetail("Network", "Collisions", "packets", metricTypes.DELTA, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("NetworkIO", "multicast"), new MetricDetail("Network", "Multicast", "packets", metricTypes.DELTA, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("NetworkIO", "rx_bytes"), new MetricDetail("Network", "Receive/Bytes", "bytes", metricTypes.DELTA, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("NetworkIO", "rx_compressed"), new MetricDetail("Network", "Receive/Compressed", "packets", metricTypes.DELTA, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("NetworkIO", "rx_crc_errors"), new MetricDetail("Network", "Receive/CRC Errors", "errors", metricTypes.DELTA, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("NetworkIO", "rx_dropped"), new MetricDetail("Network", "Receive/Dropped", "packets", metricTypes.DELTA, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("NetworkIO", "rx_errors"), new MetricDetail("Network", "Receive/Errors", "errors", metricTypes.DELTA, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("NetworkIO", "rx_fifo_errors"), new MetricDetail("Network", "Receive/FIFO Errors", "errors", metricTypes.DELTA, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("NetworkIO", "rx_frame_errors"), new MetricDetail("Network", "Receive/Frame Errors", "errors", metricTypes.DELTA, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("NetworkIO", "rx_length_errors"), new MetricDetail("Network", "Receive/Length Errors", "errors", metricTypes.DELTA, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("NetworkIO", "rx_missed_errors"), new MetricDetail("Network", "Receive/Missed Errors", "errors", metricTypes.DELTA, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("NetworkIO", "rx_over_errors"), new MetricDetail("Network", "Receive/Overrun Errors", "errors", metricTypes.DELTA, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("NetworkIO", "rx_packets"), new MetricDetail("Network", "Receive/Packets", "packets", metricTypes.DELTA, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("NetworkIO", "tx_aborted_errors"), new MetricDetail("Network", "Transmit/Aborted Errors", "errors", metricTypes.DELTA, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("NetworkIO", "tx_bytes"), new MetricDetail("Network", "Transmit/Bytes", "bytes", metricTypes.DELTA, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("NetworkIO", "tx_carrier_errors"), new MetricDetail("Network", "Transmit/Carrier Errors", "errors", metricTypes.DELTA, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("NetworkIO", "tx_compressed"), new MetricDetail("Network", "Transmit/Compressed", "packets", metricTypes.DELTA, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("NetworkIO", "tx_dropped"), new MetricDetail("Network", "Transmit/Dropped", "packets", metricTypes.DELTA, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("NetworkIO", "tx_errors"), new MetricDetail("Network", "Transmit/Errors", "errors", metricTypes.DELTA, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("NetworkIO", "tx_fifo_errors"), new MetricDetail("Network", "Transmit/FIFO Errors", "errors", metricTypes.DELTA, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("NetworkIO", "tx_heartbeat_errors"), new MetricDetail("Network", "Transmit/Heartbeat Errors", "errors", metricTypes.DELTA, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("NetworkIO", "tx_packets"), new MetricDetail("Network", "Transmit/Packets", "packets", metricTypes.DELTA, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("NetworkIO", "tx_window_errors"), new MetricDetail("Network", "Transmit/Window Errors", "errors", metricTypes.DELTA, 1));
+		
 		/*
 		 * Parser & declaration for 'netstat' command
+		 * ** NOT USED IN FAVOR OF NETWORKIO **
 		 */
 		HashMap<Pattern, String[]> netstatMapping = new HashMap<Pattern, String[]>();
 		netstatMapping.put(Pattern.compile("(\\w+\\d*)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)"
 			+ "\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+).*"),
-			new String[]{kColumnMetricName, "MTU", "Met", "RX-OK", "RX-ERR", "RX-DRP", "RX-OVR", "TX-OK", "TX-ERR", "TX-DRP", "TX-OVR"});	
+			new String[]{kColumnMetricPrefix, "MTU", "Met", "RX-OK", "RX-ERR", "RX-DRP", "RX-OVR", "TX-OK", "TX-ERR", "TX-DRP", "TX-OVR"});	
 		allCommands.put("netstat", new UnixCommand(new String[]{"netstat", "-i"}, commandTypes.REGEXDIM, defaultignores, 0, netstatMapping));
 		
 		allMetrics.put(CommandMetricUtils.mungeString("netstat", "MTU"), new MetricDetail("Network", "MTU", "packets", metricTypes.NORMAL, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("netstat", "Met"), new MetricDetail("Network", "Metric", "metric", metricTypes.NORMAL, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("netstat", "RX-OK"), new MetricDetail("Network", "Receive/Packets", "packets", metricTypes.DELTA, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("netstat", "RX-ERR"), new MetricDetail("Network", "Receive/Errors", "packets", metricTypes.DELTA, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("netstat", "RX-DRP"), new MetricDetail("Network", "Receive/Drops", "packets", metricTypes.DELTA, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("netstat", "RX-OVR"), new MetricDetail("Network", "Receive/Overruns", "packets", metricTypes.DELTA, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("netstat", "TX-OK"), new MetricDetail("Network", "Transmit/Packets", "packets", metricTypes.DELTA, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("netstat", "TX-ERR"), new MetricDetail("Network", "Transmit/Errors", "packets", metricTypes.DELTA, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("netstat", "RX-ERR"), new MetricDetail("Network", "Receive/Errors", "errors", metricTypes.DELTA, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("netstat", "RX-DRP"), new MetricDetail("Network", "Receive/Dropped", "packets", metricTypes.DELTA, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("netstat", "RX-OVR"), new MetricDetail("Network", "Receive/Overrun Errors", "errors", metricTypes.DELTA, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("netstat", "TX-O:q!"
+				+ "K"), new MetricDetail("Network", "Transmit/Packets", "packets", metricTypes.DELTA, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("netstat", "TX-ERR"), new MetricDetail("Network", "Transmit/Errors", "errors", metricTypes.DELTA, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("netstat", "TX-DRP"), new MetricDetail("Network", "Transmit/Drops", "packets", metricTypes.DELTA, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("netstat", "TX-OVR"), new MetricDetail("Network", "Transmit/Overruns", "packets", metricTypes.DELTA, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("netstat", "TX-OVR"), new MetricDetail("Network", "Transmit/Overrun Errors", "errors", metricTypes.DELTA, 1));
 		
 		/*
 		 * Parsers & declaration for 'top' command

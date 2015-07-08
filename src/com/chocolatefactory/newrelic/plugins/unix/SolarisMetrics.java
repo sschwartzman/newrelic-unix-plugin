@@ -18,7 +18,7 @@ public class SolarisMetrics extends UnixMetrics {
 		 */
 		HashMap<Pattern, String[]> dfMapping = new HashMap<Pattern, String[]>();
 		dfMapping.put(Pattern.compile("\\s*([\\/\\w\\d]+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)%.*"),
-			new String[]{kColumnMetricName, "1K-blocks", "Used", "Available", "Use%"});
+			new String[]{kColumnMetricPrefix, "1K-blocks", "Used", "Available", "Use%"});
 		allCommands.put("df", new UnixCommand(new String[]{"df","-k"}, commandTypes.REGEXDIM, defaultignores, 0, dfMapping));
 		allMetrics.put(CommandMetricUtils.mungeString("df", "1K-blocks"), new MetricDetail("Disk", "Total", "kb", metricTypes.NORMAL, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("df", "Used"), new MetricDetail("Disk", "Used", "kb", metricTypes.NORMAL, 1));
@@ -31,7 +31,7 @@ public class SolarisMetrics extends UnixMetrics {
 		HashMap<Pattern, String[]> iostatMapping = new HashMap<Pattern, String[]>();
 		iostatMapping.put(Pattern.compile("\\s*([\\/\\w\\d]+)\\s+([0-9\\.]+)\\s+([0-9\\.]+)\\s+([0-9\\.]+)" +
 			"\\s+([0-9\\.]+)\\s+([0-9\\.]+)\\s+([0-9\\.]+)\\s+([0-9\\.]+)\\s+(\\d+)\\s+(\\d+)"),
-			new String[]{kColumnMetricName,"r-s","w-s","kr-s","kw-s","wait","actv","svc_t","%w","%b"});
+			new String[]{kColumnMetricPrefix,"r-s","w-s","kr-s","kw-s","wait","actv","svc_t","%w","%b"});
 		allCommands.put("iostat", new UnixCommand(new String[]{"iostat","-x"}, commandTypes.REGEXDIM, defaultignores, 0, iostatMapping));
 		
 		allMetrics.put(CommandMetricUtils.mungeString("iostat", "r-s"), new MetricDetail("DiskIO", "Reads per Second", "transfers/s", metricTypes.NORMAL, 1));
@@ -58,12 +58,36 @@ public class SolarisMetrics extends UnixMetrics {
 		allMetrics.put(CommandMetricUtils.mungeString("iostatCPU", "id"), new MetricDetail("CPU", "Idle", "%", metricTypes.NORMAL, 1));
 		
 		/*
+		 * Parser & declaration for 'kstat' command
+		 */
+		HashMap<Pattern, String[]> kstatMapping = new HashMap<Pattern, String[]>();
+		kstatMapping.put(Pattern.compile("(\\w+\\d*)\\s+([0-9\\.]+)"),
+			new String[]{kColumnMetricName, kColumnMetricValue});
+		allCommands.put("kstat", new UnixCommand(new String[]{"kstat", "-n", kInterfacePlaceholder}, commandTypes.INTERFACEDIM, defaultignores, 0, kstatMapping));
+		
+		allMetrics.put(CommandMetricUtils.mungeString("kstat", "brdcstrcv"), new MetricDetail("Network", "Receive/Broadcast", "packets", metricTypes.DELTA, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("kstat", "brdcstxmt"), new MetricDetail("Network", "Transmit/Broadcast", "packets", metricTypes.DELTA, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("kstat", "collisions"), new MetricDetail("Network", "Collisions", "packets", metricTypes.DELTA, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("kstat", "ierrors"), new MetricDetail("Network", "Receive/Errors", "errors", metricTypes.DELTA, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("kstat", "ipackets64"), new MetricDetail("Network", "Receive/Packets", "packets", metricTypes.DELTA, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("kstat", "multircv"), new MetricDetail("Network", "Receive/Multicast", "bytes", metricTypes.DELTA, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("kstat", "multixmt"), new MetricDetail("Network", "Transmit/Multicast", "bytes", metricTypes.DELTA, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("kstat", "norcvbuf"), new MetricDetail("Network", "Receive/Buffer Allocation Errors", "errors", metricTypes.DELTA, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("kstat", "noxmtbuf"), new MetricDetail("Network", "Transmit/Buffer Allocation Errors", "errors", metricTypes.DELTA, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("kstat", "obytes64"), new MetricDetail("Network", "Transmit/Bytes", "bytes", metricTypes.DELTA, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("kstat", "oerrors"), new MetricDetail("Network", "Transmit/Errors", "errors", metricTypes.DELTA, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("kstat", "opackets64"), new MetricDetail("Network", "Transmit/Packets", "packets", metricTypes.DELTA, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("kstat", "rbytes64"), new MetricDetail("Network", "Receive/Bytes", "bytes", metricTypes.DELTA, 1));
+		
+		/*
 		 * Parser & declaration for 'netstat' command
+		 * ** NOT USED IN FAVOR OF KSTAT **
 		 */
 		HashMap<Pattern, String[]> netstatMapping = new HashMap<Pattern, String[]>();
-		netstatMapping.put(Pattern.compile("\\s*\\w+\\d+\\s+(\\d+)\\s+(\\S+)\\s+\\S+\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)"),
-			new String[]{"MTU", kColumnMetricName, "Iptks", "Ierrs", "Optks", "Oerrs", "Collis", "Queue"});	
-		allCommands.put("netstat", new UnixCommand(new String[]{"netstat", "-I"}, commandTypes.INTERFACEDIM, defaultignores, 0, netstatMapping));
+		netstatMapping.put(Pattern.compile("(\\w+\\d*)\\s+(\\d+)\\s+[\\d\\.]+\\s+[\\d\\.]+"
+			+ "\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)"),
+			new String[]{kColumnMetricPrefix, "MTU", "Iptks", "Ierrs", "Optks", "Oerrs", "Collis", "Queue"});
+		allCommands.put("netstat", new UnixCommand(new String[]{"netstat", "-i", "-n"}, commandTypes.REGEXDIM, defaultignores, 0, netstatMapping));
 		
 		allMetrics.put(CommandMetricUtils.mungeString("netstat", "Ipkts"), new MetricDetail("Network", "Receive/Packets", "packets", metricTypes.DELTA, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("netstat", "Ierrs"), new MetricDetail("Network", "Receive/Errors", "packets", metricTypes.DELTA, 1));
