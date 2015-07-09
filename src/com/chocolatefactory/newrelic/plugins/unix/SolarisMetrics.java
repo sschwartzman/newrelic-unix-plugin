@@ -97,6 +97,18 @@ public class SolarisMetrics extends UnixMetrics {
 		allMetrics.put(CommandMetricUtils.mungeString("netstat", "Queue"), new MetricDetail("Network", "Queue", "packets", metricTypes.NORMAL, 1));
 		
 		/*
+		 * Parser & declaration for 'ps' command
+		 */
+		HashMap<Pattern, String[]> psMapping = new HashMap<Pattern, String[]>();
+		psMapping.put(Pattern.compile("(\\d+)\\s+([0-9\\.]+)\\s+([0-9\\.]+)\\s+(\\d+)\\s+([\\w\\d\\/_\\.-]+)"),
+			new String[]{kColumnMetricPrefix, "%CPU", "%MEM", "RSS", kColumnMetricPrefix});
+		allCommands.put("ps", new UnixCommand(new String[]{"ps", "-eo", "pid,pcpu,pmem,rss,comm"}, commandTypes.REGEXDIM, defaultignores, 0, psMapping));
+		
+		allMetrics.put(CommandMetricUtils.mungeString("ps", "%CPU"), new MetricDetail("Processes", "CPU", "%", metricTypes.NORMAL, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("ps", "%MEM"), new MetricDetail("Processes", "Memory", "%", metricTypes.NORMAL, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("ps", "RSS"), new MetricDetail("Processes", "Resident Size", "bytes", metricTypes.NORMAL, 1));
+		
+		/*
 		 * Parser & declaration for 'swap' command
 		 */
 		HashMap<Pattern, String[]> swapMapping = new HashMap<Pattern, String[]>();

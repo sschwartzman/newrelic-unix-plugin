@@ -8,19 +8,19 @@ public class MetricOutput {
 	private String mname_prefix; 
 	private Number mvalue;
 	private EpochProcessor dvalue;
+	private boolean current;
 	
 	public MetricOutput(MetricDetail md, String mp, Number mv) {
 		setNamePrefix(mp);
 		setMetricDetail(md);
-		
 		// Initialize EpochCounter if this will measure a delta. 
 		// Precedes setValue such that the initial value gets set appropriately.
 		if (this.getMetricDetail().getType().equals(MetricDetail.metricTypes.DELTA)) {
 			dvalue = new EpochProcessor();
 			dvalue.process(mv);
 		}
-		
 		setValue(mv);
+		setCurrent(true);
 	}
 
 	public String getNamePrefix() {
@@ -61,6 +61,14 @@ public class MetricOutput {
 
 	public void setMetricDetail(MetricDetail md) {
 		this.mdetail = md;
+	}
+
+	public boolean isCurrent() {
+		return current;
+	}
+
+	public void setCurrent(boolean current) {
+		this.current = current;
 	}
 
 }

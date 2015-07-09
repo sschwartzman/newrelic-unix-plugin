@@ -25,7 +25,7 @@ public class UnixAgent extends Agent {
 			
 	boolean isDebug = false;
 	UnixMetrics umetrics;
-	HashMap<String, MetricOutput> thisMetricOutput = new HashMap<String, MetricOutput>();
+	HashMap<String, MetricOutput> metricOutput = new HashMap<String, MetricOutput>();
 	String commandName;
 	String hostName;
 	String[] interfaceCommand;
@@ -88,7 +88,7 @@ public class UnixAgent extends Agent {
 			logger.error("Unix Agent does not support this command for your OS: "+ commandName);
 			return;
 		}
-		
+
 		try {
 			switch(thisCommand.getType()) {
 			case INTERFACEDIM:
@@ -98,18 +98,18 @@ public class UnixAgent extends Agent {
 						UnixMetrics.kInterfacePlaceholder, thisinterface));
 					CommandMetricUtils.parseRegexMetricOutput(commandName, 
 						thisCommand.getLineMappings(), thisinterface, 
-						thisCommand.getLineLimit(), thisMetricOutput, 
+						thisCommand.getLineLimit(), metricOutput, 
 						umetrics.allMetrics, commandReader);
 				}
-				reportMetrics(thisMetricOutput);
+				reportMetrics();
 				break;
 			case REGEXDIM:
 				commandReader = CommandMetricUtils.executeCommand(thisCommand.getCommand());
 				CommandMetricUtils.parseRegexMetricOutput(commandName, 
 					thisCommand.getLineMappings(), "", 
-					thisCommand.getLineLimit(), thisMetricOutput, 
+					thisCommand.getLineLimit(), metricOutput, 
 					umetrics.allMetrics, commandReader);
-				reportMetrics(thisMetricOutput);
+				reportMetrics();
 				break;
 			case SIMPLEDIM:
 				commandReader = CommandMetricUtils.executeCommand(thisCommand.getCommand());
@@ -134,21 +134,28 @@ public class UnixAgent extends Agent {
 		}
 	}
 	
-
-	
-	public void reportMetrics(HashMap<String, MetricOutput> thisMetricOutput) {
+	public void reportMetrics() {
 		if(isDebug) {
 			logger.info("Debug enabled, no metrics will be sent.");
 		}
-		for(MetricOutput thisMetric : thisMetricOutput.values()) {
-			MetricDetail thisMetricDetail = thisMetric.getMetricDetail();
-			logger.debug(CommandMetricUtils.mungeString(thisMetricDetail.getPrefix(), 
-				CommandMetricUtils.mungeString(thisMetric.getNamePrefix(), thisMetricDetail.getName())) +
-				", " + thisMetric.getValue() + " " + thisMetricDetail.getUnits());
-			if(!isDebug) {
-				reportMetric(CommandMetricUtils.mungeString(
-					CommandMetricUtils.mungeString(thisMetricDetail.getPrefix(), thisMetric.getNamePrefix()), 
-					thisMetricDetail.getName()), thisMetricDetail.getUnits(), thisMetric.getValue());
+		for(String thisMetricKey : metricOutput.keySet()) {
+			MetricOutput thisMetric = metricOutput.get(thisMetricKey);
+			if (thisMetric.isCurrent()) {
+				MetricDetail thisMetricDetail = thisMetric.getMetricDetail();
+				logger.debug(CommandMetricUtils.mungeString(thisMetricDetail.getPrefix(), 
+						CommandMetricUtils.mungeString(thisMetric.getNamePrefix(), thisMetricDetail.getName())) +
+						", " + thisMetric.getValue() + " " + thisMetricDetail.getUnits());
+				if(!isDebug) {
+					reportMetric(CommandMetricUtils.mungeString(
+						CommandMetricUtils.mungeString(thisMetricDetail.getPrefix(), thisMetric.getNamePrefix()), 
+						thisMetricDetail.getName()), thisMetricDetail.getUnits(), thisMetric.getValue());
+				}
+				// Reset current to false (will be set to true if exists in next poll cycle)
+				thisMetric.setCurrent(false);
+				metricOutput.put(thisMetricKey, thisMetric);
+			} else {
+				// Purge metrics that are no longer current
+				metricOutput.remove(thisMetricKey);
 			}
 		}
 	}

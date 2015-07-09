@@ -92,7 +92,7 @@ public class CommandMetricUtils {
 		}
 		return "ms";
 	}
-
+	
 	private static void insertMetric(HashMap<String, MetricOutput> currentMetrics,
 		HashMap<String, MetricDetail> metricDeets, String metricName,
 		String metricPrefix, String metricValueString) {
@@ -118,6 +118,7 @@ public class CommandMetricUtils {
 		if (currentMetrics.containsKey(fullMetricName)) {
 			MetricOutput thisMetric = currentMetrics.get(fullMetricName);
 			thisMetric.setValue(metricValue);
+			thisMetric.setCurrent(true);
 			currentMetrics.put(fullMetricName, thisMetric);
 		} else if (metricDeets.containsKey(metricNameLower)) {
 			currentMetrics.put(fullMetricName, 
@@ -154,20 +155,27 @@ public class CommandMetricUtils {
 				if (lineMatch.matches()) {
 					String thisMetricPrefix = metricPrefix;
 					String thisMetricName = "metric"; //default if somehow the metric name isn't set.
+					// Loop through twice - first to get metric prefixes
 					for (int l = 0; l < lineColumns.length; l++) {
 						if (lineColumns[l] == UnixMetrics.kColumnMetricPrefix) {
 							thisMetricPrefix = CommandMetricUtils.mungeString(
 								thisMetricPrefix, lineMatch.group(l + 1).replaceAll("/", "-"));
-						} else if (lineColumns[l] == UnixMetrics.kColumnMetricName) {
-							thisMetricName = lineMatch.group(l + 1).replaceAll("/", "-");
-						} else if (lineColumns[l] == UnixMetrics.kColumnMetricValue) {
+						} 
+					}
+					// Second loop - get metrics
+					for (int m = 0; m < lineColumns.length; m++) {
+						if (lineColumns[m] == UnixMetrics.kColumnMetricPrefix) {
+							continue;
+						} else if (lineColumns[m] == UnixMetrics.kColumnMetricName) {
+							thisMetricName = lineMatch.group(m + 1).replaceAll("/", "-");
+						} else if (lineColumns[m] == UnixMetrics.kColumnMetricValue) {
 							CommandMetricUtils.insertMetric(currentMetrics,
 							metricDeets, CommandMetricUtils.mungeString(thisCommand, thisMetricName),
-							thisMetricPrefix, lineMatch.group(l + 1));
+							thisMetricPrefix, lineMatch.group(m + 1));
 						} else {
 							CommandMetricUtils.insertMetric(currentMetrics,
-							metricDeets, CommandMetricUtils.mungeString(thisCommand, lineColumns[l]),
-							thisMetricPrefix, lineMatch.group(l + 1));
+							metricDeets, CommandMetricUtils.mungeString(thisCommand, lineColumns[m]),
+							thisMetricPrefix, lineMatch.group(m + 1));
 						}
 					}
 					// Once we find a valid mapping for this line, stop looking

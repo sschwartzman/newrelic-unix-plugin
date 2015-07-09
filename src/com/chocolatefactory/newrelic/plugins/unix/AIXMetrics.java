@@ -159,6 +159,18 @@ public class AIXMetrics extends UnixMetrics {
 		allMetrics.put(CommandMetricUtils.mungeString("netstat", "Coll"), new MetricDetail("Network", "Collisions", "packets", metricTypes.DELTA, 1));
 		
 		/*
+		 * Parser & declaration for 'ps' command
+		 */
+		HashMap<Pattern, String[]> psMapping = new HashMap<Pattern, String[]>();
+		psMapping.put(Pattern.compile("(\\d+)\\s+([\\w\\d_\\.]+)\\s+([0-9\\.]+)\\s+([0-9\\.]+)\\s+(\\d+)"),
+			new String[]{kColumnMetricPrefix, kColumnMetricPrefix, "%CPU", "%MEM", "RSS"});
+		allCommands.put("ps", new UnixCommand(new String[]{"ps", "-eo", "pid,command,pcpu,pmem,rssize"}, commandTypes.REGEXDIM, defaultignores, 0, psMapping));
+		
+		allMetrics.put(CommandMetricUtils.mungeString("ps", "%CPU"), new MetricDetail("Processes", "CPU", "%", metricTypes.NORMAL, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("ps", "%MEM"), new MetricDetail("Processes", "Memory", "%", metricTypes.NORMAL, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("ps", "RSS"), new MetricDetail("Processes", "Resident Size", "bytes", metricTypes.NORMAL, 1));
+		
+		/*
 		 * Parser & declaration for 'svmon' command
 		 */
 		HashMap<Pattern, String[]> svmonMapping = new HashMap<Pattern, String[]>();
