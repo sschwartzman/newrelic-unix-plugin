@@ -1,6 +1,7 @@
 package com.chocolatefactory.newrelic.plugins.unix;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -19,7 +20,7 @@ import com.newrelic.metrics.publish.Agent;
 public class UnixAgent extends Agent {
     
 	// Required for New Relic Plugins
-	public static final String kAgentVersion = "0.2";
+	public static final String kAgentVersion = "3.0";
 	public static final String kAgentGuid = "com.chocolatefactory.newrelic.plugins.unix";
 			
 	boolean isDebug = false;
@@ -82,7 +83,7 @@ public class UnixAgent extends Agent {
     
 	@Override
 	public void pollCycle() {
-		BufferedReader commandReader;
+		BufferedReader commandReader = null;
 		if (thisCommand == null) {
 			logger.error("Unix Agent does not support this command for your OS: "+ commandName);
 			return;
@@ -92,18 +93,26 @@ public class UnixAgent extends Agent {
 			switch(thisCommand.getType()) {
 			case INTERFACEDIM:
 				for(String thisinterface : interfaces) {
-					commandReader = this.getCommandReader(CommandMetricUtils.replaceInArray(thisCommand.getCommand(), UnixMetrics.kInterfacePlaceholder, thisinterface));
-					CommandMetricUtils.parseRegexMetricOutput(commandName, thisCommand.getLineMappings(), thisinterface, thisCommand.getLineLimit(), thisMetricOutput, umetrics.allMetrics, commandReader);
+					commandReader = CommandMetricUtils.executeCommand(
+						CommandMetricUtils.replaceInArray(thisCommand.getCommand(), 
+						UnixMetrics.kInterfacePlaceholder, thisinterface));
+					CommandMetricUtils.parseRegexMetricOutput(commandName, 
+						thisCommand.getLineMappings(), thisinterface, 
+						thisCommand.getLineLimit(), thisMetricOutput, 
+						umetrics.allMetrics, commandReader);
 				}
 				reportMetrics(thisMetricOutput);
 				break;
 			case REGEXDIM:
-				commandReader = this.getCommandReader(thisCommand.getCommand());
-				CommandMetricUtils.parseRegexMetricOutput(commandName, thisCommand.getLineMappings(), "", thisCommand.getLineLimit(), thisMetricOutput, umetrics.allMetrics, commandReader);
+				commandReader = CommandMetricUtils.executeCommand(thisCommand.getCommand());
+				CommandMetricUtils.parseRegexMetricOutput(commandName, 
+					thisCommand.getLineMappings(), "", 
+					thisCommand.getLineLimit(), thisMetricOutput, 
+					umetrics.allMetrics, commandReader);
 				reportMetrics(thisMetricOutput);
 				break;
 			case SIMPLEDIM:
-				commandReader = this.getCommandReader(thisCommand.getCommand());
+				commandReader = CommandMetricUtils.executeCommand(thisCommand.getCommand());
 				reportMetricsSimple(CommandMetricUtils.parseSimpleMetricOutput(commandName, commandReader));
 				break;
 			default:
@@ -113,17 +122,19 @@ public class UnixAgent extends Agent {
 		} catch (Exception e) {
 			logger.error("Error: Parsing of " + thisCommand.getCommand() + "could not be completed.");
 			e.printStackTrace();
+		} finally {
+			if (commandReader != null) {
+				try {
+					commandReader.close();
+				} catch (IOException e) {
+					logger.error("Error: " + thisCommand.getCommand() + "could not be closed.");
+					e.printStackTrace();
+				}
+			}
 		}
 	}
 	
-	public BufferedReader getCommandReader(String[] thisCommand) { 
-		BufferedReader commandReader = CommandMetricUtils.executeCommand(thisCommand, false);
-		if (commandReader == null) {
-			logger.error("Error: Command response is null. No result processing attempted.");
-			return null;
-		}
-		else return commandReader;
-	}
+
 	
 	public void reportMetrics(HashMap<String, MetricOutput> thisMetricOutput) {
 		if(isDebug) {
@@ -132,17 +143,18 @@ public class UnixAgent extends Agent {
 		for(MetricOutput thisMetric : thisMetricOutput.values()) {
 			MetricDetail thisMetricDetail = thisMetric.getMetricDetail();
 			logger.debug(CommandMetricUtils.mungeString(thisMetricDetail.getPrefix(), 
-					CommandMetricUtils.mungeString(thisMetric.getNamePrefix(), thisMetricDetail.getName())) +
+				CommandMetricUtils.mungeString(thisMetric.getNamePrefix(), thisMetricDetail.getName())) +
 				", " + thisMetric.getValue() + " " + thisMetricDetail.getUnits());
 			if(!isDebug) {
-				reportMetric(CommandMetricUtils.mungeString(CommandMetricUtils.mungeString(thisMetricDetail.getPrefix(), thisMetric.getNamePrefix()), 
-				thisMetricDetail.getName()), thisMetricDetail.getUnits(), thisMetric.getValue());
+				reportMetric(CommandMetricUtils.mungeString(
+					CommandMetricUtils.mungeString(thisMetricDetail.getPrefix(), thisMetric.getNamePrefix()), 
+					thisMetricDetail.getName()), thisMetricDetail.getUnits(), thisMetric.getValue());
 			}
 		}
 	}
 	
 	public void getInterfaces() {
-		BufferedReader interfacesReader = this.getCommandReader(interfaceCommand);
+		BufferedReader interfacesReader = CommandMetricUtils.executeCommand(interfaceCommand);
 		Pattern interfacePattern = Pattern.compile("(?!\\s+)(\\w+\\d*)[:]{0,1}\\s+.*");
 		String line;
 		this.interfaces = new HashSet<String>();
@@ -156,6 +168,15 @@ public class UnixAgent extends Agent {
 		} catch (Exception e) {
 			logger.error("Error: Parsing of " + interfaceCommand + "could not be completed.");
 			e.printStackTrace();
+		} finally {
+			try {
+				if(interfacesReader != null) {
+					interfacesReader.close();	
+				}
+			} catch (IOException e) {
+				logger.error("Error: " + interfaceCommand + "could not be closed.");
+				e.printStackTrace();
+			}
 		}
 		logger.debug("Interfaces found: " + interfaces);
 	}
@@ -167,7 +188,8 @@ public class UnixAgent extends Agent {
 		Iterator<Entry<String, Number>> outputIterator = outputMetrics.entrySet().iterator();  
 		while (outputIterator.hasNext()) { 
 			Map.Entry<String, Number> pairs = outputIterator.next();
-			String metricType = CommandMetricUtils.getSimpleMetricType(pairs.getKey().substring(pairs.getKey().lastIndexOf("/") + 1));
+			String metricType = CommandMetricUtils.getSimpleMetricType(
+				pairs.getKey().substring(pairs.getKey().lastIndexOf("/") + 1));
 			logger.debug(pairs.getKey() + ", " + pairs.getValue() + " " + metricType);
 			if(!isDebug) {
 				reportMetric(pairs.getKey(), metricType, pairs.getValue());

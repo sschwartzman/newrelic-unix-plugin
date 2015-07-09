@@ -78,7 +78,7 @@ public class AIXMetrics extends UnixMetrics {
 		allMetrics.put(CommandMetricUtils.mungeString("entstat", "Transmit/Packets"), new MetricDetail("Network", "Transmit/Packets", "packets", metricTypes.DELTA, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("entstat", "Transmit/Bytes"), new MetricDetail("Network", "Transmit/Bytes", "bytes", metricTypes.DELTA, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("entstat", "Transmit/Interrupts"), new MetricDetail("Network", "Transmit/Interrupts", "interrupts", metricTypes.DELTA, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("entstat", "Transmit/Transmit Errors"), new MetricDetail("Network", "Transmit/Errors", "errors", metricTypes.DELTA, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("entstat", "Transmit/Errors"), new MetricDetail("Network", "Transmit/Errors", "errors", metricTypes.DELTA, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("entstat", "Transmit/Packets Dropped"), new MetricDetail("Network", "Transmit/Dropped", "packets", metricTypes.DELTA, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("entstat", "Transmit/Max Packets on SW Transmit Queue"), new MetricDetail("Network", "Transmit/Max Packets on SW Transmit Queue", "packets", metricTypes.DELTA, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("entstat", "Transmit/SW Transmit Queue Overflow"), new MetricDetail("Network", "Transmit/SW Transmit Queue Overflow", "packets", metricTypes.DELTA, 1));
@@ -99,7 +99,7 @@ public class AIXMetrics extends UnixMetrics {
 		allMetrics.put(CommandMetricUtils.mungeString("entstat", "Receive/Packets"), new MetricDetail("Network", "Receive/Packets", "packets", metricTypes.DELTA, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("entstat", "Receive/Bytes"), new MetricDetail("Network", "Receive/Bytes", "bytes", metricTypes.DELTA, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("entstat", "Receive/Interrupts"), new MetricDetail("Network", "Receive/Interrupts", "interrupts", metricTypes.DELTA, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("entstat", "Receive/Receive Errors"), new MetricDetail("Network", "Receive/Errors", "errors", metricTypes.DELTA, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("entstat", "Receive/Errors"), new MetricDetail("Network", "Receive/Errors", "errors", metricTypes.DELTA, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("entstat", "Receive/Packets Dropped"), new MetricDetail("Network", "Receive/Dropped", "packets", metricTypes.DELTA, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("entstat", "Receive/Bad Packets"), new MetricDetail("Network", "Receive/Bad Packets", "packets", metricTypes.DELTA, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("entstat", "Receive/Broadcast Packets"), new MetricDetail("Network", "Receive/Broadcast Packets", "packets", metricTypes.DELTA, 1));
@@ -122,11 +122,11 @@ public class AIXMetrics extends UnixMetrics {
 			new String[]{kColumnMetricPrefix, "tm_act", "Kbps", "tps", "Kb_read", "Kb_wrtn"});
 		allCommands.put("iostat", new UnixCommand(new String[]{"iostat","-d"}, commandTypes.REGEXDIM, defaultignores, 0, iostatMapping));
 		
-		allMetrics.put(CommandMetricUtils.mungeString("iostat", "kbps"), new MetricDetail("DiskIO", "Data Transferred per Second", "kb/s", metricTypes.NORMAL, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("iostat", "tps"), new MetricDetail("DiskIO", "Transfers per Second", "transfers/s", metricTypes.NORMAL, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("iostat", "kb_read"), new MetricDetail("DiskIO", "Data Read", "kb", metricTypes.NORMAL, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("iostat", "kb_wrtn"), new MetricDetail("DiskIO", "Data Written", "kb", metricTypes.NORMAL, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("iostat", "tm_act"), new MetricDetail("DiskIO", "Percentage of Time Active", "%", metricTypes.NORMAL, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("iostat", "kbps"), new MetricDetail("DiskIO", "Data Transferred per Second", "kb", metricTypes.NORMAL, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("iostat", "tps"), new MetricDetail("DiskIO", "Transfers per Second", "transfers", metricTypes.NORMAL, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("iostat", "kb_read"), new MetricDetail("DiskIO", "Data Read per Interval", "kb", metricTypes.DELTA, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("iostat", "kb_wrtn"), new MetricDetail("DiskIO", "Data Written per Interval", "kb", metricTypes.DELTA, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("iostat", "tm_act"), new MetricDetail("DiskIO", "Percentage of Time Busy", "%", metricTypes.NORMAL, 1));
 
 		/*
 		 * Parser & declaration for 'lparstat' command

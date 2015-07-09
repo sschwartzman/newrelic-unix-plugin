@@ -21,6 +21,10 @@ public class CommandMetricUtils {
 	private static Pattern singleMetricLinePattern = Pattern.compile("\\S*(\\d+)\\s+([\\w-%\\(\\)])(\\s{0,1}[\\w-%\\(\\)])*");
 	private static final Logger logger = Logger.getLogger(UnixAgent.class);
 	
+	public static BufferedReader executeCommand(String[] interfaceCommand) {
+		return executeCommand(interfaceCommand, false);
+	}
+	
 	public static BufferedReader executeCommand(String[] command, Boolean useFile) {
 		
 		BufferedReader br = null;
@@ -47,7 +51,7 @@ public class CommandMetricUtils {
 				}
 			}
 		} else {
-			Process proc;
+			Process proc = null;
 			try {
 				if (command != null) {
 					CommandMetricUtils.logger.debug("Begin execution of "
@@ -63,6 +67,14 @@ public class CommandMetricUtils {
 						+ Arrays.toString(command) + " failed.");
 				e.printStackTrace();
 				br = null;
+			} finally {
+				if (proc != null) {
+					try {
+						proc.waitFor();
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+				}
 			}
 		}
 		return br;
@@ -172,7 +184,6 @@ public class CommandMetricUtils {
 				}
 			}
 		}
-		commandOutput.close();
 	}
 
 	public static HashMap<String, Number> parseSimpleMetricOutput(
@@ -196,7 +207,6 @@ public class CommandMetricUtils {
 				}
 			}
 		}
-		commandOutput.close();
 		return output;
 	}
 	
