@@ -169,9 +169,9 @@ public class AIXMetrics extends UnixMetrics {
 		allCommands.put("ps", new UnixCommand(new String[]{"ps", "-eo", "pid,command,pcpu,pmem,rssize"}, commandTypes.REGEXDIM, defaultignores, 0, true, psMapping));
 		
 		allMetrics.put(CommandMetricUtils.mungeString("ps", kColumnMetricPrefixCount), new MetricDetail("Processes", "Instance Count", "processes", metricTypes.INCREMENT, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("ps", "PROC%CPU"), new MetricDetail("Processes", "CPU", "%", metricTypes.INCREMENT, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("ps", "PROC%MEM"), new MetricDetail("Processes", "Memory", "%", metricTypes.INCREMENT, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("ps", "PROCRSS"), new MetricDetail("Processes", "Resident Size", "bytes", metricTypes.INCREMENT, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("ps", "PROC%CPU"), new MetricDetail("Processes", "Aggregate CPU", "%", metricTypes.INCREMENT, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("ps", "PROC%MEM"), new MetricDetail("Processes", "Aggregate Memory", "%", metricTypes.INCREMENT, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("ps", "PROCRSS"), new MetricDetail("Processes", "Aggregate Resident Size", "bytes", metricTypes.INCREMENT, 1));
 		
 		/*
 		 * Parser & declaration for 'svmon' command

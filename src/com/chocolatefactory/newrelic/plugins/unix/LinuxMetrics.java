@@ -117,9 +117,9 @@ public class LinuxMetrics extends UnixMetrics {
 		allMetrics.put(CommandMetricUtils.mungeString("ps", "%MEM"), new MetricDetail("Processes", "Memory", "%", metricTypes.NORMAL, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("ps", "RSS"), new MetricDetail("Processes", "Resident Size", "bytes", metricTypes.NORMAL, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("ps", kColumnMetricPrefixCount), new MetricDetail("Processes", "Instance Count", "processes", metricTypes.INCREMENT, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("ps", "PROC%CPU"), new MetricDetail("Processes", "CPU", "%", metricTypes.INCREMENT, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("ps", "PROC%MEM"), new MetricDetail("Processes", "Memory", "%", metricTypes.INCREMENT, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("ps", "PROCRSS"), new MetricDetail("Processes", "Resident Size", "bytes", metricTypes.INCREMENT, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("ps", "PROC%CPU"), new MetricDetail("Processes", "Aggregate CPU", "%", metricTypes.INCREMENT, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("ps", "PROC%MEM"), new MetricDetail("Processes", "Aggregate Memory", "%", metricTypes.INCREMENT, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("ps", "PROCRSS"), new MetricDetail("Processes", "Aggregate Resident Size", "bytes", metricTypes.INCREMENT, 1));
 			
 		/*
 		 * Parsers & declaration for 'top' command
