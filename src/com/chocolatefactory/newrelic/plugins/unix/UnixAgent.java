@@ -99,8 +99,8 @@ public class UnixAgent extends Agent {
 						UnixMetrics.kInterfacePlaceholder, thisinterface));
 					CommandMetricUtils.parseRegexMetricOutput(commandName, 
 						thisCommand.getLineMappings(), thisinterface, 
-						thisCommand.getLineLimit(), metricOutput, 
-						umetrics.allMetrics, commandReader);
+						thisCommand.getLineLimit(), thisCommand.isCheckAllRegex(),
+						metricOutput, umetrics.allMetrics, commandReader);
 				}
 				reportMetrics();
 				break;
@@ -108,8 +108,8 @@ public class UnixAgent extends Agent {
 				commandReader = CommandMetricUtils.executeCommand(thisCommand.getCommand());
 				CommandMetricUtils.parseRegexMetricOutput(commandName, 
 					thisCommand.getLineMappings(), "", 
-					thisCommand.getLineLimit(), metricOutput, 
-					umetrics.allMetrics, commandReader);
+					thisCommand.getLineLimit(), thisCommand.isCheckAllRegex(),
+					metricOutput, umetrics.allMetrics, commandReader);
 				reportMetrics();
 				break;
 			case SIMPLEDIM:

@@ -109,12 +109,18 @@ public class LinuxMetrics extends UnixMetrics {
 		HashMap<Pattern, String[]> psMapping = new HashMap<Pattern, String[]>();
 		psMapping.put(Pattern.compile("(\\d+)\\s+([0-9\\.]+)\\s+([0-9\\.]+)\\s+(\\d+)\\s+([\\w\\d\\/_\\.-]+)"),
 			new String[]{kColumnMetricPrefix, "%CPU", "%MEM", "RSS", kColumnMetricPrefix});
-		allCommands.put("ps", new UnixCommand(new String[]{"ps", "-eo", "pid,%cpu,%mem,rss,comm"}, commandTypes.REGEXDIM, defaultignores, 0, psMapping));
+		psMapping.put(Pattern.compile("\\d+\\s+([0-9\\.]+)\\s+([0-9\\.]+)\\s+(\\d+)\\s+([\\w\\d\\/_\\.-]+)"),
+				new String[]{"PROC%CPU", "PROC%MEM", "PROCRSS", kColumnMetricPrefixCount});
+		allCommands.put("ps", new UnixCommand(new String[]{"ps", "-eo", "pid,%cpu,%mem,rss,comm"}, commandTypes.REGEXDIM, defaultignores, 0, true, psMapping));
 		
 		allMetrics.put(CommandMetricUtils.mungeString("ps", "%CPU"), new MetricDetail("Processes", "CPU", "%", metricTypes.NORMAL, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("ps", "%MEM"), new MetricDetail("Processes", "Memory", "%", metricTypes.NORMAL, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("ps", "RSS"), new MetricDetail("Processes", "Resident Size", "bytes", metricTypes.NORMAL, 1));
-		 
+		allMetrics.put(CommandMetricUtils.mungeString("ps", kColumnMetricPrefixCount), new MetricDetail("Processes", "Instance Count", "processes", metricTypes.INCREMENT, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("ps", "PROC%CPU"), new MetricDetail("Processes", "CPU", "%", metricTypes.INCREMENT, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("ps", "PROC%MEM"), new MetricDetail("Processes", "Memory", "%", metricTypes.INCREMENT, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("ps", "PROCRSS"), new MetricDetail("Processes", "Resident Size", "bytes", metricTypes.INCREMENT, 1));
+			
 		/*
 		 * Parsers & declaration for 'top' command
 		 */		

@@ -138,10 +138,10 @@ public class CommandMetricUtils {
 			return str1 + UnixMetrics.kMetricTreeDivider + str2;
 		}
 	}
-
+	
 	public static void parseRegexMetricOutput(String thisCommand,
 		HashMap<Pattern, String[]> lineMappings, String metricPrefix,
-		int lineLimit, HashMap<String, MetricOutput> currentMetrics,
+		int lineLimit, boolean checkAllRegex, HashMap<String, MetricOutput> currentMetrics,
 		HashMap<String, MetricDetail> metricDeets,
 		BufferedReader commandOutput) throws Exception {
 		
@@ -157,7 +157,8 @@ public class CommandMetricUtils {
 					String thisMetricName = "metric"; //default if somehow the metric name isn't set.
 					// Loop through twice - first to get metric prefixes
 					for (int l = 0; l < lineColumns.length; l++) {
-						if (lineColumns[l] == UnixMetrics.kColumnMetricPrefix) {
+						if (lineColumns[l] == UnixMetrics.kColumnMetricPrefix ||
+								lineColumns[l] == UnixMetrics.kColumnMetricPrefixCount) {
 							thisMetricPrefix = CommandMetricUtils.mungeString(
 								thisMetricPrefix, lineMatch.group(l + 1).replaceAll("/", "-"));
 						} 
@@ -172,15 +173,22 @@ public class CommandMetricUtils {
 							CommandMetricUtils.insertMetric(currentMetrics,
 							metricDeets, CommandMetricUtils.mungeString(thisCommand, thisMetricName),
 							thisMetricPrefix, lineMatch.group(m + 1));
+						} else if (lineColumns[m] == UnixMetrics.kColumnMetricPrefixCount) {
+							CommandMetricUtils.insertMetric(currentMetrics,
+							metricDeets, CommandMetricUtils.mungeString(thisCommand, lineColumns[m]),
+							thisMetricPrefix, "1");
 						} else {
 							CommandMetricUtils.insertMetric(currentMetrics,
 							metricDeets, CommandMetricUtils.mungeString(thisCommand, lineColumns[m]),
 							thisMetricPrefix, lineMatch.group(m + 1));
 						}
 					}
-					// Once we find a valid mapping for this line, stop looking
-					// for matches for this line.
-					break regexloop;
+					// Once we find a valid mapping for this line, 
+					// stop looking for matches for this line,
+					// unless we explicitly want to check all regex mappings.
+					if(!checkAllRegex) {
+						break regexloop;
+					}
 				}
 			}
 
@@ -225,8 +233,12 @@ public class CommandMetricUtils {
 		for(String thisKey : inputMetrics.keySet()) {
 			MetricOutput thisMetric = inputMetrics.get(thisKey);
 			// If it's current, set to "false" for next iteration and transpose to output.
+			// Reset incrementors to 'O' for next go-round
 			if (thisMetric.isCurrent()) {
 				thisMetric.setCurrent(false);
+				if(thisMetric.getMetricDetail().getType() == MetricDetail.metricTypes.INCREMENT) {
+					thisMetric.setValue(0);
+				}
 				outputMetrics.put(thisKey, thisMetric);
 			}
 		}

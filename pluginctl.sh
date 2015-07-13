@@ -101,7 +101,12 @@ restart)
 stop)
 	stop_plugin
 	;;
+stopremlogs)
+	stop_plugin
+	echo "Clearing plugin logs"
+	rm -rf $PLUGIN_PATH/logs/*
+	;;
 *)
-    echo "Usage: $0 [status|start|stop|restart]"
+    echo "Usage: $0 [status|start|stop|stopremlogs|restart]"
     exit 1
 esac

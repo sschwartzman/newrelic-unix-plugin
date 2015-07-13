@@ -19,7 +19,9 @@ public abstract class UnixMetrics {
 	public static final float kGigabytesToBytes=1073741824;
 	public static final float kMegabytesToBytes=1048576;
 	public static final String[] kInterfaceCommand = new String[]{"ifconfig", "-l"};
+	public static enum specialFields{PREFIX, NAME, VALUE, INTERFACE, PREFIX_COUNT, NAME_COUNT};
 	public static final String kColumnMetricPrefix = "THIS_IS_PART_OF_METRIC_NAME";
+	public static final String kColumnMetricPrefixCount = "THIS_IS_PART_OF_METRIC_NAME_AND_COUNT";
 	public static final String kColumnMetricName = "THIS_IS_THE_LAST_PART_OF_METRIC_NAME";
 	public static final String kColumnMetricValue = "THIS_IS_THE_METRIC_VALUE";
 	public static final String kInterfacePlaceholder = "INTERFACE_PLACEHOLDER";
@@ -41,6 +43,7 @@ public abstract class UnixMetrics {
 		private List<Integer> skipColumns;
 		private HashMap<Pattern, String[]> lineMappings;
 		private int lineLimit;
+		private boolean checkAllRegex = false;
 		
 		UnixCommand(String[] tc, commandTypes tt, List<Integer> sc, int ll, HashMap<Pattern, String[]> lm) {
 			setCommand(tc);
@@ -48,6 +51,11 @@ public abstract class UnixMetrics {
 			setSkipColumns(sc);
 			setLineLimit(ll);
 			setLineMappings(lm);
+		}
+		
+		UnixCommand(String[] tc, commandTypes tt, List<Integer> sc, int ll, boolean re, HashMap<Pattern, String[]> lm) {
+			this(tc, tt, sc, ll, lm);
+			setCheckAllRegex(re);
 		}
 		
 		UnixCommand(String[] tc, commandTypes tt, List<Integer> sc) {
@@ -90,6 +98,14 @@ public abstract class UnixMetrics {
 
 		public void setLineLimit(int lineLimit) {
 			this.lineLimit = lineLimit;
+		}
+
+		public boolean isCheckAllRegex() {
+			return checkAllRegex;
+		}
+
+		public void setCheckAllRegex(boolean checkAllRegex) {
+			this.checkAllRegex = checkAllRegex;
 		}
     }
 }

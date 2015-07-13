@@ -19,6 +19,10 @@ public class MetricOutput {
 			dvalue = new EpochProcessor();
 			dvalue.process(mv);
 		}
+		// Initialize value to 0 if incrementor
+		if (this.getMetricDetail().getType().equals(MetricDetail.metricTypes.INCREMENT)) {
+			setValue(0);
+		}
 		setValue(mv);
 		setCurrent(true);
 	}
@@ -37,14 +41,17 @@ public class MetricOutput {
 
 	public void setValue(Number mv) {
 		switch(this.getMetricDetail().getType()) {
+			case INCREMENT:
+				if(this.mvalue == null) {
+					this.mvalue = (float) 0;
+				}
+				this.mvalue = mv.floatValue() + this.getValue().floatValue();
+				break;
 			case DELTA:
 				this.mvalue = dvalue.process(mv);
 				if(this.mvalue == null) {
 					this.mvalue = (float) 0;
 				}
-				break;
-			case INCREMENT:
-				this.mvalue = mv.floatValue() + this.getValue().floatValue();
 				break;
 			case NORMAL:
 				this.mvalue = mv;
@@ -70,5 +77,4 @@ public class MetricOutput {
 	public void setCurrent(boolean current) {
 		this.current = current;
 	}
-
 }

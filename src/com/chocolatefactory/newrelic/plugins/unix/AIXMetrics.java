@@ -164,11 +164,14 @@ public class AIXMetrics extends UnixMetrics {
 		HashMap<Pattern, String[]> psMapping = new HashMap<Pattern, String[]>();
 		psMapping.put(Pattern.compile("(\\d+)\\s+([\\w\\d_\\.]+)\\s+([0-9\\.]+)\\s+([0-9\\.]+)\\s+(\\d+)"),
 			new String[]{kColumnMetricPrefix, kColumnMetricPrefix, "%CPU", "%MEM", "RSS"});
-		allCommands.put("ps", new UnixCommand(new String[]{"ps", "-eo", "pid,command,pcpu,pmem,rssize"}, commandTypes.REGEXDIM, defaultignores, 0, psMapping));
+		psMapping.put(Pattern.compile("\\d+\\s+([\\w\\d_\\.]+)\\s+([0-9\\.]+)\\s+([0-9\\.]+)\\s+(\\d+)"),
+			new String[]{kColumnMetricPrefixCount, "PROC%CPU", "PROC%MEM", "PROCRSS"});
+		allCommands.put("ps", new UnixCommand(new String[]{"ps", "-eo", "pid,command,pcpu,pmem,rssize"}, commandTypes.REGEXDIM, defaultignores, 0, true, psMapping));
 		
-		allMetrics.put(CommandMetricUtils.mungeString("ps", "%CPU"), new MetricDetail("Processes", "CPU", "%", metricTypes.NORMAL, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("ps", "%MEM"), new MetricDetail("Processes", "Memory", "%", metricTypes.NORMAL, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("ps", "RSS"), new MetricDetail("Processes", "Resident Size", "bytes", metricTypes.NORMAL, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("ps", kColumnMetricPrefixCount), new MetricDetail("Processes", "Instance Count", "processes", metricTypes.INCREMENT, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("ps", "PROC%CPU"), new MetricDetail("Processes", "CPU", "%", metricTypes.INCREMENT, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("ps", "PROC%MEM"), new MetricDetail("Processes", "Memory", "%", metricTypes.INCREMENT, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("ps", "PROCRSS"), new MetricDetail("Processes", "Resident Size", "bytes", metricTypes.INCREMENT, 1));
 		
 		/*
 		 * Parser & declaration for 'svmon' command
