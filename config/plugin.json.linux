@@ -18,6 +18,11 @@
         {
             "OS": "auto",
             "debug": false,
+            "command": "ps"
+        },
+        {
+            "OS": "auto",
+            "debug": false,
             "command": "top"
         },
         {

@@ -218,6 +218,21 @@ public class CommandMetricUtils {
 		return output;
 	}
 	
+	// Resets current metrics to "false" and removes stale metrics
+	public static HashMap<String, MetricOutput> resetCurrentMetrics(
+			HashMap<String,MetricOutput> inputMetrics) {
+		HashMap<String, MetricOutput> outputMetrics = new HashMap<String, MetricOutput>();
+		for(String thisKey : inputMetrics.keySet()) {
+			MetricOutput thisMetric = inputMetrics.get(thisKey);
+			// If it's current, set to "false" for next iteration and transpose to output.
+			if (thisMetric.isCurrent()) {
+				thisMetric.setCurrent(false);
+				outputMetrics.put(thisKey, thisMetric);
+			}
+		}
+		return outputMetrics;
+	}
+	
 	public static String[] replaceInArray(String[] thisArray, String findThis, String replaceWithThis) {
 		String[] outputArray = new String[thisArray.length];
 		for (int i=0; i < thisArray.length; i++) {

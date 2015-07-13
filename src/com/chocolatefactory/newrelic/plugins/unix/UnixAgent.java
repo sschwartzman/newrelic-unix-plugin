@@ -2,6 +2,7 @@ package com.chocolatefactory.newrelic.plugins.unix;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -116,18 +117,18 @@ public class UnixAgent extends Agent {
 				reportMetricsSimple(CommandMetricUtils.parseSimpleMetricOutput(commandName, commandReader));
 				break;
 			default:
-				logger.error("Command Type " + thisCommand.getType() + " is invalid.");
+				logger.error("Command Type " + thisCommand.getType().toString() + " is invalid.");
 				return;
 			}
 		} catch (Exception e) {
-			logger.error("Error: Parsing of " + thisCommand.getCommand() + "could not be completed.");
+			logger.error("Error: Parsing of " + Arrays.toString(thisCommand.getCommand()) + "could not be completed.");
 			e.printStackTrace();
 		} finally {
 			if (commandReader != null) {
 				try {
 					commandReader.close();
 				} catch (IOException e) {
-					logger.error("Error: " + thisCommand.getCommand() + "could not be closed.");
+					logger.error("Error: " + Arrays.toString(thisCommand.getCommand()) + "could not be closed.");
 					e.printStackTrace();
 				}
 			}
@@ -140,6 +141,7 @@ public class UnixAgent extends Agent {
 		}
 		for(String thisMetricKey : metricOutput.keySet()) {
 			MetricOutput thisMetric = metricOutput.get(thisMetricKey);
+			// Only report current metrics. Stale metrics will be cleaned out afterward.
 			if (thisMetric.isCurrent()) {
 				MetricDetail thisMetricDetail = thisMetric.getMetricDetail();
 				logger.debug(CommandMetricUtils.mungeString(thisMetricDetail.getPrefix(), 
@@ -150,14 +152,10 @@ public class UnixAgent extends Agent {
 						CommandMetricUtils.mungeString(thisMetricDetail.getPrefix(), thisMetric.getNamePrefix()), 
 						thisMetricDetail.getName()), thisMetricDetail.getUnits(), thisMetric.getValue());
 				}
-				// Reset current to false (will be set to true if exists in next poll cycle)
-				thisMetric.setCurrent(false);
-				metricOutput.put(thisMetricKey, thisMetric);
-			} else {
-				// Purge metrics that are no longer current
-				metricOutput.remove(thisMetricKey);
 			}
-		}
+		}	
+		// After metrics are all reported, reset "current" list and clear out stale metrics
+		metricOutput = CommandMetricUtils.resetCurrentMetrics(metricOutput);
 	}
 	
 	public void getInterfaces() {
@@ -173,7 +171,7 @@ public class UnixAgent extends Agent {
 				}
 			}
 		} catch (Exception e) {
-			logger.error("Error: Parsing of " + interfaceCommand + "could not be completed.");
+			logger.error("Error: Parsing of " + Arrays.toString(interfaceCommand) + "could not be completed.");
 			e.printStackTrace();
 		} finally {
 			try {
@@ -181,7 +179,7 @@ public class UnixAgent extends Agent {
 					interfacesReader.close();	
 				}
 			} catch (IOException e) {
-				logger.error("Error: " + interfaceCommand + "could not be closed.");
+				logger.error("Error: " + Arrays.toString(interfaceCommand) + "could not be closed.");
 				e.printStackTrace();
 			}
 		}
