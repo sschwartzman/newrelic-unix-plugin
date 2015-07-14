@@ -162,16 +162,15 @@ public class AIXMetrics extends UnixMetrics {
 		 * Parser & declaration for 'ps' command
 		 */
 		HashMap<Pattern, String[]> psMapping = new HashMap<Pattern, String[]>();
-		psMapping.put(Pattern.compile("(\\d+)\\s+([\\w\\d_\\.]+)\\s+([0-9\\.]+)\\s+([0-9\\.]+)\\s+(\\d+)"),
-			new String[]{kColumnMetricPrefix, kColumnMetricPrefix, "%CPU", "%MEM", "RSS"});
-		psMapping.put(Pattern.compile("\\d+\\s+([\\w\\d_\\.]+)\\s+([0-9\\.]+)\\s+([0-9\\.]+)\\s+(\\d+)"),
-			new String[]{kColumnMetricPrefixCount, "PROC%CPU", "PROC%MEM", "PROCRSS"});
-		allCommands.put("ps", new UnixCommand(new String[]{"ps", "-eo", "pid,command,pcpu,pmem,rssize"}, commandTypes.REGEXDIM, defaultignores, 0, true, psMapping));
+		psMapping.put(Pattern.compile("([\\w\\d_\\.]+)\\s+(?!0\\.0\\s+0\\.0)([0-9\\.]+)\\s+([0-9\\.]+)\\s+(\\d+)"),
+			new String[]{kColumnMetricPrefixCount, "%CPU", "%MEM", "RSS"});
+		allCommands.put("ps", new UnixCommand(new String[]{"ps", "-eo", "command,pcpu,pmem,rssize"}, 
+			commandTypes.REGEXDIM, defaultignores, 0, true, psMapping));
 		
 		allMetrics.put(CommandMetricUtils.mungeString("ps", kColumnMetricPrefixCount), new MetricDetail("Processes", "Instance Count", "processes", metricTypes.INCREMENT, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("ps", "PROC%CPU"), new MetricDetail("Processes", "Aggregate CPU", "%", metricTypes.INCREMENT, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("ps", "PROC%MEM"), new MetricDetail("Processes", "Aggregate Memory", "%", metricTypes.INCREMENT, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("ps", "PROCRSS"), new MetricDetail("Processes", "Aggregate Resident Size", "bytes", metricTypes.INCREMENT, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("ps", "%CPU"), new MetricDetail("Processes", "Aggregate CPU", "%", metricTypes.INCREMENT, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("ps", "%MEM"), new MetricDetail("Processes", "Aggregate Memory", "%", metricTypes.INCREMENT, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("ps", "RSS"), new MetricDetail("Processes", "Aggregate Resident Size", "kb", metricTypes.INCREMENT, 1));
 		
 		/*
 		 * Parser & declaration for 'svmon' command

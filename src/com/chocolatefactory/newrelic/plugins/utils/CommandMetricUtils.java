@@ -153,6 +153,7 @@ public class CommandMetricUtils {
 				String[] lineColumns = lineMapping.getValue();
 				Matcher lineMatch = lineRegex.matcher(line.trim());
 				if (lineMatch.matches()) {
+					logger.debug("Matched: " + line);
 					String thisMetricPrefix = metricPrefix;
 					String thisMetricName = "metric"; //default if somehow the metric name isn't set.
 					// Loop through twice - first to get metric prefixes
@@ -189,6 +190,8 @@ public class CommandMetricUtils {
 					if(!checkAllRegex) {
 						break regexloop;
 					}
+				} else {
+					logger.debug("Skipped: " + line);
 				}
 			}
 
@@ -236,8 +239,8 @@ public class CommandMetricUtils {
 			// Reset incrementors to 'O' for next go-round
 			if (thisMetric.isCurrent()) {
 				thisMetric.setCurrent(false);
-				if(thisMetric.getMetricDetail().getType() == MetricDetail.metricTypes.INCREMENT) {
-					thisMetric.setValue(0);
+				if(thisMetric.getMetricDetail().getType().equals(MetricDetail.metricTypes.INCREMENT)) {
+					thisMetric.resetValue();
 				}
 				outputMetrics.put(thisKey, thisMetric);
 			}

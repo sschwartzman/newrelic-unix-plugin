@@ -43,14 +43,14 @@ public class MetricOutput {
 		switch(this.getMetricDetail().getType()) {
 			case INCREMENT:
 				if(this.mvalue == null) {
-					this.mvalue = (float) 0;
+					resetValue();
 				}
 				this.mvalue = mv.floatValue() + this.getValue().floatValue();
 				break;
 			case DELTA:
 				this.mvalue = dvalue.process(mv);
 				if(this.mvalue == null) {
-					this.mvalue = (float) 0;
+					resetValue();
 				}
 				break;
 			case NORMAL:
@@ -62,6 +62,10 @@ public class MetricOutput {
 		}
 	}
 
+	public void resetValue() {
+		this.mvalue = (float) 0;
+	}
+	
 	public MetricDetail getMetricDetail() {
 		return mdetail;
 	}
