@@ -33,9 +33,10 @@ public class LinuxMetrics extends UnixMetrics {
 		HashMap<Pattern, String[]> iostatMapping = new HashMap<Pattern, String[]>();
 		iostatMapping.put(Pattern.compile("\\s*([0-9\\.]+)\\s+([0-9\\.]+)\\s+([0-9\\.]+)\\s+([0-9\\.]+)\\s+([0-9\\.]+)\\s+([0-9\\.]+)"),
 			new String[]{"%user", "%nice", "%system", "%iowait", "%steal", "%idle"});
-		iostatMapping.put(Pattern.compile("(\\w+[-]{0,1}\\d*)\\s+([0-9\\.]+)\\s+([0-9\\.]+)\\s+([0-9\\.]+)\\s+(\\d+)\\s+(\\d+)"),
-			new String[]{kColumnMetricPrefix, "tps", "kB_read-s", "kB_wrtn-s", "kB_read", "kB_wrtn"});
-		allCommands.put("iostat", new UnixCommand(new String[]{"iostat","-k"}, commandTypes.REGEXDIM, defaultignores, 0, iostatMapping));
+		iostatMapping.put(Pattern.compile("(\\w+[-]{0,1}\\d*)\\s+([0-9\\.]+)\\s+([0-9\\.]+)\\s+([0-9\\.]+)\\s+([0-9\\.]+)"
+			+ "\\s+([0-9\\.]+)\\s+([0-9\\.]+)\\s+([0-9\\.]+)\\s+([0-9\\.]+)\\s+([0-9\\.]+)\\s+([0-9\\.]+)\\s+([0-9\\.]+)"),
+			new String[]{kColumnMetricPrefix, "rrqm-s", "wrqm-s", "r-s", "w-s", "rkB-s", "wkB-s", "avgrq-sz", "avgqu-sz", "await", "svctm", "%util"});
+		allCommands.put("iostat", new UnixCommand(new String[]{"iostat","-c", "-k", "-x"}, commandTypes.REGEXDIM, defaultignores, 0, iostatMapping));
 		
 		allMetrics.put(CommandMetricUtils.mungeString("iostat", "%user"), new MetricDetail("CPU", "User", "%", metricTypes.NORMAL, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("iostat", "%nice"), new MetricDetail("CPU", "Nice", "%", metricTypes.NORMAL, 1));
@@ -43,11 +44,17 @@ public class LinuxMetrics extends UnixMetrics {
 		allMetrics.put(CommandMetricUtils.mungeString("iostat", "%iowait"), new MetricDetail("CPU", "Waiting", "%", metricTypes.NORMAL, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("iostat", "%steal"), new MetricDetail("CPU", "Stolen", "%", metricTypes.NORMAL, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("iostat", "%idle"), new MetricDetail("CPU", "Idle", "%", metricTypes.NORMAL, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("iostat", "tps"), new MetricDetail("DiskIO", "Transfers per Second", "transfers", metricTypes.NORMAL, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("iostat", "kB_read-s"), new MetricDetail("DiskIO", "Data Read per Second", "kb", metricTypes.NORMAL, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("iostat", "kB_read"), new MetricDetail("DiskIO", "Data Read per Interval", "kb", metricTypes.DELTA, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("iostat", "kB_wrtn-s"), new MetricDetail("DiskIO", "Data Written per Second", "kb", metricTypes.NORMAL, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("iostat", "kB_wrtn"), new MetricDetail("DiskIO", "Data Written per Interval", "kb", metricTypes.DELTA, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("iostat", "rrqm-s"), new MetricDetail("DiskIO", "Queued Merged Read Requests", "requests", metricTypes.NORMAL, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("iostat", "wrqm-s"), new MetricDetail("DiskIO", "Queued Merged Write Requests", "requests", metricTypes.NORMAL, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("iostat", "r-s"), new MetricDetail("DiskIO", "Reads Per Second", "transfers", metricTypes.NORMAL, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("iostat", "w-s"), new MetricDetail("DiskIO", "Writes Per Second", "transfers", metricTypes.NORMAL, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("iostat", "rkB-s"), new MetricDetail("DiskIO", "Data Read Per Second", "kb", metricTypes.NORMAL, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("iostat", "wkB-s"), new MetricDetail("DiskIO", "Data Written Per Second", "kb", metricTypes.NORMAL, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("iostat", "avgrq-sz"), new MetricDetail("DiskIO", "Average Request Size", "sectors", metricTypes.NORMAL, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("iostat", "avgqu-sz"), new MetricDetail("DiskIO", "Average Requests Queued", "requests", metricTypes.NORMAL, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("iostat", "await"), new MetricDetail("DiskIO", "Average Response Time", "ms", metricTypes.NORMAL, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("iostat", "svctm"), new MetricDetail("DiskIO", "Total Request Time", "ms", metricTypes.NORMAL, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("iostat", "%util"), new MetricDetail("DiskIO", "Percentage of Time Busy", "%", metricTypes.NORMAL, 1));
 		
 		/*
 		 * Parser & declaration for "NetworkIO"
