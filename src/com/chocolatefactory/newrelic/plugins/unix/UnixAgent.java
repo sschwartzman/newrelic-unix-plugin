@@ -23,15 +23,17 @@ public class UnixAgent extends Agent {
 	// Required for New Relic Plugins
 	public static final String kAgentVersion = "3.0";
 	public static final String kAgentGuid = "com.chocolatefactory.newrelic.plugins.unix";
+	
+	static final String kDefaultServerName = "unixserver";
 			
 	boolean isDebug = false;
 	UnixMetrics umetrics;
 	HashMap<String, MetricOutput> metricOutput = new HashMap<String, MetricOutput>();
 	String commandName;
-	String hostName;
+	String hostName = "";
 	String[] interfaceCommand;
 	HashSet<String> interfaces;
-	UnixCommand thisCommand;
+	UnixCommand thisCommand = null;
 	private static final Logger logger = Logger.getLogger(UnixAgent.class);
 	
 	public UnixAgent(String os, String command, Boolean debug, String hostname) {
@@ -61,8 +63,8 @@ public class UnixAgent extends Agent {
 			}
 		} else {
 			logger.error("Unix Agent does not support this command for your OS: "+ commandName);
-			thisCommand = null;
 		}
+		
 		if (!hostname.isEmpty()) {
 			hostName = hostname;
 		}
@@ -70,15 +72,16 @@ public class UnixAgent extends Agent {
 
 	@Override
     public String getAgentName() {
-		if (hostName != null && !hostName.isEmpty()) {
-			return hostName;
-		} else {
-			try {
+		try {
+			if (hostName != null && !hostName.isEmpty()) {
+				return hostName;
+			} else {
 				return java.net.InetAddress.getLocalHost().getHostName();
-			} catch (Exception e) {
-				logger.debug("Naming failed: " + e.toString());
-				return "testserver";
-			}
+			} 
+		} catch (Exception e) {
+			logger.error("Naming failed: " + e.toString());
+			logger.error("Applying default server name (" + kDefaultServerName + ") to this server");
+			return kDefaultServerName;
 		}
     }
     
@@ -86,7 +89,7 @@ public class UnixAgent extends Agent {
 	public void pollCycle() {
 		BufferedReader commandReader = null;
 		if (thisCommand == null) {
-			logger.error("Unix Agent does not support this command for your OS: "+ commandName);
+			logger.error("Unix Agent experienced an error initializing: " + commandName);
 			return;
 		}
 
