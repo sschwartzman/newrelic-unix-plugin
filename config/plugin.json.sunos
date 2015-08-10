@@ -10,11 +10,6 @@
             "debug": false,
             "command": "iostat"
         },
-                {
-            "OS": "auto",
-            "debug": false,
-            "command": "iostatCPU"
-        },
         {
             "OS": "auto",
             "debug": false,

@@ -1,7 +1,6 @@
 package com.chocolatefactory.newrelic.plugins.unix;
 
-import java.io.BufferedReader;
-import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -21,7 +20,7 @@ import com.newrelic.metrics.publish.Agent;
 public class UnixAgent extends Agent {
     
 	// Required for New Relic Plugins
-	public static final String kAgentVersion = "3.0";
+	public static final String kAgentVersion = "3.1";
 	public static final String kAgentGuid = "com.chocolatefactory.newrelic.plugins.unix";
 	
 	static final String kDefaultServerName = "unixserver";
@@ -39,7 +38,6 @@ public class UnixAgent extends Agent {
 	public UnixAgent(String os, String command, Boolean debug, String hostname) {
 		super(kAgentGuid, kAgentVersion);
 		commandName = command;
-		
 		if(os.contains("linux")) {
 			umetrics = new LinuxMetrics();
 			interfaceCommand = new String[]{"/sbin/ifconfig", "-a"};
@@ -87,7 +85,7 @@ public class UnixAgent extends Agent {
     
 	@Override
 	public void pollCycle() {
-		BufferedReader commandReader = null;
+		ArrayList<String> commandReader = null;
 		if (thisCommand == null) {
 			logger.error("Unix Agent experienced an error initializing: " + commandName);
 			return;
@@ -126,15 +124,6 @@ public class UnixAgent extends Agent {
 		} catch (Exception e) {
 			logger.error("Error: Parsing of " + Arrays.toString(thisCommand.getCommand()) + "could not be completed.");
 			e.printStackTrace();
-		} finally {
-			if (commandReader != null) {
-				try {
-					commandReader.close();
-				} catch (IOException e) {
-					logger.error("Error: " + Arrays.toString(thisCommand.getCommand()) + "could not be closed.");
-					e.printStackTrace();
-				}
-			}
 		}
 	}
 	
@@ -162,12 +151,11 @@ public class UnixAgent extends Agent {
 	}
 	
 	public void getInterfaces() {
-		BufferedReader interfacesReader = CommandMetricUtils.executeCommand(interfaceCommand);
+		ArrayList<String> interfacesReader = CommandMetricUtils.executeCommand(interfaceCommand);
 		Pattern interfacePattern = Pattern.compile("(?!\\s+)(\\w+\\d*)[:]{0,1}\\s+.*");
-		String line;
 		this.interfaces = new HashSet<String>();
 		try {
-			while((line = interfacesReader.readLine()) != null) {
+			for (String line : interfacesReader) {
 				Matcher lineMatch = interfacePattern.matcher(line);
 				if (lineMatch.matches()) {
 					interfaces.add(lineMatch.group(1));
@@ -176,15 +164,6 @@ public class UnixAgent extends Agent {
 		} catch (Exception e) {
 			logger.error("Error: Parsing of " + Arrays.toString(interfaceCommand) + "could not be completed.");
 			e.printStackTrace();
-		} finally {
-			try {
-				if(interfacesReader != null) {
-					interfacesReader.close();	
-				}
-			} catch (IOException e) {
-				logger.error("Error: " + Arrays.toString(interfaceCommand) + "could not be closed.");
-				e.printStackTrace();
-			}
 		}
 		logger.debug("Interfaces found: " + interfaces);
 	}

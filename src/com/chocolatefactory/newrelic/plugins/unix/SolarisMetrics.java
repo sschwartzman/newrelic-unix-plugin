@@ -32,7 +32,7 @@ public class SolarisMetrics extends UnixMetrics {
 		iostatMapping.put(Pattern.compile("\\s*([\\/\\w\\d]+)\\s+([0-9\\.]+)\\s+([0-9\\.]+)\\s+([0-9\\.]+)" +
 			"\\s+([0-9\\.]+)\\s+([0-9\\.]+)\\s+([0-9\\.]+)\\s+([0-9\\.]+)\\s+(\\d+)\\s+(\\d+)"),
 			new String[]{kColumnMetricPrefix,"r-s","w-s","kr-s","kw-s","wait","actv","svc_t","%w","%b"});
-		allCommands.put("iostat", new UnixCommand(new String[]{"iostat","-x"}, commandTypes.REGEXDIM, defaultignores, 0, iostatMapping));
+		allCommands.put("iostat", new UnixCommand(new String[]{"iostat","-x", "1", "2"}, commandTypes.REGEXDIM, defaultignores, 0, iostatMapping));
 		
 		allMetrics.put(CommandMetricUtils.mungeString("iostat", "r-s"), new MetricDetail("DiskIO", "Reads per Second", "transfers", metricTypes.NORMAL, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("iostat", "w-s"), new MetricDetail("DiskIO", "Writes per Second", "transfers", metricTypes.NORMAL, 1));
@@ -46,11 +46,12 @@ public class SolarisMetrics extends UnixMetrics {
 		
 		/*
 		 * Parser & declaration for 'iostat' CPU command
+		 * ** NOT USED IN FAVOR OF TOP **
 		 */
 		HashMap<Pattern, String[]> iostatCPUMapping = new HashMap<Pattern, String[]>();
 		iostatCPUMapping.put(Pattern.compile("\\s*(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)"),
 			new String[]{"us","sy","wt","id"});
-		allCommands.put("iostatCPU", new UnixCommand(new String[]{"iostat","-c"}, commandTypes.REGEXDIM, defaultignores, 0, iostatCPUMapping));
+		allCommands.put("iostatCPU", new UnixCommand(new String[]{"iostat","-c", "1", "2"}, commandTypes.REGEXDIM, defaultignores, 0, iostatCPUMapping));
 		
 		allMetrics.put(CommandMetricUtils.mungeString("iostatCPU", "us"), new MetricDetail("CPU", "User", "%", metricTypes.NORMAL, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("iostatCPU", "sy"), new MetricDetail("CPU", "System", "%", metricTypes.NORMAL, 1));
@@ -102,13 +103,12 @@ public class SolarisMetrics extends UnixMetrics {
 		HashMap<Pattern, String[]> psMapping = new HashMap<Pattern, String[]>();
 		psMapping.put(Pattern.compile("(?!0\\.0\\s+0\\.0)([0-9\\.]+)\\s+([0-9\\.]+)\\s+(\\d+)\\s+([\\w\\d\\/_\\.-]+)"),
 				new String[]{"%CPU", "%MEM", "RSS", kColumnMetricPrefixCount});
-		allCommands.put("ps", new UnixCommand(new String[]{"ps", "-eo", "pcpu,pmem,rss,comm"}, 
-				commandTypes.REGEXDIM, defaultignores, 0, true, psMapping));
+		allCommands.put("ps", new UnixCommand(new String[]{"ps", "-eo", "pcpu,pmem,rss,comm"}, commandTypes.REGEXDIM, defaultignores, 0, psMapping));
 		
-		allMetrics.put(CommandMetricUtils.mungeString("ps", kColumnMetricPrefixCount), new MetricDetail("Processes", "Instance Count", "processes", metricTypes.INCREMENT, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("ps", "%CPU"), new MetricDetail("Processes", "Aggregate CPU", "%", metricTypes.INCREMENT, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("ps", "%MEM"), new MetricDetail("Processes", "Aggregate Memory", "%", metricTypes.INCREMENT, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("ps", "RSS"), new MetricDetail("Processes", "Aggregate Resident Size", "kb", metricTypes.INCREMENT, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("ps", kColumnMetricPrefixCount), new MetricDetail("Processes", "Instance Count", "processes", metricTypes.NORMAL, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("ps", "%CPU"), new MetricDetail("Processes", "Aggregate CPU", "%", metricTypes.NORMAL, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("ps", "%MEM"), new MetricDetail("Processes", "Aggregate Memory", "%", metricTypes.NORMAL, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("ps", "RSS"), new MetricDetail("Processes", "Aggregate Resident Size", "kb", metricTypes.NORMAL, 1));
 			
 		/*
 		 * Parser & declaration for 'swap' command
@@ -133,6 +133,8 @@ public class SolarisMetrics extends UnixMetrics {
 			new String[]{"proctot", "procslp", "proccpu"});
 		topMapping.put(Pattern.compile("Memory:\\s+([0-9]+)M\\s+phys mem,\\s+([0-9]+)M\\s+free mem,\\s+([0-9]+)M\\s+total swap,\\s+([0-9]+)M\\s+free swap"), 
 			new String[]{"memphys", "memfree", "swaptot", "swapfree"});
+		topMapping.put(Pattern.compile("CPU states:\\s+([0-9\\.]+)%\\s+idle,\\s+([0-9\\.]+)%\\s+user,\\s+([0-9\\.]+)%\\s+kernel,\\s+([0-9\\.]+)%\\s+iowait,\\s+([0-9\\.]+)%\\s+swap"),
+			new String[]{"cpuidle", "cpuuser", "cpukern", "cpuiowait", "cpuswap"});
 		allCommands.put("top", new UnixCommand(new String[]{"top","-b"}, commandTypes.REGEXDIM, defaultignores, 5, topMapping));
 		
 		allMetrics.put(CommandMetricUtils.mungeString("top", "la1"), new MetricDetail("LoadAverage", "1 Minute", "load", metricTypes.NORMAL, 1));
@@ -145,6 +147,11 @@ public class SolarisMetrics extends UnixMetrics {
 		allMetrics.put(CommandMetricUtils.mungeString("top", "memfree"), new MetricDetail("MemoryDetailed", "PhysMem/Free", "mb", metricTypes.NORMAL, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("top", "swaptot"), new MetricDetail("MemoryDetailed", "Swap/Total", "mb", metricTypes.NORMAL, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("top", "swapfree"), new MetricDetail("MemoryDetailed", "Swap/Free", "mb", metricTypes.NORMAL, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("top", "cpuidle"), new MetricDetail("CPU", "Idle", "%", metricTypes.NORMAL, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("top", "cpuuser"), new MetricDetail("CPU", "User", "%", metricTypes.NORMAL, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("top", "cpukern"), new MetricDetail("CPU", "Kernel", "%", metricTypes.NORMAL, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("top", "cpuiowait"), new MetricDetail("CPU", "IOWait", "%", metricTypes.NORMAL, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("top", "cpuswap"), new MetricDetail("CPU", "Swap", "%", metricTypes.NORMAL, 1));
 		
 		/*
 		 * Parsers & declaration for 'vmstat' command
@@ -156,7 +163,7 @@ public class SolarisMetrics extends UnixMetrics {
 			+ "\\s+(\\d+)\\s+(\\d+)\\s+\\d+\\s+\\d+\\s+\\d+"),
 			new String[]{"r","b","w","swap","free","re","mf","pi","po","fr",
 				"de","sr","d0","d1","d2","d3","in","sy","cs"});
-		allCommands.put("vmstat", new UnixCommand(new String[]{"vmstat"}, commandTypes.REGEXDIM, defaultignores, 0, vmstatMapping));
+		allCommands.put("vmstat", new UnixCommand(new String[]{"vmstat", "1", "2"}, commandTypes.REGEXDIM, defaultignores, 0, vmstatMapping));
 
 		allMetrics.put(CommandMetricUtils.mungeString("vmstat", "r"), new MetricDetail("KernelThreads", "Runnable", "threads", metricTypes.NORMAL, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("vmstat", "b"), new MetricDetail("KernelThreads", "In Wait Queue", "threads", metricTypes.NORMAL, 1));

@@ -5,12 +5,14 @@ import java.util.Map;
 import com.newrelic.metrics.publish.Agent;
 import com.newrelic.metrics.publish.AgentFactory;
 import com.newrelic.metrics.publish.configuration.ConfigurationException;
+import com.newrelic.metrics.publish.util.Logger;
 
 public class UnixAgentFactory extends AgentFactory {
 	
 	public UnixAgentFactory() {
-		// TODO Auto-generated constructor stub
 		super();
+		Logger logger = Logger.getLogger(UnixAgentFactory.class);
+		logger.info("Unix Agent version: " + UnixAgent.kAgentVersion);
 	}
 
 	@Override

@@ -3,7 +3,9 @@ package com.chocolatefactory.newrelic.plugins.utils;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -16,18 +18,19 @@ import com.newrelic.metrics.publish.util.Logger;
 
 public class CommandMetricUtils {
 
-	private static Runtime rt = Runtime.getRuntime();
 	private static Pattern dashesPattern = Pattern.compile("\\s*[\\w-]+(\\s+[-]+)+(\\s[\\w-]*)*");
 	private static Pattern singleMetricLinePattern = Pattern.compile("\\S*(\\d+)\\s+([\\w-%\\(\\)])(\\s{0,1}[\\w-%\\(\\)])*");
 	private static final Logger logger = Logger.getLogger(UnixAgent.class);
 	
-	public static BufferedReader executeCommand(String[] interfaceCommand) {
+	public static ArrayList<String> executeCommand(String[] interfaceCommand) {
 		return executeCommand(interfaceCommand, false);
 	}
 	
-	public static BufferedReader executeCommand(String[] command, Boolean useFile) {
-		
+	public static ArrayList<String> executeCommand(String[] command, Boolean useFile) {
+		Runtime rt = Runtime.getRuntime();
 		BufferedReader br = null;
+		ArrayList<String> al = new ArrayList<String>();
+		String line;
 		
 		if (useFile) {
 			File commandFile = new File(command + ".out");
@@ -42,12 +45,20 @@ public class CommandMetricUtils {
 			} else {
 				try {
 					br = new BufferedReader(new FileReader(commandFile));
+					while((line = br.readLine()) != null) {
+						al.add(line);
+					}
 				} catch (Exception e) {
 					CommandMetricUtils.logger.error("Error: "
 							+ commandFile.getAbsolutePath()
 							+ " does not exist.");
 					e.printStackTrace();
-					br = null;
+				} finally {
+					try {
+						br.close();
+					} catch (IOException e) {
+						// If we can't close, then it's probably closed.
+					}
 				}
 			}
 		} else {
@@ -56,9 +67,12 @@ public class CommandMetricUtils {
 				if (command != null) {
 					CommandMetricUtils.logger.debug("Begin execution of "
 							+ Arrays.toString(command));
-					proc = CommandMetricUtils.rt.exec(command);
+					proc = rt.exec(command);
 					br = new BufferedReader(new InputStreamReader(
 							proc.getInputStream()));
+					while((line = br.readLine()) != null) {
+						al.add(line);
+					}
 				} else {
 					CommandMetricUtils.logger.error("Error: command was null.");
 				}
@@ -66,18 +80,18 @@ public class CommandMetricUtils {
 				CommandMetricUtils.logger.error("Error: Execution of "
 						+ Arrays.toString(command) + " failed.");
 				e.printStackTrace();
-				br = null;
 			} finally {
-				if (proc != null) {
-					try {
+				try {
+					br.close();
+					if (proc != null) {
 						proc.waitFor();
-					} catch (InterruptedException e) {
-						e.printStackTrace();
 					}
+				} catch (Exception e) {
+					// If we can't close, then it's probably closed.
 				}
 			}
 		}
-		return br;
+		return al;
 	}
 
 	public static String getSimpleMetricType(String metricInput) {
@@ -143,11 +157,10 @@ public class CommandMetricUtils {
 		HashMap<Pattern, String[]> lineMappings, String metricPrefix,
 		int lineLimit, boolean checkAllRegex, HashMap<String, MetricOutput> currentMetrics,
 		HashMap<String, MetricDetail> metricDeets,
-		BufferedReader commandOutput) throws Exception {
+		ArrayList<String> commandOutput) throws Exception {
 		
-		String line;
 		int lineCount = 0;
-		lineloop: while ((line = commandOutput.readLine()) != null) {
+		lineloop: for(String line : commandOutput) {
 			regexloop: for (Map.Entry<Pattern, String[]> lineMapping : lineMappings.entrySet()) {
 				Pattern lineRegex = lineMapping.getKey();
 				String[] lineColumns = lineMapping.getValue();
@@ -206,12 +219,10 @@ public class CommandMetricUtils {
 	}
 
 	public static HashMap<String, Number> parseSimpleMetricOutput(
-		String thisCommand, BufferedReader commandOutput) throws Exception {
+		String thisCommand, ArrayList<String> commandOutput) throws Exception {
 		
 		HashMap<String, Number> output = new HashMap<String, Number>();
-		String line;
-
-		while ((line = commandOutput.readLine()) != null) {
+		for(String line : commandOutput) {
 			line = line.trim();
 			if (CommandMetricUtils.singleMetricLinePattern.matcher(line).matches()
 					&& !CommandMetricUtils.dashesPattern.matcher(line).matches()) {
