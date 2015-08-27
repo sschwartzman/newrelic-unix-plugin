@@ -162,7 +162,7 @@ public class AIXMetrics extends UnixMetrics {
 		 * Parser & declaration for 'ps' command
 		 */
 		HashMap<Pattern, String[]> psMapping = new HashMap<Pattern, String[]>();
-		psMapping.put(Pattern.compile("([\\w\\d_\\.]+)\\s+(?!0\\.0\\s+0\\.0)([0-9\\.]+)\\s+([0-9\\.]+)\\s+(\\d+)"),
+		psMapping.put(Pattern.compile("([\\w\\d_\\.]+)\\s+([0-9\\.]+)\\s+([0-9\\.]+)\\s+(\\d+)"),
 			new String[]{kColumnMetricPrefixCount, "%CPU", "%MEM", "RSS"});
 		allCommands.put("ps", new UnixCommand(new String[]{"ps", "-eo", "command,pcpu,pmem,rssize"}, 
 			commandTypes.REGEXDIM, defaultignores, 0, psMapping));

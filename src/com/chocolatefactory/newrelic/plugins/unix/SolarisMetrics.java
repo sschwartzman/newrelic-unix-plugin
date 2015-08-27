@@ -101,7 +101,7 @@ public class SolarisMetrics extends UnixMetrics {
 		 * Parser & declaration for 'ps' command
 		 */
 		HashMap<Pattern, String[]> psMapping = new HashMap<Pattern, String[]>();
-		psMapping.put(Pattern.compile("(?!0\\.0\\s+0\\.0)([0-9\\.]+)\\s+([0-9\\.]+)\\s+(\\d+)\\s+([\\w\\d\\/_\\.-]+)"),
+		psMapping.put(Pattern.compile("([0-9\\.]+)\\s+([0-9\\.]+)\\s+(\\d+)\\s+([\\w\\d\\/_\\.-]+)"),
 				new String[]{"%CPU", "%MEM", "RSS", kColumnMetricPrefixCount});
 		allCommands.put("ps", new UnixCommand(new String[]{"ps", "-eo", "pcpu,pmem,rss,comm"}, commandTypes.REGEXDIM, defaultignores, 0, psMapping));
 		
