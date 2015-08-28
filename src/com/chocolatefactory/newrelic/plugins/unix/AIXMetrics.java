@@ -120,7 +120,7 @@ public class AIXMetrics extends UnixMetrics {
 		HashMap<Pattern, String[]> iostatMapping = new HashMap<Pattern, String[]>();
 		iostatMapping.put(Pattern.compile("\\s*(\\w+\\d*)\\s+([0-9\\.]+)\\s+([0-9\\.]+)\\s+([0-9\\.]+)\\s+([0-9\\.]+)\\s+([0-9\\.]+)"),
 			new String[]{kColumnMetricPrefix, "tm_act", "Kbps", "tps", "Kb_read", "Kb_wrtn"});
-		allCommands.put("iostat", new UnixCommand(new String[]{"iostat", "-d", "1 1"}, commandTypes.REGEXDIM, defaultignores, 0, iostatMapping));
+		allCommands.put("iostat", new UnixCommand(new String[]{"iostat", "-d", "1", "1"}, commandTypes.REGEXDIM, defaultignores, 0, iostatMapping));
 		
 		allMetrics.put(CommandMetricUtils.mungeString("iostat", "kbps"), new MetricDetail("DiskIO", "Data Transferred per Second", "kb", metricTypes.NORMAL, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("iostat", "tps"), new MetricDetail("DiskIO", "Transfers per Second", "transfers", metricTypes.NORMAL, 1));
@@ -134,7 +134,7 @@ public class AIXMetrics extends UnixMetrics {
 		HashMap<Pattern, String[]> lparstatMapping = new HashMap<Pattern, String[]>();
 		lparstatMapping.put(Pattern.compile("\\s*([0-9\\.]+)\\s+([0-9\\.]+)\\s+([0-9\\.]+)\\s+([0-9\\.]+)"),
 			new String[]{"user", "sys", "wait", "idle"});
-		allCommands.put("lparstat", new UnixCommand(new String[]{"lparstat", "1 1"}, commandTypes.REGEXDIM, defaultignores, 0, lparstatMapping));
+		allCommands.put("lparstat", new UnixCommand(new String[]{"lparstat", "1", "1"}, commandTypes.REGEXDIM, defaultignores, 0, lparstatMapping));
 		
 		allMetrics.put(CommandMetricUtils.mungeString("lparstat", "user"), new MetricDetail("CPU", "User", "%", metricTypes.NORMAL, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("lparstat", "sys"), new MetricDetail("CPU", "System", "%", metricTypes.NORMAL, 1));
@@ -162,15 +162,15 @@ public class AIXMetrics extends UnixMetrics {
 		 * Parser & declaration for 'ps' command
 		 */
 		HashMap<Pattern, String[]> psMapping = new HashMap<Pattern, String[]>();
-		psMapping.put(Pattern.compile("([\\w\\d_\\.]+)\\s+([0-9\\.]+)\\s+([0-9\\.]+)\\s+(\\d+)"),
+		psMapping.put(Pattern.compile("([^\\s]+)\\s+([0-9\\.]+)\\s+([0-9\\.]+)\\s+(\\d+)"),
 			new String[]{kColumnMetricPrefixCount, "%CPU", "%MEM", "RSS"});
 		allCommands.put("ps", new UnixCommand(new String[]{"ps", "-eo", "command,pcpu,pmem,rssize"}, 
 			commandTypes.REGEXDIM, defaultignores, 0, psMapping));
 		
-		allMetrics.put(CommandMetricUtils.mungeString("ps", kColumnMetricPrefixCount), new MetricDetail("Processes", "Instance Count", "processes", metricTypes.NORMAL, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("ps", "%CPU"), new MetricDetail("Processes", "Aggregate CPU", "%", metricTypes.NORMAL, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("ps", "%MEM"), new MetricDetail("Processes", "Aggregate Memory", "%", metricTypes.NORMAL, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("ps", "RSS"), new MetricDetail("Processes", "Aggregate Resident Size", "kb", metricTypes.NORMAL, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("ps", kColumnMetricPrefixCount), new MetricDetail("Processes", "Instance Count", "processes", metricTypes.INCREMENT, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("ps", "%CPU"), new MetricDetail("Processes", "Aggregate CPU", "%", metricTypes.INCREMENT, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("ps", "%MEM"), new MetricDetail("Processes", "Aggregate Memory", "%", metricTypes.INCREMENT, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("ps", "RSS"), new MetricDetail("Processes", "Aggregate Resident Size", "kb", metricTypes.INCREMENT, 1));
 		
 		/*
 		 * Parser & declaration for 'svmon' command
@@ -218,7 +218,7 @@ public class AIXMetrics extends UnixMetrics {
 			"\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)" + 
 			"\\s+\\d+\\s+\\d+\\s+\\d+\\s+\\d+"),
 			new String[]{"r","b","avm","fre","re","pi","po","fr","sr","cy","in","sy","cs"});
-		allCommands.put("vmstat", new UnixCommand(new String[]{"vmstat", "1 1"}, commandTypes.REGEXDIM, defaultignores, 0, vmstatMapping));
+		allCommands.put("vmstat", new UnixCommand(new String[]{"vmstat", "1", "1"}, commandTypes.REGEXDIM, defaultignores, 0, vmstatMapping));
 
 		allMetrics.put(CommandMetricUtils.mungeString("vmstat", "r"), new MetricDetail("KernelThreads", "Runnable", "threads", metricTypes.NORMAL, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("vmstat", "b"), new MetricDetail("KernelThreads", "In Wait Queue", "threads", metricTypes.NORMAL, 1));
@@ -239,6 +239,6 @@ public class AIXMetrics extends UnixMetrics {
 		// allMetrics.put(CommandMetricUtils.mungeString("vmstat", "id"), new MetricDetail("CPU", "Idle", "%", metricTypes.NORMAL, 1));
 		// allMetrics.put(CommandMetricUtils.mungeString("vmstat", "wa"), new MetricDetail("CPU", "Waiting", "%", metricTypes.NORMAL, 1));
 		
-		allCommands.put("VmstatTotals", new UnixCommand(new String[]{"vmstat","-s"}, commandTypes.SIMPLEDIM, defaultignores));
+		allCommands.put("VmstatTotals", new UnixCommand(new String[]{"vmstat", "-s"}, commandTypes.SIMPLEDIM, defaultignores));
 	}
 }

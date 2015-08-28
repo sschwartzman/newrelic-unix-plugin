@@ -169,17 +169,27 @@ public class CommandMetricUtils {
 					logger.debug("Matched: " + line);
 					String thisMetricPrefix = metricPrefix;
 					String thisMetricName = "metric"; //default if somehow the metric name isn't set.
-					// Loop through twice - first to get metric prefixes
+					
+					// Loop through columns of regexed line twice
+					// First loop - get metric prefixes
 					for (int l = 0; l < lineColumns.length; l++) {
 						if (lineColumns[l] == UnixMetrics.kColumnMetricPrefix ||
 								lineColumns[l] == UnixMetrics.kColumnMetricPrefixCount) {
-							thisMetricPrefix = CommandMetricUtils.mungeString(
-								thisMetricPrefix, lineMatch.group(l + 1).replaceAll("/", "-"));
-						} 
+							String thisPrefix = lineMatch.group(l + 1);
+							if(thisPrefix.startsWith("/")) {
+								thisMetricPrefix = CommandMetricUtils.mungeString(
+									thisMetricPrefix, thisPrefix.substring(thisPrefix.lastIndexOf('/') + 1));
+							} else {
+								thisMetricPrefix = CommandMetricUtils.mungeString(
+									thisMetricPrefix, thisPrefix.replaceAll("/", "-"));
+							}
+						}
 					}
+					
 					// Second loop - get metrics
 					for (int m = 0; m < lineColumns.length; m++) {
-						if (lineColumns[m] == UnixMetrics.kColumnMetricPrefix) {
+						if (lineColumns[m] == UnixMetrics.kColumnMetricPrefix || 
+								lineColumns[m] == UnixMetrics.kColumnIgnore) {
 							continue;
 						} else if (lineColumns[m] == UnixMetrics.kColumnMetricName) {
 							thisMetricName = lineMatch.group(m + 1).replaceAll("/", "-");

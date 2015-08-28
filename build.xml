@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <project basedir="." default="dist" name="newrelic_unix_plugin">
+    <!-- UPDATE VERSION NUMBER HERE, NOT DIRECTLY IN SRC! -->
+	<property name="version" value="3.1.2"/>
+	
+	<property name="unixagent.file" value="com/chocolatefactory/newrelic/plugins/unix/UnixAgent.java"/>
 	<property name="pluginname" value="newrelic_unix_plugin"/>
 	<property name="pluginname.long" value="New Relic Unix Plugin"/>
-    <property name="version" value="3.0.0"/>
     <property name="filename" value="${pluginname}"/>
     <property name="jarfile" value="${pluginname}.jar"/>
     <property name="tarfile" value="${filename}.tar.gz"/>
@@ -41,7 +44,12 @@
     </target>
 
     <target name="compile" depends="init">
-        <echo>Building project.</echo>
+    	<echo>Updating version number.</echo>
+    	<replaceregexp file="${src.dir}/${unixagent.file}"
+    		match="kAgentVersion = .*"
+    		replace="kAgentVersion = &quot;${version}&quot;;"
+    	/>
+    	<echo>Building project.</echo>
         <mkdir dir="${build.classes.dir}"/>
         <javac srcdir="${src.dir}" destdir="${build.classes.dir}" target="1.6" source="1.6">
             <classpath refid="classpath"/>

@@ -25,6 +25,7 @@ public abstract class UnixMetrics {
 	public static final String kColumnMetricName = "THIS_IS_THE_LAST_PART_OF_METRIC_NAME";
 	public static final String kColumnMetricValue = "THIS_IS_THE_METRIC_VALUE";
 	public static final String kInterfacePlaceholder = "INTERFACE_PLACEHOLDER";
+	public static final String kColumnIgnore = "IGNORE_THIS_COLUMN";
 	
 	public HashMap<String, MetricDetail> allMetrics = new HashMap<String, MetricDetail>();
 	public HashMap<String, UnixCommand> allCommands = new HashMap<String, UnixCommand>();
