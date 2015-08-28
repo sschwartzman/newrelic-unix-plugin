@@ -104,8 +104,7 @@ public class LinuxMetrics extends UnixMetrics {
 		allMetrics.put(CommandMetricUtils.mungeString("netstat", "RX-ERR"), new MetricDetail("Network", "Receive/Errors", "errors", metricTypes.DELTA, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("netstat", "RX-DRP"), new MetricDetail("Network", "Receive/Dropped", "packets", metricTypes.DELTA, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("netstat", "RX-OVR"), new MetricDetail("Network", "Receive/Overrun Errors", "errors", metricTypes.DELTA, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("netstat", "TX-O:q!"
-				+ "K"), new MetricDetail("Network", "Transmit/Packets", "packets", metricTypes.DELTA, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("netstat", "TX-OK"), new MetricDetail("Network", "Transmit/Packets", "packets", metricTypes.DELTA, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("netstat", "TX-ERR"), new MetricDetail("Network", "Transmit/Errors", "errors", metricTypes.DELTA, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("netstat", "TX-DRP"), new MetricDetail("Network", "Transmit/Drops", "packets", metricTypes.DELTA, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("netstat", "TX-OVR"), new MetricDetail("Network", "Transmit/Overrun Errors", "errors", metricTypes.DELTA, 1));
