@@ -6,10 +6,10 @@
 
 ### What's new in V3?
 
-* Support for "netstat" commands on all platforms!
-* MUCH improved parsing of commands, now using regex!
+* Support for "netstat" and "ps" commands on all platforms
+* MUCH improved parsing of commands, now using regex
 
-This plugin has been upgraded to V2.0.1 of the New Relic Platform Java SDK, which helps to simplify and the installation experience, and adds a couple of key features:
+This plugin has been upgraded to V2.0.1 of the New Relic Platform Java SDK, which helps to simplify and the installation experience, and adds a few key features:
 
 * 'newrelic.properties' file is now 'newrelic.json'
 * Plugin configuration is now done through 'plugin.json'
