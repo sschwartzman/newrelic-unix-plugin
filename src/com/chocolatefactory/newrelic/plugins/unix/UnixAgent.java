@@ -20,7 +20,7 @@ import com.newrelic.metrics.publish.Agent;
 public class UnixAgent extends Agent {
     
 	// Required for New Relic Plugins
-	public static final String kAgentVersion = "3.1.2";
+	public static final String kAgentVersion = "3.1.3";
 	public static final String kAgentGuid = "com.chocolatefactory.newrelic.plugins.unix";
 	
 	static final String kDefaultServerName = "unixserver";

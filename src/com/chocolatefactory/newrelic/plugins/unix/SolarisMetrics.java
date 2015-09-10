@@ -160,7 +160,7 @@ public class SolarisMetrics extends UnixMetrics {
 		vmstatMapping.put(Pattern.compile("\\s*(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)"
 			+ "\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+[-]{0,1}(\\d+)"
 			+ "\\s+[-]{0,1}(\\d+)\\s+[-]{0,1}(\\d+)\\s+[-]{0,1}(\\d+)\\s+(\\d+)"
-			+ "\\s+(\\d+)\\s+(\\d+)\\s+\\d+\\s+\\d+\\s+\\d+"),
+			+ "\\s+(\\d+)\\s+(\\d+).*"),
 			new String[]{"r","b","w","swap","free","re","mf","pi","po","fr",
 				"de","sr","d0","d1","d2","d3","in","sy","cs"});
 		allCommands.put("vmstat", new UnixCommand(new String[]{"vmstat", "1", "2"}, commandTypes.REGEXDIM, defaultignores, 0, vmstatMapping));
@@ -184,12 +184,6 @@ public class SolarisMetrics extends UnixMetrics {
 		allMetrics.put(CommandMetricUtils.mungeString("vmstat", "in"), new MetricDetail("Faults", "Device Interrupts", "interrupts", metricTypes.NORMAL, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("vmstat", "sy"), new MetricDetail("Faults", "System Calls", "threads", metricTypes.NORMAL, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("vmstat", "cs"), new MetricDetail("Faults", "Context Switches", "switches", metricTypes.NORMAL, 1));
-		/*
-		** Skipping 3 columns of vmstat for CPU measurement - using iostat instead.
-		** allMetrics.put(CommandMetricUtils.mungeString("vmstat", "us"), new MetricDetail("CPU", "User", "%", metricTypes.NORMAL, 1));
-		** allMetrics.put(CommandMetricUtils.mungeString("vmstat", "sy"), new MetricDetail("CPU", "System", "%", metricTypes.NORMAL, 1));
-		** allMetrics.put(CommandMetricUtils.mungeString("vmstat", "id"), new MetricDetail("CPU", "Idle", "%", metricTypes.NORMAL, 1));
-		*/
 		
 		allCommands.put("VmstatTotals", new UnixCommand(new String[]{"vmstat","-s"}, commandTypes.SIMPLEDIM, defaultignores));
 	}

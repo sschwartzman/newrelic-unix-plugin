@@ -132,15 +132,15 @@ public class AIXMetrics extends UnixMetrics {
 		 * Parser & declaration for 'lparstat' command
 		 */
 		HashMap<Pattern, String[]> lparstatMapping = new HashMap<Pattern, String[]>();
-		lparstatMapping.put(Pattern.compile("\\s*([0-9\\.]+)\\s+([0-9\\.]+)\\s+([0-9\\.]+)\\s+([0-9\\.]+)"),
+		lparstatMapping.put(Pattern.compile("\\s*([0-9\\.]+)\\s+([0-9\\.]+)\\s+([0-9\\.]+)\\s+([0-9\\.]+).*"),
 			new String[]{"user", "sys", "wait", "idle"});
 		allCommands.put("lparstat", new UnixCommand(new String[]{"lparstat", "1", "1"}, commandTypes.REGEXDIM, defaultignores, 0, lparstatMapping));
 		
 		allMetrics.put(CommandMetricUtils.mungeString("lparstat", "user"), new MetricDetail("CPU", "User", "%", metricTypes.NORMAL, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("lparstat", "sys"), new MetricDetail("CPU", "System", "%", metricTypes.NORMAL, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("lparstat", "idle"), new MetricDetail("CPU", "Idle", "%", metricTypes.NORMAL, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("lparstat", "wait"), new MetricDetail("CPU", "IOWait", "%", metricTypes.NORMAL, 1));
-		
+		allMetrics.put(CommandMetricUtils.mungeString("lparstat", "idle"), new MetricDetail("CPU", "Idle", "%", metricTypes.NORMAL, 1));
+
 		/*
 		 * Parser & declaration for 'netstat' command
 		 * ** NOT USED IN FAVOR OF ENTSTAT **
@@ -215,8 +215,7 @@ public class AIXMetrics extends UnixMetrics {
 		 */
 		HashMap<Pattern, String[]> vmstatMapping = new HashMap<Pattern, String[]>();
 		vmstatMapping.put(Pattern.compile("\\s*(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)" +
-			"\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)" + 
-			"\\s+\\d+\\s+\\d+\\s+\\d+\\s+\\d+"),
+			"\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+).*"),
 			new String[]{"r","b","avm","fre","re","pi","po","fr","sr","cy","in","sy","cs"});
 		allCommands.put("vmstat", new UnixCommand(new String[]{"vmstat", "1", "1"}, commandTypes.REGEXDIM, defaultignores, 0, vmstatMapping));
 
@@ -233,11 +232,6 @@ public class AIXMetrics extends UnixMetrics {
 		allMetrics.put(CommandMetricUtils.mungeString("vmstat", "in"), new MetricDetail("Faults", "Device Interrupts", "interrupts", metricTypes.NORMAL, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("vmstat", "sy"), new MetricDetail("Faults", "System Calls", "threads", metricTypes.NORMAL, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("vmstat", "cs"), new MetricDetail("Faults", "Context Switches", "switches", metricTypes.NORMAL, 1));
-		// Skipping last 4 columns of vmstat for CPU measurement - using iostat instead.
-		// allMetrics.put(CommandMetricUtils.mungeString("vmstat", "us"), new MetricDetail("CPU", "User", "%", metricTypes.NORMAL, 1));
-		// allMetrics.put(CommandMetricUtils.mungeString("vmstat", "sy"), new MetricDetail("CPU", "System", "%", metricTypes.NORMAL, 1));
-		// allMetrics.put(CommandMetricUtils.mungeString("vmstat", "id"), new MetricDetail("CPU", "Idle", "%", metricTypes.NORMAL, 1));
-		// allMetrics.put(CommandMetricUtils.mungeString("vmstat", "wa"), new MetricDetail("CPU", "Waiting", "%", metricTypes.NORMAL, 1));
 		
 		allCommands.put("VmstatTotals", new UnixCommand(new String[]{"vmstat", "-s"}, commandTypes.SIMPLEDIM, defaultignores));
 	}
