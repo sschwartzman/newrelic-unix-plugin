@@ -73,7 +73,7 @@ public class AIXMetrics extends UnixMetrics {
 			new String[]{"Transmit/Multiple Collision Count"});
 		entstatMapping.put(Pattern.compile(".*Current HW Transmit Queue\\s+Length:\\s+([0-9\\.]+)"),
 			new String[]{"Transmit/Current HW Transmit Queue Length"});
-		allCommands.put("entstat", new UnixCommand(new String[]{"entstat", kInterfacePlaceholder}, commandTypes.INTERFACEDIM, defaultignores, 0, entstatMapping));
+		allCommands.put("entstat", new UnixCommand(new String[]{"entstat", kMemberPlaceholder}, commandTypes.REGEXLISTDIM, defaultignores, 0, entstatMapping));
 		
 		allMetrics.put(CommandMetricUtils.mungeString("entstat", "Transmit/Packets"), new MetricDetail("Network", "Transmit/Packets", "packets", metricTypes.DELTA, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("entstat", "Transmit/Bytes"), new MetricDetail("Network", "Transmit/Bytes", "bytes", metricTypes.DELTA, 1));

@@ -62,8 +62,8 @@ public class LinuxMetrics extends UnixMetrics {
 		HashMap<Pattern, String[]> networkIOMapping = new HashMap<Pattern, String[]>();
 		networkIOMapping.put(Pattern.compile("\\/sys\\/class\\/net\\/[\\w\\d]+\\/statistics\\/([\\w_]+):(\\d+)"),
 			new String[]{kColumnMetricName, kColumnMetricValue});	
-		allCommands.put("NetworkIO", new UnixCommand(new String[]{"grep", "-r", ".", "/sys/class/net/" + kInterfacePlaceholder + "/statistics", "2>&1"}, 
-				commandTypes.INTERFACEDIM, defaultignores, 0, networkIOMapping));
+		allCommands.put("NetworkIO", new UnixCommand(new String[]{"grep", "-r", ".", "/sys/class/net/" + kMemberPlaceholder + "/statistics", "2>&1"}, 
+				commandTypes.REGEXLISTDIM, defaultignores, 0, networkIOMapping));
 		allMetrics.put(CommandMetricUtils.mungeString("NetworkIO", "collisions"), new MetricDetail("Network", "Collisions", "packets", metricTypes.DELTA, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("NetworkIO", "multicast"), new MetricDetail("Network", "Multicast", "packets", metricTypes.DELTA, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("NetworkIO", "rx_bytes"), new MetricDetail("Network", "Receive/Bytes", "bytes", metricTypes.DELTA, 1));

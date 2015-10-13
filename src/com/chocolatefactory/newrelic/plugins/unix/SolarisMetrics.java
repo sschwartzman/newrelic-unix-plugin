@@ -64,7 +64,7 @@ public class SolarisMetrics extends UnixMetrics {
 		HashMap<Pattern, String[]> kstatMapping = new HashMap<Pattern, String[]>();
 		kstatMapping.put(Pattern.compile("(\\w+\\d*)\\s+([0-9\\.]+)"),
 			new String[]{kColumnMetricName, kColumnMetricValue});
-		allCommands.put("kstat", new UnixCommand(new String[]{"kstat", "-n", kInterfacePlaceholder}, commandTypes.INTERFACEDIM, defaultignores, 0, kstatMapping));
+		allCommands.put("kstat", new UnixCommand(new String[]{"kstat", "-n", kMemberPlaceholder}, commandTypes.REGEXLISTDIM, defaultignores, 0, kstatMapping));
 		
 		allMetrics.put(CommandMetricUtils.mungeString("kstat", "brdcstrcv"), new MetricDetail("Network", "Receive/Broadcast", "packets", metricTypes.DELTA, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("kstat", "brdcstxmt"), new MetricDetail("Network", "Transmit/Broadcast", "packets", metricTypes.DELTA, 1));

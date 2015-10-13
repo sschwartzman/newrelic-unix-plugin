@@ -140,6 +140,10 @@ public class CommandMetricUtils {
 		} else if (metricDeets.containsKey(metricName)) {
 			currentMetrics.put(fullMetricName,
 				new MetricOutput(metricDeets.get(metricName), metricPrefix,	metricValue));
+		} else {
+			currentMetrics.put(fullMetricName, new MetricOutput(
+				new MetricDetail(metricPrefix, metricName, UnixMetrics.kDefaultMetricType, MetricDetail.metricTypes.NORMAL, 1),
+				metricPrefix, metricValue));
 		}
 	}
 

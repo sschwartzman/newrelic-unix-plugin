@@ -1,0 +1,34 @@
+{
+    "agents": [
+        {
+            "OS": "auto",
+            "debug": false,
+            "command": "df"
+        },
+        {
+            "OS": "auto",
+            "debug": false,
+            "command": "iostat"
+        },
+        {
+            "OS": "auto",
+            "debug": false,
+            "command": "netstat"
+        },
+        {
+            "OS": "auto",
+            "debug": false,
+            "command": "ps"
+        },
+        {
+            "OS": "auto",
+            "debug": false,
+            "command": "top"
+        },
+        {
+            "OS": "auto",
+            "debug": false,
+            "command": "vm_stat"
+        }
+    ]
+}

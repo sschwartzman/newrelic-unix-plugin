@@ -30,8 +30,8 @@ public class UnixAgent extends Agent {
 	HashMap<String, MetricOutput> metricOutput = new HashMap<String, MetricOutput>();
 	String commandName;
 	String hostName = "";
-	String[] interfaceCommand;
-	HashSet<String> interfaces;
+	String[] interfaceCommand, diskCommand;
+	HashSet<String> members;
 	UnixCommand thisCommand = null;
 	private static final Logger logger = Logger.getLogger(UnixAgent.class);
 	
@@ -47,6 +47,10 @@ public class UnixAgent extends Agent {
 		} else if (os.contains("sunos")) {
 			umetrics = new SolarisMetrics();
 			interfaceCommand = new String[]{"/usr/sbin/ifconfig", "-a"};
+		} else if (os.toLowerCase().contains("os x") || os.toLowerCase().contains("osx")) {
+			umetrics = new OSXMetrics();
+			interfaceCommand = new String[]{"ifconfig", "-a"};
+			diskCommand = new String[]{"diskutil", "list"};
 		} else {
 			logger.error("Unix Agent could not detect an OS version that it supports.");
 			logger.error("OS detected: " + os);
@@ -56,8 +60,14 @@ public class UnixAgent extends Agent {
 		isDebug = debug;
 		if (umetrics.allCommands.containsKey(command)) {
 			thisCommand = umetrics.allCommands.get(command);
-			if(thisCommand.getType() == UnixMetrics.commandTypes.INTERFACEDIM) {
-				getInterfaces();
+			if(thisCommand.getType() == UnixMetrics.commandTypes.REGEXLISTDIM) {
+				if (thisCommand.getCommand()[0] == "iostat") {
+					Pattern diskPattern = Pattern.compile("\\/dev\\/(\\w+\\d*)\\s+\\([\\w\\s,]+\\):.*");
+					getMembers(diskCommand, diskPattern);
+				} else {
+					Pattern interfacePattern = Pattern.compile("(?!\\s+)(\\w+\\d*)[:]{0,1}\\s+.*");
+					getMembers(interfaceCommand, interfacePattern);
+				}
 			}
 		} else {
 			logger.error("Unix Agent does not support this command for your OS: "+ commandName);
@@ -93,13 +103,13 @@ public class UnixAgent extends Agent {
 
 		try {
 			switch(thisCommand.getType()) {
-			case INTERFACEDIM:
-				for(String thisinterface : interfaces) {
+			case REGEXLISTDIM:
+				for(String thismember : members) {
 					commandReader = CommandMetricUtils.executeCommand(
 						CommandMetricUtils.replaceInArray(thisCommand.getCommand(), 
-						UnixMetrics.kInterfacePlaceholder, thisinterface));
+						UnixMetrics.kMemberPlaceholder, thismember));
 					CommandMetricUtils.parseRegexMetricOutput(commandName, 
-						thisCommand.getLineMappings(), thisinterface, 
+						thisCommand.getLineMappings(), thismember, 
 						thisCommand.getLineLimit(), thisCommand.isCheckAllRegex(),
 						metricOutput, umetrics.allMetrics, commandReader);
 				}
@@ -150,22 +160,22 @@ public class UnixAgent extends Agent {
 		metricOutput = CommandMetricUtils.resetCurrentMetrics(metricOutput);
 	}
 	
-	public void getInterfaces() {
-		ArrayList<String> interfacesReader = CommandMetricUtils.executeCommand(interfaceCommand);
-		Pattern interfacePattern = Pattern.compile("(?!\\s+)(\\w+\\d*)[:]{0,1}\\s+.*");
-		this.interfaces = new HashSet<String>();
+	public void getMembers(String[] command, Pattern memberPattern) {
+		ArrayList<String> membersReader = CommandMetricUtils.executeCommand(command);
+
+		this.members = new HashSet<String>();
 		try {
-			for (String line : interfacesReader) {
-				Matcher lineMatch = interfacePattern.matcher(line);
+			for (String line : membersReader) {
+				Matcher lineMatch = memberPattern.matcher(line);
 				if (lineMatch.matches()) {
-					interfaces.add(lineMatch.group(1));
+					members.add(lineMatch.group(1));
 				}
 			}
 		} catch (Exception e) {
-			logger.error("Error: Parsing of " + Arrays.toString(interfaceCommand) + "could not be completed.");
+			logger.error("Error: Parsing of " + Arrays.toString(command) + "could not be completed.");
 			e.printStackTrace();
 		}
-		logger.debug("Interfaces found: " + interfaces);
+		logger.debug("Members found: " + members);
 	}
 	
 	public void reportMetricsSimple(HashMap<String, Number> outputMetrics) {
