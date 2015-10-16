@@ -29,6 +29,11 @@
             "OS": "auto",
             "debug": false,
             "command": "vm_stat"
+        },
+        {
+            "OS": "auto",
+            "debug": false,
+            "command": "VmstatTotals"
         }
     ]
 }

@@ -1,10 +1,16 @@
 # newrelic-unix-plugin
 
-## New Relic Plugin for Unix (AIX, Linux, Solaris/SunOS) systems
+## New Relic Plugin for Unix (AIX, Linux, Mac OSX, Solaris/SunOS) systems
 
 ----
 
-### What's new in V3?
+### What's new in V3.2 ?
+
+* MAC OS X support!
+  * Tested on Yosemite (10.11), please let me know if it works for you on other OS X versions.
+* Support for setting your own hostname
+
+### What was new in V3 ?
 
 * Support for "netstat" and "ps" commands on all platforms
 * MUCH improved parsing of commands, now using regex
@@ -134,10 +140,12 @@ For each command, the following optional configurations are available:
 * `debug` - This is an extra debug setting to use when a specific command isn't reporting properly. 
   - Enabling it will prevent metrics from being sent to New Relic.
   - Seeing metrics in logs also requires setting `"log_level": "debug"` in `newrelic.json`.
+* `hostname` - To override the hostname that appears in the UI for this instance, set this option to any string that you want.
+  - If you leave this option out, the plugin will obtain your hostname from the JVM (java.net.InetAddress.getLocalHost().getHostName())
 
 #### Examples 
 
-Normally, this is what your plugin.json should look like (this example is pulled from the linux template):
+Without any of the optional configuration included, this is what your plugin.json would look like:
 ```
 {
     "agents": [
@@ -167,26 +175,31 @@ Here is an example with the optional configurations:
             "OS": "auto",
             "debug": true,
             "command": "df"
+            "hostname": "my test server"
         },
         {
             "OS": "auto",
             "debug": true,
             "command": "iostat"
+            "hostname": "my test server"
         },
         {
             "OS": "auto",
             "debug": true,
             "command": "top"
+            "hostname": "my test server"
         },
         {
             "OS": "auto",
             "debug": true,
             "command": "vmstat"
+            "hostname": "my test server"
         },
         {
             "OS": "auto",
             "debug": true,
             "command": "VmstatTotals"
+            "hostname": "my test server"
         }
     ]
 }

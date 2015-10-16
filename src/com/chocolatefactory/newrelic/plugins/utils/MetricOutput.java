@@ -3,7 +3,8 @@ package com.chocolatefactory.newrelic.plugins.utils;
 import com.newrelic.metrics.publish.processors.EpochProcessor;
 
 public class MetricOutput {
-
+	private static int kMinterval = 60;
+	
 	private MetricDetail mdetail;
 	private String mname_prefix; 
 	private Number mvalue;
@@ -47,8 +48,15 @@ public class MetricOutput {
 				}
 				this.mvalue = mv.floatValue() + this.getValue().floatValue();
 				break;
+			// Converting to per-minute (per-interval) delta		
+			// EpochProcessor returns a double that is a per-second delta 
+			// (based off of the actual delta between command runs)
 			case DELTA:
-				this.mvalue = dvalue.process(mv);
+				try {
+					this.mvalue = Math.round((dvalue.process(mv).doubleValue() * kMinterval));
+				} catch(NullPointerException e) {
+					resetValue();
+				}
 				if(this.mvalue == null) {
 					resetValue();
 				}

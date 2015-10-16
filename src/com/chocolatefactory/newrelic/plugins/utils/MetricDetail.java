@@ -5,7 +5,7 @@ public class MetricDetail {
 	private String name, units, prefix;
 	private int ratio;
 	
-	public static enum metricTypes{NORMAL, DELTA, INCREMENT};
+	public static enum metricTypes{NORMAL, DELTA, EPOCH, INCREMENT};
 	private metricTypes this_type;
 	
 	public MetricDetail(String pname, String mname, String munits, metricTypes mtype, int mratio) {		

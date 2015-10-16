@@ -10,7 +10,8 @@ import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.chocolatefactory.newrelic.plugins.unix.UnixMetrics.*;
+import com.chocolatefactory.newrelic.plugins.unix.UnixMetrics;
+import com.chocolatefactory.newrelic.plugins.unix.UnixMetrics.UnixCommand;
 import com.chocolatefactory.newrelic.plugins.utils.CommandMetricUtils;
 import com.chocolatefactory.newrelic.plugins.utils.MetricDetail;
 import com.chocolatefactory.newrelic.plugins.utils.MetricOutput;
@@ -20,7 +21,7 @@ import com.newrelic.metrics.publish.Agent;
 public class UnixAgent extends Agent {
     
 	// Required for New Relic Plugins
-	public static final String kAgentVersion = "3.1.3";
+	public static final String kAgentVersion = "3.2";
 	public static final String kAgentGuid = "com.chocolatefactory.newrelic.plugins.unix";
 	
 	static final String kDefaultServerName = "unixserver";
