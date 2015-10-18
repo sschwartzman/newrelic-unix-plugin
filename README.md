@@ -1,6 +1,6 @@
 # newrelic-unix-plugin
 
-## New Relic Plugin for Unix (AIX, Linux, Mac OSX, Solaris/SunOS) systems
+## New Relic Plugin for Unix (AIX, Linux, Mac OS X, Solaris/SunOS) systems
 
 ----
 
