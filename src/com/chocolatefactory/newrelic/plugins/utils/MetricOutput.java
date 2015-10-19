@@ -41,6 +41,10 @@ public class MetricOutput {
 	}
 
 	public void setValue(Number mv) {
+		if (this.getMetricDetail().getRatio() > 1) {
+			mv = mv.doubleValue() * this.getMetricDetail().getRatio();
+		}
+			
 		switch(this.getMetricDetail().getType()) {
 			case INCREMENT:
 				if(this.mvalue == null) {

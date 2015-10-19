@@ -95,18 +95,18 @@ public class OSXMetrics extends UnixMetrics {
 		allMetrics.put(CommandMetricUtils.mungeString("top", "procstuck"), new MetricDetail("Processes", "Stuck", "processes", metricTypes.NORMAL, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("top", "procthreads"), new MetricDetail("KernelThreads", "Runnable", "threads", metricTypes.NORMAL, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("top", "memregtot"), new MetricDetail("MemoryDetailed", "Regions/Total", "regions", metricTypes.NORMAL, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("top", "memregres"), new MetricDetail("MemoryDetailed", "Regions/Resident", "Mb", metricTypes.NORMAL, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("top", "memregpriv"), new MetricDetail("MemoryDetailed", "Regions/Private", "Mb", metricTypes.NORMAL, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("top", "memregshare"), new MetricDetail("MemoryDetailed", "Regions/Shared", "Mb", metricTypes.NORMAL, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("top", "memregres"), new MetricDetail("MemoryDetailed", "Regions/Resident", "kb", metricTypes.NORMAL, 1024));
+		allMetrics.put(CommandMetricUtils.mungeString("top", "memregpriv"), new MetricDetail("MemoryDetailed", "Regions/Private", "kb", metricTypes.NORMAL, 1024));
+		allMetrics.put(CommandMetricUtils.mungeString("top", "memregshare"), new MetricDetail("MemoryDetailed", "Regions/Shared", "kb", metricTypes.NORMAL, 1024));
 		allMetrics.put(CommandMetricUtils.mungeString("top", "swapused"), new MetricDetail("MemoryDetailed", "Swap/Used", "kb", metricTypes.NORMAL, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("top", "swapfree"), new MetricDetail("MemoryDetailed", "Swap/Free", "kb", metricTypes.NORMAL, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("top", "cpuuser"), new MetricDetail("CPU", "User", "%", metricTypes.NORMAL, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("top", "cpuidle"), new MetricDetail("CPU", "Idle", "%", metricTypes.NORMAL, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("top", "cpusys"), new MetricDetail("CPU", "System", "%", metricTypes.NORMAL, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("top", "memused"), new MetricDetail("Memory", "Used", "Mb", metricTypes.NORMAL, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("top", "memusedgigs"), new MetricDetail("Memory", "Used", "Gb", metricTypes.NORMAL, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("top", "memwired"), new MetricDetail("Memory", "Wired", "Mb", metricTypes.NORMAL, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("top", "memfree"), new MetricDetail("Memory", "Free", "Mb", metricTypes.NORMAL, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("top", "memused"), new MetricDetail("Memory", "Used", "kb", metricTypes.NORMAL, 1024));
+		allMetrics.put(CommandMetricUtils.mungeString("top", "memusedgigs"), new MetricDetail("Memory", "Used", "kb", metricTypes.NORMAL, 1048576));
+		allMetrics.put(CommandMetricUtils.mungeString("top", "memwired"), new MetricDetail("Memory", "Wired", "kb", metricTypes.NORMAL, 1024));
+		allMetrics.put(CommandMetricUtils.mungeString("top", "memfree"), new MetricDetail("Memory", "Free", "kb", metricTypes.NORMAL, 1024));
 
 		HashMap<Pattern, String[]> vm_statMapping = new HashMap<Pattern, String[]>();
 				vm_statMapping.put(Pattern.compile("\\s*([^:]+):\\s+(\\d+)\\.*"), new String[]{kColumnMetricName, kColumnMetricValue});	
