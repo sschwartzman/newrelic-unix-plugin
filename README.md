@@ -7,7 +7,7 @@
 ### What's new in V3.2 ?
 
 * MAC OS X support!
-  * Tested on Yosemite (10.11), please let me know if it works for you on other OS X versions.
+  * Tested on Yosemite (10.10) and El Capitan (10.11), please let me know if it works for you on other OS X versions.
 * Support for setting your own hostname
 
 ### What was new in V3 ?
