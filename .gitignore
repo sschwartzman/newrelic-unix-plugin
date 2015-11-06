@@ -1,4 +1,5 @@
-/bin/*
+/bin/tar/*
+/bin/classes/*
 /.settings/*
 *.class
 *.log
