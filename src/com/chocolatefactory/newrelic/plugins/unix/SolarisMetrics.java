@@ -46,7 +46,7 @@ public class SolarisMetrics extends UnixMetrics {
 		
 		/*
 		 * Parser & declaration for 'iostat' CPU command
-		 * ** NOT USED IN FAVOR OF TOP **
+		 * ** only used on Solaris 10 (Solaris 11 has 'top') **
 		 */
 		HashMap<Pattern, String[]> iostatCPUMapping = new HashMap<Pattern, String[]>();
 		iostatCPUMapping.put(Pattern.compile("\\s*(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)"),
@@ -98,6 +98,32 @@ public class SolarisMetrics extends UnixMetrics {
 		allMetrics.put(CommandMetricUtils.mungeString("netstat", "Queue"), new MetricDetail("Network", "Queue", "packets", metricTypes.NORMAL, 1));
 		
 		/*
+		 * Parser & declaration for 'prstat' command
+		 * ** only used on Solaris 10 (Solaris 11 has 'top') **
+		 */
+		HashMap<Pattern, String[]> prstatMapping = new HashMap<Pattern, String[]>();
+		prstatMapping.put(Pattern.compile("Total:\\s+(\\d+)\\s+processes,\\s+(\\d+)\\s+lwps,\\s+load averages:\\s+([\\d\\.]+),\\s+([\\d\\.]+),\\s+([\\d\\.]+)"),
+			new String[]{"procs", "lwps", "la1", "la5", "la15"});
+		allCommands.put("prstat", new UnixCommand(new String[]{"prstat", "-c", "1", "1"}, commandTypes.REGEXDIM, defaultignores, 0, prstatMapping));
+		
+		allMetrics.put(CommandMetricUtils.mungeString("prstat", "la1"), new MetricDetail("LoadAverage", "1 Minute", "load", metricTypes.NORMAL, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("prstat", "la5"), new MetricDetail("LoadAverage", "5 Minute", "load", metricTypes.NORMAL, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("prstat", "la15"), new MetricDetail("LoadAverage", "15 Minute", "load", metricTypes.NORMAL, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("prstat", "procs"), new MetricDetail("Processes", "Total", "processes", metricTypes.NORMAL, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("prstat", "lwps"), new MetricDetail("Processes", "Lightweight", "processes", metricTypes.NORMAL, 1));
+		
+		/*
+		 * Parser & declaration for 'prtconf' command
+		 * ** only used on Solaris 10 (Solaris 11 has 'top') **
+		 */
+		HashMap<Pattern, String[]> prtconfMapping = new HashMap<Pattern, String[]>();
+		prtconfMapping.put(Pattern.compile("Memory size:\\s+(\\d+)\\s+Megabytes"),
+			new String[]{"memsize"});
+		allCommands.put("prtconf", new UnixCommand(new String[]{"/usr/sbin/prtconf"}, commandTypes.REGEXDIM, defaultignores, 0, prtconfMapping));
+		
+		allMetrics.put(CommandMetricUtils.mungeString("prtconf", "memsize"), new MetricDetail("MemoryDetailed", "PhysMem/Total", "kb", metricTypes.NORMAL, 1024));
+		
+		/*
 		 * Parser & declaration for 'ps' command
 		 */
 		HashMap<Pattern, String[]> psMapping = new HashMap<Pattern, String[]>();
@@ -125,6 +151,7 @@ public class SolarisMetrics extends UnixMetrics {
 		
 		/*
 		 * Parsers & declaration for 'top' command
+		 * ** only used on Solaris 11 (Solaris 10 does not always have 'top') **
 		 */
 		HashMap<Pattern, String[]> topMapping = new HashMap<Pattern, String[]>();
 		topMapping.put(Pattern.compile("load averages:\\s+([0-9\\.]+),\\s+([0-9\\.]+),\\s+([0-9\\.]+);.*"), 
@@ -145,8 +172,8 @@ public class SolarisMetrics extends UnixMetrics {
 		allMetrics.put(CommandMetricUtils.mungeString("top", "proccpu"), new MetricDetail("Processes", "On CPU", "processes", metricTypes.NORMAL, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("top", "memphys"), new MetricDetail("MemoryDetailed", "PhysMem/Total", "kb", metricTypes.NORMAL, 1024));
 		allMetrics.put(CommandMetricUtils.mungeString("top", "memfree"), new MetricDetail("MemoryDetailed", "PhysMem/Free", "kb", metricTypes.NORMAL, 1024));
-		allMetrics.put(CommandMetricUtils.mungeString("top", "swaptot"), new MetricDetail("MemoryDetailed", "Swap/Total", "kb", metricTypes.NORMAL, 1024));
-		allMetrics.put(CommandMetricUtils.mungeString("top", "swapfree"), new MetricDetail("MemoryDetailed", "Swap/Free", "kb", metricTypes.NORMAL, 1024));
+		allMetrics.put(CommandMetricUtils.mungeString("top", "swaptot"), new MetricDetail("MemoryDetailed", "Swap/Total On Disk", "kb", metricTypes.NORMAL, 1024));
+		allMetrics.put(CommandMetricUtils.mungeString("top", "swapfree"), new MetricDetail("MemoryDetailed", "Swap/Free On Disk", "kb", metricTypes.NORMAL, 1024));
 		allMetrics.put(CommandMetricUtils.mungeString("top", "cpuidle"), new MetricDetail("CPU", "Idle", "%", metricTypes.NORMAL, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("top", "cpuuser"), new MetricDetail("CPU", "User", "%", metricTypes.NORMAL, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("top", "cpukern"), new MetricDetail("CPU", "Kernel", "%", metricTypes.NORMAL, 1));

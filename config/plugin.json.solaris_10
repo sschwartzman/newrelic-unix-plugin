@@ -1,0 +1,54 @@
+{
+    "agents": [
+        {
+            "OS": "auto",
+            "debug": false,
+            "command": "df"
+        },
+        {
+            "OS": "auto",
+            "debug": false,
+            "command": "iostat"
+        },
+        {
+            "OS": "auto",
+            "debug": false,
+            "command": "iostatCPU"
+        },
+        {
+            "OS": "auto",
+            "debug": false,
+            "command": "kstat"
+        },
+        {
+            "OS": "auto",
+            "debug": false,
+            "command": "prstat"
+        },
+        {
+            "OS": "auto",
+            "debug": false,
+            "command": "prtconf"
+        },
+        {
+            "OS": "auto",
+            "debug": false,
+            "command": "ps"
+        },
+        {
+            "OS": "auto",
+            "debug": false,
+            "command": "swap"
+        },
+        {
+            "OS": "auto",
+            "debug": false,
+            "command": "vmstat"
+        },
+        {
+            "OS": "auto",
+            "debug": false,
+            "command": "VmstatTotals"
+        }
+    ]
+}
