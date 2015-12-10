@@ -37,7 +37,7 @@ public class LinuxMetrics extends UnixMetrics {
 		iostatMapping.put(Pattern.compile("(\\S+)\\s+([\\d\\.]+)\\s+([\\d\\.]+)\\s+([\\d\\.]+)\\s+([\\d\\.]+)\\s+"
 			+ "([\\d\\.]+)\\s+([\\d\\.]+)\\s+([\\d\\.]+)\\s+([\\d\\.]+)\\s+([\\d\\.]+)\\s+([\\d\\.]+)\\s+([\\d\\.]+)"),
 			new String[]{kColumnMetricPrefix, "rrqm-s", "wrqm-s", "r-s", "w-s", "rkB-s", "wkB-s", "avgrq-sz", "avgqu-sz", "await", "svctm", "%util"});
-		allCommands.put("iostat", new UnixCommand(new String[]{"iostat", "-k", "-x"}, commandTypes.REGEXDIM, defaultignores, 0, iostatMapping));
+		allCommands.put("iostat", new UnixCommand(new String[]{"iostat", "-k", "-x", kExecutionDelay, kExecutionCount}, commandTypes.REGEXDIM, defaultignores, 0, iostatMapping));
 
 		allMetrics.put(CommandMetricUtils.mungeString("iostat", "%user"), new MetricDetail("CPU", "User", "%", metricTypes.NORMAL, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("iostat", "%nice"), new MetricDetail("CPU", "Nice", "%", metricTypes.NORMAL, 1));
@@ -166,7 +166,7 @@ public class LinuxMetrics extends UnixMetrics {
 			+ "\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)"
 			+ "\\s+(\\d+)\\s+\\d+\\s+\\d+\\s+\\d+\\s+\\d+\\s+\\d+"),
 			new String[]{"r", "b", "swpd", "free", "buff", "cache", "si", "so", "bi", "bo", "in", "cs"});
-		allCommands.put("vmstat", new UnixCommand(new String[]{"vmstat"}, commandTypes.REGEXDIM, defaultignores, 0, vmstatMapping));
+		allCommands.put("vmstat", new UnixCommand(new String[]{"vmstat", kExecutionDelay, kExecutionCount}, commandTypes.REGEXDIM, defaultignores, 0, vmstatMapping));
 
 		allMetrics.put(CommandMetricUtils.mungeString("vmstat", "r"), new MetricDetail("KernelThreads", "Runnable", "threads", metricTypes.NORMAL, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("vmstat", "b"), new MetricDetail("KernelThreads", "In Wait Queue", "threads", metricTypes.NORMAL, 1));

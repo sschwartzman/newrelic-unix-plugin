@@ -15,6 +15,8 @@ public abstract class UnixMetrics {
 	public static final String kDefaultMetricType="value";
 	public static final int kDefaultLineLimit = 0;
 	public static final int kMetricInterval = 60;
+	public static final String kExecutionDelay = Integer.toString(kMetricInterval / 2);
+	public static final String kExecutionCount = "2";
 	public static final char kMetricTreeDivider='/';
 	public static final float kGigabytesToBytes=1073741824;
 	public static final float kMegabytesToBytes=1048576;

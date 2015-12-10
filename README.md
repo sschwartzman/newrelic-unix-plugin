@@ -4,11 +4,10 @@
 
 ----
 
-### What's new in V3.2 ?
+### What's new in V3.3 ?
 
-* MAC OS X support!
-  * Tested on Yosemite (10.10) and El Capitan (10.11), please let me know if it works for you on other OS X versions.
-* Support for setting your own hostname
+* Bug fixes for Linux & OSX commands
+* More accurate data collection from commands that have produce a "per interval" measurement (i.e. iostat, vmstat)
 
 ### What was new in V3 ?
 

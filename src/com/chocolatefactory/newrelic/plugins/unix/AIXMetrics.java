@@ -120,7 +120,7 @@ public class AIXMetrics extends UnixMetrics {
 		HashMap<Pattern, String[]> iostatMapping = new HashMap<Pattern, String[]>();
 		iostatMapping.put(Pattern.compile("\\s*(\\w+\\d*)\\s+([0-9\\.]+)\\s+([0-9\\.]+)\\s+([0-9\\.]+)\\s+([0-9\\.]+)\\s+([0-9\\.]+)"),
 			new String[]{kColumnMetricPrefix, "tm_act", "Kbps", "tps", "Kb_read", "Kb_wrtn"});
-		allCommands.put("iostat", new UnixCommand(new String[]{"iostat", "-d", "1", "1"}, commandTypes.REGEXDIM, defaultignores, 0, iostatMapping));
+		allCommands.put("iostat", new UnixCommand(new String[]{"iostat", "-d", kExecutionDelay, "1"}, commandTypes.REGEXDIM, defaultignores, 0, iostatMapping));
 		
 		allMetrics.put(CommandMetricUtils.mungeString("iostat", "kbps"), new MetricDetail("DiskIO", "Data Transferred per Second", "kb", metricTypes.NORMAL, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("iostat", "tps"), new MetricDetail("DiskIO", "Transfers per Second", "transfers", metricTypes.NORMAL, 1));
@@ -217,7 +217,7 @@ public class AIXMetrics extends UnixMetrics {
 		vmstatMapping.put(Pattern.compile("\\s*(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)" +
 			"\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+).*"),
 			new String[]{"r","b","avm","fre","re","pi","po","fr","sr","cy","in","sy","cs"});
-		allCommands.put("vmstat", new UnixCommand(new String[]{"vmstat", "1", "1"}, commandTypes.REGEXDIM, defaultignores, 0, vmstatMapping));
+		allCommands.put("vmstat", new UnixCommand(new String[]{"vmstat", kExecutionDelay, "1"}, commandTypes.REGEXDIM, defaultignores, 0, vmstatMapping));
 
 		allMetrics.put(CommandMetricUtils.mungeString("vmstat", "r"), new MetricDetail("KernelThreads", "Runnable", "threads", metricTypes.NORMAL, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("vmstat", "b"), new MetricDetail("KernelThreads", "In Wait Queue", "threads", metricTypes.NORMAL, 1));

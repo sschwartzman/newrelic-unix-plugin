@@ -32,7 +32,7 @@ public class SolarisMetrics extends UnixMetrics {
 		iostatMapping.put(Pattern.compile("\\s*([\\/\\w\\d]+)\\s+([0-9\\.]+)\\s+([0-9\\.]+)\\s+([0-9\\.]+)" +
 			"\\s+([0-9\\.]+)\\s+([0-9\\.]+)\\s+([0-9\\.]+)\\s+([0-9\\.]+)\\s+(\\d+)\\s+(\\d+)"),
 			new String[]{kColumnMetricPrefix,"r-s","w-s","kr-s","kw-s","wait","actv","svc_t","%w","%b"});
-		allCommands.put("iostat", new UnixCommand(new String[]{"iostat","-x", "1", "2"}, commandTypes.REGEXDIM, defaultignores, 0, iostatMapping));
+		allCommands.put("iostat", new UnixCommand(new String[]{"iostat","-x", kExecutionDelay, kExecutionCount}, commandTypes.REGEXDIM, defaultignores, 0, iostatMapping));
 		
 		allMetrics.put(CommandMetricUtils.mungeString("iostat", "r-s"), new MetricDetail("DiskIO", "Reads per Second", "transfers", metricTypes.NORMAL, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("iostat", "w-s"), new MetricDetail("DiskIO", "Writes per Second", "transfers", metricTypes.NORMAL, 1));
@@ -190,7 +190,7 @@ public class SolarisMetrics extends UnixMetrics {
 			+ "\\s+(\\d+)\\s+(\\d+).*"),
 			new String[]{"r","b","w","swap","free","re","mf","pi","po","fr",
 				"de","sr","d0","d1","d2","d3","in","sy","cs"});
-		allCommands.put("vmstat", new UnixCommand(new String[]{"vmstat", "1", "2"}, commandTypes.REGEXDIM, defaultignores, 0, vmstatMapping));
+		allCommands.put("vmstat", new UnixCommand(new String[]{"vmstat", kExecutionDelay, kExecutionCount}, commandTypes.REGEXDIM, defaultignores, 0, vmstatMapping));
 
 		allMetrics.put(CommandMetricUtils.mungeString("vmstat", "r"), new MetricDetail("KernelThreads", "Runnable", "threads", metricTypes.NORMAL, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("vmstat", "b"), new MetricDetail("KernelThreads", "In Wait Queue", "threads", metricTypes.NORMAL, 1));
