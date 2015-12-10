@@ -32,7 +32,7 @@ public class OSXMetrics extends UnixMetrics {
 				new String[]{"KB-t", "tps", "MB-s"});
 		allCommands.put("iostat", new UnixCommand(new String[]{"iostat", "-c", "2", "-w", "5", "-d", kMemberPlaceholder}, commandTypes.REGEXLISTDIM, defaultignores, 0, iostatMapping));
 		allMetrics.put(CommandMetricUtils.mungeString("iostat", "tps"), new MetricDetail("DiskIO", "Transfers Per Second", "transfers", metricTypes.NORMAL, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("iostat", "MB-s"), new MetricDetail("DiskIO", "Data Transferred Per Second", "MB", metricTypes.NORMAL, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("iostat", "MB-s"), new MetricDetail("DiskIO", "Data Transferred Per Second", "kb", metricTypes.NORMAL, 1024));
 		allMetrics.put(CommandMetricUtils.mungeString("iostat", "KB-t"), new MetricDetail("DiskIO", "Average Request Size", "KB", metricTypes.NORMAL, 1));
 		
 		/*
