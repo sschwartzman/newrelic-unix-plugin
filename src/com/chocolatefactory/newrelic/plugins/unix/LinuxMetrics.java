@@ -22,6 +22,7 @@ public class LinuxMetrics extends UnixMetrics {
 		dfMapping.put(Pattern.compile("\\s*([\\/\\w\\d]+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)%.*"),
 			new String[]{kColumnMetricPrefix, "1024-blocks", "Used", "Available", "Capacity"});
 		allCommands.put("df", new UnixCommand(new String[]{"df","-Pk"}, commandTypes.REGEXDIM, defaultignores, 0, dfMapping));
+
 		allMetrics.put(CommandMetricUtils.mungeString("df", "1024-blocks"), new MetricDetail("Disk", "Total", "kb", metricTypes.NORMAL, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("df", "Used"), new MetricDetail("Disk", "Used", "kb", metricTypes.NORMAL, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("df", "Available"), new MetricDetail("Disk", "Free", "kb", metricTypes.NORMAL, 1));
@@ -33,11 +34,11 @@ public class LinuxMetrics extends UnixMetrics {
 		HashMap<Pattern, String[]> iostatMapping = new HashMap<Pattern, String[]>();
 		iostatMapping.put(Pattern.compile("\\s*([0-9\\.]+)\\s+([0-9\\.]+)\\s+([0-9\\.]+)\\s+([0-9\\.]+)\\s+([0-9\\.]+)\\s+([0-9\\.]+)"),
 			new String[]{"%user", "%nice", "%system", "%iowait", "%steal", "%idle"});
-		iostatMapping.put(Pattern.compile("(\\w+[-]{0,1}\\d*)\\s+([0-9\\.]+)\\s+([0-9\\.]+)\\s+([0-9\\.]+)\\s+([0-9\\.]+)"
-			+ "\\s+([0-9\\.]+)\\s+([0-9\\.]+)\\s+([0-9\\.]+)\\s+([0-9\\.]+)\\s+([0-9\\.]+)\\s+([0-9\\.]+)\\s+([0-9\\.]+)"),
+		iostatMapping.put(Pattern.compile("(\\S+)\\s+([\\d\\.]+)\\s+([\\d\\.]+)\\s+([\\d\\.]+)\\s+([\\d\\.]+)\\s+"
+			+ "([\\d\\.]+)\\s+([\\d\\.]+)\\s+([\\d\\.]+)\\s+([\\d\\.]+)\\s+([\\d\\.]+)\\s+([\\d\\.]+)\\s+([\\d\\.]+)"),
 			new String[]{kColumnMetricPrefix, "rrqm-s", "wrqm-s", "r-s", "w-s", "rkB-s", "wkB-s", "avgrq-sz", "avgqu-sz", "await", "svctm", "%util"});
 		allCommands.put("iostat", new UnixCommand(new String[]{"iostat","-c", "-k", "-x"}, commandTypes.REGEXDIM, defaultignores, 0, iostatMapping));
-		
+
 		allMetrics.put(CommandMetricUtils.mungeString("iostat", "%user"), new MetricDetail("CPU", "User", "%", metricTypes.NORMAL, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("iostat", "%nice"), new MetricDetail("CPU", "Nice", "%", metricTypes.NORMAL, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("iostat", "%system"), new MetricDetail("CPU", "System", "%", metricTypes.NORMAL, 1));
@@ -64,6 +65,7 @@ public class LinuxMetrics extends UnixMetrics {
 			new String[]{kColumnMetricName, kColumnMetricValue});	
 		allCommands.put("NetworkIO", new UnixCommand(new String[]{"grep", "-r", ".", "/sys/class/net/" + kMemberPlaceholder + "/statistics", "2>&1"}, 
 				commandTypes.REGEXLISTDIM, defaultignores, 0, networkIOMapping));
+
 		allMetrics.put(CommandMetricUtils.mungeString("NetworkIO", "collisions"), new MetricDetail("Network", "Collisions", "packets", metricTypes.DELTA, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("NetworkIO", "multicast"), new MetricDetail("Network", "Multicast", "packets", metricTypes.DELTA, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("NetworkIO", "rx_bytes"), new MetricDetail("Network", "Receive/Bytes", "bytes", metricTypes.DELTA, 1));
