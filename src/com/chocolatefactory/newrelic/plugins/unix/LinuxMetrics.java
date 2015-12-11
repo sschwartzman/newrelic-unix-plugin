@@ -66,29 +66,29 @@ public class LinuxMetrics extends UnixMetrics {
 		allCommands.put("NetworkIO", new UnixCommand(new String[]{"grep", "-r", ".", "/sys/class/net/" + kMemberPlaceholder + "/statistics", "2>&1"}, 
 				commandTypes.REGEXLISTDIM, defaultignores, 0, networkIOMapping));
 
-		allMetrics.put(CommandMetricUtils.mungeString("NetworkIO", "collisions"), new MetricDetail("Network", "Collisions", "packets", metricTypes.DELTA, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("NetworkIO", "multicast"), new MetricDetail("Network", "Multicast", "packets", metricTypes.DELTA, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("NetworkIO", "rx_bytes"), new MetricDetail("Network", "Receive/Bytes", "bytes", metricTypes.DELTA, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("NetworkIO", "rx_compressed"), new MetricDetail("Network", "Receive/Compressed", "packets", metricTypes.DELTA, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("NetworkIO", "rx_crc_errors"), new MetricDetail("Network", "Receive/CRC Errors", "errors", metricTypes.DELTA, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("NetworkIO", "rx_dropped"), new MetricDetail("Network", "Receive/Dropped", "packets", metricTypes.DELTA, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("NetworkIO", "rx_errors"), new MetricDetail("Network", "Receive/Errors", "errors", metricTypes.DELTA, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("NetworkIO", "rx_fifo_errors"), new MetricDetail("Network", "Receive/FIFO Errors", "errors", metricTypes.DELTA, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("NetworkIO", "rx_frame_errors"), new MetricDetail("Network", "Receive/Frame Errors", "errors", metricTypes.DELTA, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("NetworkIO", "rx_length_errors"), new MetricDetail("Network", "Receive/Length Errors", "errors", metricTypes.DELTA, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("NetworkIO", "rx_missed_errors"), new MetricDetail("Network", "Receive/Missed Errors", "errors", metricTypes.DELTA, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("NetworkIO", "rx_over_errors"), new MetricDetail("Network", "Receive/Overrun Errors", "errors", metricTypes.DELTA, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("NetworkIO", "rx_packets"), new MetricDetail("Network", "Receive/Packets", "packets", metricTypes.DELTA, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("NetworkIO", "tx_aborted_errors"), new MetricDetail("Network", "Transmit/Aborted Errors", "errors", metricTypes.DELTA, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("NetworkIO", "tx_bytes"), new MetricDetail("Network", "Transmit/Bytes", "bytes", metricTypes.DELTA, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("NetworkIO", "tx_carrier_errors"), new MetricDetail("Network", "Transmit/Carrier Errors", "errors", metricTypes.DELTA, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("NetworkIO", "tx_compressed"), new MetricDetail("Network", "Transmit/Compressed", "packets", metricTypes.DELTA, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("NetworkIO", "tx_dropped"), new MetricDetail("Network", "Transmit/Dropped", "packets", metricTypes.DELTA, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("NetworkIO", "tx_errors"), new MetricDetail("Network", "Transmit/Errors", "errors", metricTypes.DELTA, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("NetworkIO", "tx_fifo_errors"), new MetricDetail("Network", "Transmit/FIFO Errors", "errors", metricTypes.DELTA, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("NetworkIO", "tx_heartbeat_errors"), new MetricDetail("Network", "Transmit/Heartbeat Errors", "errors", metricTypes.DELTA, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("NetworkIO", "tx_packets"), new MetricDetail("Network", "Transmit/Packets", "packets", metricTypes.DELTA, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("NetworkIO", "tx_window_errors"), new MetricDetail("Network", "Transmit/Window Errors", "errors", metricTypes.DELTA, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("networkio", "collisions"), new MetricDetail("Network", "Collisions", "packets", metricTypes.DELTA, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("networkio", "multicast"), new MetricDetail("Network", "Multicast", "packets", metricTypes.DELTA, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("networkio", "rx_bytes"), new MetricDetail("Network", "Receive/Bytes", "bytes", metricTypes.DELTA, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("networkio", "rx_compressed"), new MetricDetail("Network", "Receive/Compressed", "packets", metricTypes.DELTA, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("networkio", "rx_crc_errors"), new MetricDetail("Network", "Receive/CRC Errors", "errors", metricTypes.DELTA, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("networkio", "rx_dropped"), new MetricDetail("Network", "Receive/Dropped", "packets", metricTypes.DELTA, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("networkio", "rx_errors"), new MetricDetail("Network", "Receive/Errors", "errors", metricTypes.DELTA, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("networkio", "rx_fifo_errors"), new MetricDetail("Network", "Receive/FIFO Errors", "errors", metricTypes.DELTA, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("networkio", "rx_frame_errors"), new MetricDetail("Network", "Receive/Frame Errors", "errors", metricTypes.DELTA, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("networkio", "rx_length_errors"), new MetricDetail("Network", "Receive/Length Errors", "errors", metricTypes.DELTA, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("networkio", "rx_missed_errors"), new MetricDetail("Network", "Receive/Missed Errors", "errors", metricTypes.DELTA, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("networkio", "rx_over_errors"), new MetricDetail("Network", "Receive/Overrun Errors", "errors", metricTypes.DELTA, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("networkio", "rx_packets"), new MetricDetail("Network", "Receive/Packets", "packets", metricTypes.DELTA, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("networkio", "tx_aborted_errors"), new MetricDetail("Network", "Transmit/Aborted Errors", "errors", metricTypes.DELTA, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("networkio", "tx_bytes"), new MetricDetail("Network", "Transmit/Bytes", "bytes", metricTypes.DELTA, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("networkio", "tx_carrier_errors"), new MetricDetail("Network", "Transmit/Carrier Errors", "errors", metricTypes.DELTA, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("networkio", "tx_compressed"), new MetricDetail("Network", "Transmit/Compressed", "packets", metricTypes.DELTA, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("networkio", "tx_dropped"), new MetricDetail("Network", "Transmit/Dropped", "packets", metricTypes.DELTA, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("networkio", "tx_errors"), new MetricDetail("Network", "Transmit/Errors", "errors", metricTypes.DELTA, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("networkio", "tx_fifo_errors"), new MetricDetail("Network", "Transmit/FIFO Errors", "errors", metricTypes.DELTA, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("networkio", "tx_heartbeat_errors"), new MetricDetail("Network", "Transmit/Heartbeat Errors", "errors", metricTypes.DELTA, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("networkio", "tx_packets"), new MetricDetail("Network", "Transmit/Packets", "packets", metricTypes.DELTA, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("networkio", "tx_window_errors"), new MetricDetail("Network", "Transmit/Window Errors", "errors", metricTypes.DELTA, 1));
 		
 		/*
 		 * Parser & declaration for 'netstat' command
