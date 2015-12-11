@@ -95,7 +95,7 @@ public class UnixAgent extends Agent {
 	@Override
     public String getAgentName() {
 		try {
-			if (hostName != null && !hostName.isEmpty()) {
+			if (hostName != null && !hostName.isEmpty() && hostName != "auto") {
 				return hostName;
 			} else {
 				return java.net.InetAddress.getLocalHost().getHostName();
