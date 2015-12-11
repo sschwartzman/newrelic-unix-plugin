@@ -6,11 +6,15 @@
 
 ### What's new in V3.3 ?
 
+* Global configurations in plugin.json
 * Bug fixes for Linux & OSX commands
 * More accurate data collection from commands that have produce a "per interval" measurement (i.e. iostat, vmstat)
 
 ### What was new in V3 ?
 
+* MAC OS X support!
+  * Tested on Yosemite (10.11), please let me know if it works for you on other OS X versions.
+* Support for setting your own hostname	
 * Support for "netstat" and "ps" commands on all platforms
 * MUCH improved parsing of commands, now using regex
 
@@ -123,11 +127,19 @@ If you are running your plugin from a machine that runs outbound traffic through
 
 ###  <a name="pluginjson"></a> Configuring the `plugin.json` file
 
-The `plugin.json` file contains the list of OS level commands that you want to execute as part of the plugin. All current possibilities for each OS are found in the `config/plugin.json.[OS]` template files.
+The `plugin.json` file contains the list of OS level commands that you want to execute as part of the plugin, and global settings to apply across all commands. All current possibilities for each OS are found in the `config/plugin.json.[OS]` template files.
 To properly set up the agent for your OS, copy one of these template to `plugin.json`. 
 
 Each command will get its own object in the `agents` array, as seen in the Example below.
-`command` is the only required configuration for each object. Commands in lowercase are ones literally defined in the plugin (i.e. 'iostat'), whereas commands in Caps are specialized variations on those commands (i.e. `VirtualMemory`). 
+`command` is the only required configuration for each object. Commands in lowercase are ones literally defined in the plugin (i.e. `iostat`), whereas commands in Caps are specialized variations on those commands (i.e. `IostatCPU`). 
+
+#### Global Configurations (NEW!)
+
+Each plugin.json file now has a `global` object, which contains the optional configurations to be applied across all of the commands.
+
+* Configurations in the `agents` array override what's in the `global` object.
+  - I.e. If you want to turn on debug for one statement, you can set the `debug` object to false in the `global` object, and set it to true in that command's `agent` object.
+* If you choose to use the old versions of plugin.json (without a `global` option), those will work fine.
 
 #### Optional Configurations for `plugin.json`
 
@@ -135,7 +147,7 @@ For each command, the following optional configurations are available:
 
 * `OS` - The OS you are monitoring. 
   - If left out, it will use the "auto" setting, in which the plugin will detect your OS type. 
-  - Normally the "auto" setting works fine. If not, you can define it as any of: [aix, linux, sunos].
+  - Normally the "auto" setting works fine. If not, you can define it as any of: [aix, linux, sunos, osx].
 * `debug` - This is an extra debug setting to use when a specific command isn't reporting properly. 
   - Enabling it will prevent metrics from being sent to New Relic.
   - Seeing metrics in logs also requires setting `"log_level": "debug"` in `newrelic.json`.
@@ -144,9 +156,14 @@ For each command, the following optional configurations are available:
 
 #### Examples 
 
-Without any of the optional configuration included, this is what your plugin.json would look like:
+With the optional configurations left as the defaults, this is what your plugin.json might look like:
 ```
 {
+    "global": {
+        "OS": "auto",
+        "debug": false,
+        "hostname": "auto"  
+    },
     "agents": [
         {
             "command": "df"
@@ -166,39 +183,33 @@ Without any of the optional configuration included, this is what your plugin.jso
     ]
 }
 ```
-Here is an example with the optional configurations:
+Here is an example with optional configurations set in the `agent` object that override the `global` settings:
 ```
 {
+       "global": {
+        "OS": "auto",
+        "debug": false,
+        "hostname": "auto"  
+    },
     "agents": [
         {
-            "OS": "auto",
-            "debug": true,
-            "command": "df"
-            "hostname": "my test server"
+            "command": "df",
+            "debug": true
         },
         {
-            "OS": "auto",
-            "debug": true,
-            "command": "iostat"
-            "hostname": "my test server"
+            "command": "iostat",
+            "hostname": "not auto"  
         },
         {
-            "OS": "auto",
-            "debug": true,
-            "command": "top"
-            "hostname": "my test server"
+            "command": "top",
+            "OS": "linux",
+            "hostname": "also not auto"  
         },
         {
-            "OS": "auto",
-            "debug": true,
             "command": "vmstat"
-            "hostname": "my test server"
         },
         {
-            "OS": "auto",
-            "debug": true,
             "command": "VmstatTotals"
-            "hostname": "my test server"
         }
     ]
 }

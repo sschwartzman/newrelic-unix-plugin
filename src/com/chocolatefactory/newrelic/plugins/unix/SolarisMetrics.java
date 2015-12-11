@@ -51,12 +51,14 @@ public class SolarisMetrics extends UnixMetrics {
 		HashMap<Pattern, String[]> iostatCPUMapping = new HashMap<Pattern, String[]>();
 		iostatCPUMapping.put(Pattern.compile("\\s*(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)"),
 			new String[]{"us","sy","wt","id"});
+		allCommands.put("IostatCPU", new UnixCommand(new String[]{"iostat","-c", "1", "2"}, commandTypes.REGEXDIM, defaultignores, 0, iostatCPUMapping));
+		// To make this backwards-compatible with older Solaris plugin.json versions.
 		allCommands.put("iostatCPU", new UnixCommand(new String[]{"iostat","-c", "1", "2"}, commandTypes.REGEXDIM, defaultignores, 0, iostatCPUMapping));
 		
-		allMetrics.put(CommandMetricUtils.mungeString("iostatCPU", "us"), new MetricDetail("CPU", "User", "%", metricTypes.NORMAL, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("iostatCPU", "sy"), new MetricDetail("CPU", "System", "%", metricTypes.NORMAL, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("iostatCPU", "wt"), new MetricDetail("CPU", "Waiting", "%", metricTypes.NORMAL, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("iostatCPU", "id"), new MetricDetail("CPU", "Idle", "%", metricTypes.NORMAL, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("iostatcpu", "us"), new MetricDetail("CPU", "User", "%", metricTypes.NORMAL, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("iostatcpu", "sy"), new MetricDetail("CPU", "System", "%", metricTypes.NORMAL, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("iostatcpu", "wt"), new MetricDetail("CPU", "Waiting", "%", metricTypes.NORMAL, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("iostatcpu", "id"), new MetricDetail("CPU", "Idle", "%", metricTypes.NORMAL, 1));
 		
 		/*
 		 * Parser & declaration for 'kstat' command

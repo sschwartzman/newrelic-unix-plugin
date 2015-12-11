@@ -37,7 +37,24 @@ public class UnixAgent extends Agent {
 	private static final Logger logger = Logger.getLogger(UnixAgent.class);
 	
 	public UnixAgent(String os, String command, Boolean debug, String hostname) {
+			
 		super(kAgentGuid, kAgentVersion);
+		
+		if (hostname.isEmpty() || hostname == "auto") {
+			logger.debug("Instance Configuration:" +
+					"\nOS: " + os +
+					"\ncommand: " + command +
+					"\ndebug: " + debug +
+					"\nhostname: using java.net.InetAddress.getLocalHost().getHostName()");
+		} else {
+			logger.debug("Instance Configuration:" +
+					"\nOS: " + os +
+					"\ncommand: " + command +
+					"\ndebug: " + debug +
+					"\nhostname: " + hostname);
+			hostName = hostname;
+		}
+		
 		commandName = command;
 		if(os.contains("linux")) {
 			umetrics = new LinuxMetrics();
@@ -72,10 +89,6 @@ public class UnixAgent extends Agent {
 			}
 		} else {
 			logger.error("Unix Agent does not support this command for your OS: "+ commandName);
-		}
-		
-		if (!hostname.isEmpty()) {
-			hostName = hostname;
 		}
 	}
 

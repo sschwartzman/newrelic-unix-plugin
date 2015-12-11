@@ -1,48 +1,35 @@
 {
+    "global": {
+		"OS": "auto",
+		"hostname": "auto",
+		"debug": false
+    },
     "agents": [
         {
-            "OS": "auto",
-            "debug": false,
             "command": "df"
         },
         {
-            "OS": "auto",
-            "debug": false,
             "command": "entstat"
         },
         {
-            "OS": "auto",
-            "debug": false,
             "command": "iostat"
         },
         {
-            "OS": "auto",
-            "debug": false,
             "command": "lparstat"
         },
         {
-            "OS": "auto",
-            "debug": false,
             "command": "ps"
         },
         {
-            "OS": "auto",
-            "debug": false,
             "command": "svmon"
         },
         {
-            "OS": "auto",
-            "debug": false,
             "command": "uptime"
         },
         {
-            "OS": "auto",
-            "debug": false,
             "command": "vmstat"
         },
         {
-            "OS": "auto",
-            "debug": false,
             "command": "VmstatTotals"
         }
     ]

@@ -12,6 +12,9 @@ PLUGIN_PATH=/opt/newrelic/newrelic_unix_plugin
 # LINUX & SOLARIS:
 PLUGIN_JAVA_HOME=/usr
 
+# Change to false if you want to append to existing logs.
+DELETE_LOGS_ON_STARTUP=true
+
 ### Do not change these unless instructed!
 
 PLUGIN_NAME="New Relic Unix Plugin"
@@ -71,7 +74,13 @@ start_plugin() {
 			exit 2
 		fi
 	fi
-	
+
+    if [ "$DELETE_LOGS_ON_STARTUP" = true ] ; then
+        echo "Deleting logs"
+        rm -f $PLUGIN_LOG_FILE
+        rm -f $PLUGIN_PATH/logs/*.log
+    fi
+
 	echo "Starting $PLUGIN_NAME"
 	nohup $PLUGIN_JAVA_HOME/bin/java $PLUGIN_JAVA_OPTS $PLUGIN_JAVA_CLASS > $PLUGIN_LOG_FILE 2>&1 &
 	PID=`echo $!`
