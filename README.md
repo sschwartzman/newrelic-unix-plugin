@@ -6,7 +6,7 @@
 
 ### What's new in V3.3 ?
 
-* Global configurations in plugin.json
+* [Global configurations in plugin.json](#globalconf)
 * Bug fixes for Linux & OSX commands
 * More accurate data collection from commands that have produce a "per interval" measurement (i.e. iostat, vmstat)
 
@@ -133,7 +133,7 @@ To properly set up the agent for your OS, copy one of these template to `plugin.
 Each command will get its own object in the `agents` array, as seen in the Example below.
 `command` is the only required configuration for each object. Commands in lowercase are ones literally defined in the plugin (i.e. `iostat`), whereas commands in Caps are specialized variations on those commands (i.e. `IostatCPU`). 
 
-#### Global Configurations (NEW!)
+<a name="globalconf">#### Global Configurations (NEW!)
 
 Each plugin.json file now has a `global` object, which contains the optional configurations to be applied across all of the commands.
 
