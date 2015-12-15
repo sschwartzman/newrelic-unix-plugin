@@ -1,8 +1,6 @@
 # New Relic Plugin for Unix 
 ## System-Level Montoring for AIX, Linux, Mac OS X & Solaris/SunOS
 
-----
-
 ### What's new in V3.3 ?
 
 * [Global configurations in plugin.json](#globalconf)
