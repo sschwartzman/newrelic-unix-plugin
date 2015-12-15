@@ -22,7 +22,7 @@ PLUGIN_LOG_FILE=$PLUGIN_PATH/logs/plugin.log
 PLUGIN_PID_FILE=$PLUGIN_PATH/logs/plugin.pid
 PLUGIN_JAVA_CLASS=com.chocolatefactory.newrelic.plugins.unix.Main
 PLUGIN_JAVA_OPTS="-Xms16m -Xmx128m -cp $PLUGIN_PATH/bin/newrelic_unix_plugin.jar:$PLUGIN_PATH/lib/metrics_publish-2.0.1.jar:$PLUGIN_PATH/lib/json-simple-1.1.1.jar"
-PLUGIN_RESTART_ON_START=false
+PLUGIN_RESTART_ON_START=0
 
 check_plugin_status() {
     echo "Checking $PLUGIN_NAME"
@@ -63,10 +63,10 @@ start_plugin() {
 	check_plugin_status
 	procstatus=$?
 	if [ "$procstatus" -eq 1 ]; then
-		if [ "$PLUGIN_RESTART_ON_START" -eq false ]; then
+		if [ $PLUGIN_RESTART_ON_START -eq 0 ]; then
 			echo "Plugin is already running, restart will not occur"
 			exit 2
-		elif [ "$PLUGIN_RESTART_ON_START" -eq true ]; then
+		elif [ $PLUGIN_RESTART_ON_START -eq 1 ]; then
 			echo "Restarting $PLUGIN_NAME"
 			stop_plugin
 		else
