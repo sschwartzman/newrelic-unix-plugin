@@ -1,6 +1,5 @@
-# newrelic-unix-plugin
-
-## New Relic Plugin for Unix (AIX, Linux, Mac OS X, Solaris/SunOS) systems
+# New Relic Plugin for Unix 
+## System-Level Montoring for AIX, Linux, Mac OS X & Solaris/SunOS
 
 ----
 
