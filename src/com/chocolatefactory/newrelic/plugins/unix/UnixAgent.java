@@ -21,7 +21,7 @@ import com.newrelic.metrics.publish.Agent;
 public class UnixAgent extends Agent {
     
 	// Required for New Relic Plugins
-	public static final String kAgentVersion = "3.3";
+	public static final String kAgentVersion = "3.4";
 	public static final String kAgentGuid = "com.chocolatefactory.newrelic.plugins.unix";
 	
 	static final String kDefaultServerName = "unixserver";
@@ -40,22 +40,28 @@ public class UnixAgent extends Agent {
 			
 		super(kAgentGuid, kAgentVersion);
 		
-		if (hostname.isEmpty() || hostname == "auto") {
-			logger.debug("Instance Configuration:" +
-					"\nOS: " + os +
-					"\ncommand: " + command +
-					"\ndebug: " + debug +
-					"\nhostname: using java.net.InetAddress.getLocalHost().getHostName()");
+		hostName = hostname;
+		commandName = command;
+		isDebug = debug;
+		
+		if (hostname == null || hostname.isEmpty() || hostname.equals("auto")) {
+			try {
+				hostName = java.net.InetAddress.getLocalHost().getHostName(); 
+			} catch (Exception e) {
+				logger.error("Naming failed: " + e.toString());
+				logger.error("Applying default server name (" + kDefaultServerName + ") to this server");
+				hostName = kDefaultServerName;
+			}
 		} else {
-			logger.debug("Instance Configuration:" +
-					"\nOS: " + os +
-					"\ncommand: " + command +
-					"\ndebug: " + debug +
-					"\nhostname: " + hostname);
 			hostName = hostname;
 		}
 		
-		commandName = command;
+		logger.debug("Instance Configuration:" +
+				"\nOS: " + os +
+				"\ncommand: " + commandName +
+				"\ndebug: " + isDebug +
+				"\nhostname: " + hostName);
+		
 		if(os.contains("linux")) {
 			umetrics = new LinuxMetrics();
 			interfaceCommand = new String[]{"/sbin/ifconfig", "-a"};
@@ -75,7 +81,6 @@ public class UnixAgent extends Agent {
 			return;
 		}
 		
-		isDebug = debug;
 		if (umetrics.allCommands.containsKey(command)) {
 			thisCommand = umetrics.allCommands.get(command);
 			if(thisCommand.getType() == UnixMetrics.commandTypes.REGEXLISTDIM) {
@@ -89,17 +94,16 @@ public class UnixAgent extends Agent {
 			}
 		} else {
 			logger.error("Unix Agent does not support this command for your OS: "+ commandName);
+			return;
 		}
 	}
 
 	@Override
     public String getAgentName() {
 		try {
-			if (hostName != null && !hostName.isEmpty() && hostName != "auto") {
-				return hostName;
-			} else {
-				return java.net.InetAddress.getLocalHost().getHostName();
-			} 
+			if (hostName == null || hostName.isEmpty() || hostName.equals("auto"))
+				hostName = java.net.InetAddress.getLocalHost().getHostName(); 
+			return hostName; 
 		} catch (Exception e) {
 			logger.error("Naming failed: " + e.toString());
 			logger.error("Applying default server name (" + kDefaultServerName + ") to this server");

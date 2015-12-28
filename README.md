@@ -1,14 +1,19 @@
 # New Relic Plugin for Unix 
 ## System-Level Montoring for AIX, Linux, Mac OS X & Solaris/SunOS
 
-### What's new in V3.3 ?
+### What's new in V3.4?
 
+* Automatic locating of Java & plugin dir
 * Automatic copying of the plugin.json template for your OS 
+
+### Previous updates
+
+#### V3.3
 * [Global configurations in plugin.json](#globalconf)
 * Bug fixes for Linux & OSX commands
 * More accurate data collection from commands that have produce a "per interval" measurement (i.e. iostat, vmstat)
 
-### What was new in V3 ?
+#### V3.0
 
 * MAC OS X support!
   * Tested on Yosemite (10.11), please let me know if it works for you on other OS X versions.
@@ -16,13 +21,11 @@
 * Support for "netstat" and "ps" commands on all platforms
 * MUCH improved parsing of commands, now using regex
 
-This plugin has been upgraded to V2.0.1 of the New Relic Platform Java SDK, which helps to simplify and the installation experience, and adds a few key features:
-
-* 'newrelic.properties' file is now 'newrelic.json'
-* Plugin configuration is now done through 'plugin.json'
-* Logging configuration has been simplified and consolidated to 'newrelic.json'
-* HTTP/S proxies are now supported using 'newrelic.json'
-  * [Click here for proxy config details](#proxyconfig)
+* Plugin has been upgraded to V2.0.1 of the New Relic Platform Java SDK, which adds a few key features:
+  * 'newrelic.properties' file is now 'newrelic.json'
+  * Plugin configuration is now done through 'plugin.json'
+  * Logging configuration has been simplified and consolidated to 'newrelic.json'
+  * HTTP/S proxies are now supported using 'newrelic.json'. [Click here for proxy config details](#proxyconfig)
 
 ----
 
@@ -43,12 +46,13 @@ This plugin has been upgraded to V2.0.1 of the New Relic Platform Java SDK, whic
   * [Click here for newrelic.json config details](#nrjson)
 4. OPTIONAL: Copy `config/plugin.json` from the OS-specific templates in `config` and configure that file. 
   * [Click here for plugin.json config details](#pluginjson)
-5. Configure `pluginctl.sh` to have the correct paths to Java and your plugin location
-  * Set `PLUGIN_JAVA_HOME` to location of Java on your server (up to but excluding the /bin directory)
-  * Set `PLUGIN_PATH` to fully qualified location of the Unix Plugin
-6. Run `./pluginctl.sh start` from command-line
-7. Check logs (in `logs` directory by default) for errors
-8. Login to New Relic UI and find your plugin instance
+5. OPTIONAL: Configure `pluginctl.sh` to have the correct paths to Java and your plugin location
+  * Set `PLUGIN_JAVA` to the location of Java on your server (including the "java" filename)
+  * Set `PLUGIN_PATH` to the location of the Unix Plugin
+6. Run `chmod +x pluginctl.sh` to make the startup script executable (if it isn't already)
+7. Run `./pluginctl.sh start` from command-line
+8. Check logs (in `logs` directory by default) for errors
+9. Login to New Relic UI and find your plugin instance
   * In the New Relic UI, select "Plugins" from the top level accordion menu 
   * Check for the "Unix" plugin in left-hand column.  Click on it, your instance should appear in the list.
 

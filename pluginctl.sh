@@ -5,17 +5,42 @@
 
 ### Set these as appropriate
 
-PLUGIN_PATH=/opt/newrelic/newrelic_unix_plugin
-
-# AIX:
-# PLUGIN_JAVA_HOME=/usr/java6
-# LINUX, OSX & SOLARIS:
-PLUGIN_JAVA_HOME=/usr
-
 # Change to false if you want to append to existing logs.
 DELETE_LOGS_ON_STARTUP=true
 
+# Manually define Plugin path if this script can't find it
+# PLUGIN_PATH=/opt/newrelic/newrelic_unix_plugin
+
+# Manually define Java path & filename if this script can't find it
+# AIX:
+# PLUGIN_JAVA=/usr/java6/bin/java
+# LINUX, OSX & SOLARIS:
+# PLUGIN_JAVA=/usr/bin/java
+
 ### Do not change these unless instructed!
+
+# Attempt to set plugin path if not manually defined above
+if [ -z "$PLUGIN_PATH" ]; then
+   RELATIVE_PATH=`dirname "$0"`
+   PLUGIN_PATH=`eval "cd \"$RELATIVE_PATH\" && pwd"`
+fi
+echo "Plugin location: $PLUGIN_PATH"
+
+# Attempt to set Java path & filename if not manually defined above
+if [ -z "$PLUGIN_JAVA" ]; then
+    if [ -n "$JAVA_HOME" ]; then
+        $PLUGIN_JAVA=$JAVA_HOME/bin/java
+    else
+        PLUGIN_JAVA=`which java`
+    fi
+    # If attempt to set Java path & filename failed, throw error
+    if [ -z "$PLUGIN_JAVA" ]; then
+        echo "Could not find Java and is not manually defined."
+        echo "Please define manually in pluginctl.sh"
+        exit 1
+    fi
+fi
+echo "Java location: $PLUGIN_JAVA"
 
 PLUGIN_NAME="New Relic Unix Plugin"
 PLUGIN_ERR_FILE=$PLUGIN_PATH/logs/newrelic_unix_plugin.err
@@ -82,7 +107,7 @@ start_plugin() {
     fi
 
 	echo "Starting $PLUGIN_NAME"
-	nohup $PLUGIN_JAVA_HOME/bin/java $PLUGIN_JAVA_OPTS $PLUGIN_JAVA_CLASS >/dev/null 2>$PLUGIN_ERR_FILE &
+	nohup $PLUGIN_JAVA $PLUGIN_JAVA_OPTS $PLUGIN_JAVA_CLASS >/dev/null 2>$PLUGIN_ERR_FILE &
 	PID=`echo $!`
 	if [ -z $PID ]; then
     	echo "$PLUGIN_NAME failed to start"
