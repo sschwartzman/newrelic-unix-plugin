@@ -3,6 +3,7 @@
 
 ### What's new in V3.3 ?
 
+* Automatic copying of the plugin.json template for your OS 
 * [Global configurations in plugin.json](#globalconf)
 * Bug fixes for Linux & OSX commands
 * More accurate data collection from commands that have produce a "per interval" measurement (i.e. iostat, vmstat)
@@ -40,7 +41,7 @@ This plugin has been upgraded to V2.0.1 of the New Relic Platform Java SDK, whic
 2. Gunzip & untar on Unix server that you want to monitor
 3. Configure `config/newrelic.json` 
   * [Click here for newrelic.json config details](#nrjson)
-4. Copy `config/plugin.json` from the OS-specific templates in `config` and configure that file. 
+4. OPTIONAL: Copy `config/plugin.json` from the OS-specific templates in `config` and configure that file. 
   * [Click here for plugin.json config details](#pluginjson)
 5. Configure `pluginctl.sh` to have the correct paths to Java and your plugin location
   * Set `PLUGIN_JAVA_HOME` to location of Java on your server (up to but excluding the /bin directory)
@@ -125,7 +126,7 @@ If you are running your plugin from a machine that runs outbound traffic through
 ###  <a name="pluginjson"></a> Configuring the `plugin.json` file
 
 The `plugin.json` file contains the list of OS level commands that you want to execute as part of the plugin, and global settings to apply across all commands. All current possibilities for each OS are found in the `config/plugin.json.[OS]` template files.
-To properly set up the agent for your OS, copy one of these template to `plugin.json`. 
+To set up the agent for your OS, copy one of these templates to `plugin.json`. If you don't do this, the plugin will do it for you the first time it is run.
 
 Each command will get its own object in the `agents` array, as seen in the Example below.
 `command` is the only required configuration for each object. Commands in lowercase are ones literally defined in the plugin (i.e. `iostat`), whereas commands in Caps are specialized variations on those commands (i.e. `IostatCPU`). 

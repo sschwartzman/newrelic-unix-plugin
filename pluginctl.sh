@@ -9,7 +9,7 @@ PLUGIN_PATH=/opt/newrelic/newrelic_unix_plugin
 
 # AIX:
 # PLUGIN_JAVA_HOME=/usr/java6
-# LINUX & SOLARIS:
+# LINUX, OSX & SOLARIS:
 PLUGIN_JAVA_HOME=/usr
 
 # Change to false if you want to append to existing logs.
@@ -18,8 +18,8 @@ DELETE_LOGS_ON_STARTUP=true
 ### Do not change these unless instructed!
 
 PLUGIN_NAME="New Relic Unix Plugin"
-PLUGIN_LOG_FILE=$PLUGIN_PATH/logs/plugin.log
-PLUGIN_PID_FILE=$PLUGIN_PATH/logs/plugin.pid
+PLUGIN_ERR_FILE=$PLUGIN_PATH/logs/newrelic_unix_plugin.err
+PLUGIN_PID_FILE=$PLUGIN_PATH/logs/newrelic_unix_plugin.pid
 PLUGIN_JAVA_CLASS=com.chocolatefactory.newrelic.plugins.unix.Main
 PLUGIN_JAVA_OPTS="-Xms16m -Xmx128m -cp $PLUGIN_PATH/bin/newrelic_unix_plugin.jar:$PLUGIN_PATH/lib/metrics_publish-2.0.1.jar:$PLUGIN_PATH/lib/json-simple-1.1.1.jar"
 PLUGIN_RESTART_ON_START=0
@@ -77,12 +77,12 @@ start_plugin() {
 
     if [ "$DELETE_LOGS_ON_STARTUP" = true ] ; then
         echo "Deleting logs"
-        rm -f $PLUGIN_LOG_FILE
+        rm -f $PLUGIN_ERR_FILE
         rm -f $PLUGIN_PATH/logs/*.log
     fi
 
 	echo "Starting $PLUGIN_NAME"
-	nohup $PLUGIN_JAVA_HOME/bin/java $PLUGIN_JAVA_OPTS $PLUGIN_JAVA_CLASS > $PLUGIN_LOG_FILE 2>&1 &
+	nohup $PLUGIN_JAVA_HOME/bin/java $PLUGIN_JAVA_OPTS $PLUGIN_JAVA_CLASS >/dev/null 2>$PLUGIN_ERR_FILE &
 	PID=`echo $!`
 	if [ -z $PID ]; then
     	echo "$PLUGIN_NAME failed to start"
