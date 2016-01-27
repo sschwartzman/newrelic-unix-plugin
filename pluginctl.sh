@@ -42,6 +42,10 @@ if [ -z "$PLUGIN_JAVA" ]; then
 fi
 echo "Java location: $PLUGIN_JAVA"
 
+PLUGIN_JAVA_VERSION=`$PLUGIN_JAVA -version 2>&1 | awk 'NR==1{ gsub(/"/,""); print $3 }'`
+PLUGIN_JAVA_VERSION_FULL=`$PLUGIN_JAVA -version 2>&1`
+echo "Java version: $PLUGIN_JAVA_VERSION"
+
 PLUGIN_NAME="New Relic Unix Plugin"
 PLUGIN_ERR_FILE=$PLUGIN_PATH/logs/newrelic_unix_plugin.err
 PLUGIN_PID_FILE=$PLUGIN_PATH/logs/newrelic_unix_plugin.pid
@@ -107,7 +111,10 @@ start_plugin() {
     fi
 
 	echo "Starting $PLUGIN_NAME"
-	nohup $PLUGIN_JAVA $PLUGIN_JAVA_OPTS $PLUGIN_JAVA_CLASS >/dev/null 2>$PLUGIN_ERR_FILE &
+    echo "Plugin location: $PLUGIN_PATH" > $PLUGIN_ERR_FILE
+    echo "Java location: $PLUGIN_JAVA" >> $PLUGIN_ERR_FILE
+    echo "Java version: $PLUGIN_JAVA_VERSION_FULL" >> $PLUGIN_ERR_FILE
+    nohup $PLUGIN_JAVA $PLUGIN_JAVA_OPTS $PLUGIN_JAVA_CLASS >/dev/null 2>>$PLUGIN_ERR_FILE &
 	PID=`echo $!`
 	if [ -z $PID ]; then
     	echo "$PLUGIN_NAME failed to start"
