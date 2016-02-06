@@ -122,15 +122,19 @@ public class UnixAgent extends Agent {
 		try {
 			switch(thisCommand.getType()) {
 			case REGEXLISTDIM:
+				String replacemember = UnixMetrics.kMemberPlaceholder;
 				for(String thismember : members) {
 					commandReader = CommandMetricUtils.executeCommand(
 						CommandMetricUtils.replaceInArray(thisCommand.getCommand(), 
-						UnixMetrics.kMemberPlaceholder, thismember));
+							replacemember, thismember));
 					CommandMetricUtils.parseRegexMetricOutput(commandName, 
 						thisCommand.getLineMappings(), thismember, 
 						thisCommand.getLineLimit(), thisCommand.isCheckAllRegex(),
 						metricOutput, umetrics.allMetrics, commandReader);
+					replacemember = thismember;
 				}
+				CommandMetricUtils.replaceInArray(thisCommand.getCommand(), 
+					replacemember, UnixMetrics.kMemberPlaceholder);
 				reportMetrics();
 				break;
 			case REGEXDIM:
