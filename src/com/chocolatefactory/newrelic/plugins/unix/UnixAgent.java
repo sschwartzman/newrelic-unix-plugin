@@ -32,6 +32,7 @@ public class UnixAgent extends Agent {
 	String commandName;
 	String hostName = "";
 	String[] interfaceCommand, diskCommand;
+	String interfaceRegex;
 	HashSet<String> members;
 	UnixCommand thisCommand = null;
 	private static final Logger logger = Logger.getLogger(UnixAgent.class);
@@ -64,17 +65,21 @@ public class UnixAgent extends Agent {
 		
 		if(os.contains("linux")) {
 			umetrics = new LinuxMetrics();
-			interfaceCommand = new String[]{"/sbin/ifconfig", "-a"};
+			interfaceCommand = new String[]{"ip","link","show"};
+			interfaceRegex = "\\d+:\\s+(\\w+\\d*):.*";
 		} else if (os.contains("aix")) {
 			umetrics = new AIXMetrics();
 			interfaceCommand = new String[]{"/usr/sbin/ifconfig", "-a"};
+			interfaceRegex = "(\\w+\\d*):\\s+flags.*.*";
 		} else if (os.contains("sunos")) {
 			umetrics = new SolarisMetrics();
 			interfaceCommand = new String[]{"/usr/sbin/ifconfig", "-a"};
+			interfaceRegex = "(\\w+\\d*):\\d*:*\\s+flags.*";
 		} else if (os.toLowerCase().contains("os x") || os.toLowerCase().contains("osx")) {
 			umetrics = new OSXMetrics();
-			interfaceCommand = new String[]{"ifconfig", "-a"};
 			diskCommand = new String[]{"diskutil", "list"};
+			interfaceCommand = new String[]{"ifconfig", "-a"};
+			interfaceRegex = "(\\w+\\d*):\\s+flags.*";
 		} else {
 			logger.error("Unix Agent could not detect an OS version that it supports.");
 			logger.error("OS detected: " + os);
@@ -85,10 +90,12 @@ public class UnixAgent extends Agent {
 			thisCommand = umetrics.allCommands.get(command);
 			if(thisCommand.getType() == UnixMetrics.commandTypes.REGEXLISTDIM) {
 				if (thisCommand.getCommand()[0] == "iostat") {
+					logger.debug("Running " + thisCommand.getCommand().toString() + " to get list of disks.");
 					Pattern diskPattern = Pattern.compile("\\/dev\\/(\\w+\\d*)\\s+\\([\\w\\s,]+\\):.*");
 					getMembers(diskCommand, diskPattern);
 				} else {
-					Pattern interfacePattern = Pattern.compile("(?!\\s+)(\\w+\\d*)[:]{0,1}\\s+.*");
+					logger.debug("Running " + thisCommand.getCommand().toString() + " to get list of interfaces.");
+					Pattern interfacePattern = Pattern.compile(interfaceRegex);
 					getMembers(interfaceCommand, interfacePattern);
 				}
 			}
