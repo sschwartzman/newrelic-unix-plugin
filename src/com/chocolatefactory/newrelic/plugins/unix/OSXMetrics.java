@@ -84,6 +84,8 @@ public class OSXMetrics extends UnixMetrics {
 				new String[]{"memused", "memwired", "memfree"});
 		topMapping.put(Pattern.compile("PhysMem:\\s+(\\d+)G\\s+used\\s+\\((\\d+)M wired\\),\\s(\\d+)M\\s+unused."), 
 				new String[]{"memusedgigs", "memwired", "memfree"});	
+		topMapping.put(Pattern.compile("PhysMem:\\s+(\\d+)M\\s+used\\s+\\((\\d+)M wired\\),\\s(\\d+)G\\s+unused."), 
+				new String[]{"memused", "memwired", "memfreegigs"});	
 		allCommands.put("top", new UnixCommand(new String[]{"top","-l", "1", "-n", "0", "-S"}, commandTypes.REGEXDIM, defaultignores, 0, topMapping));
 		
 		allMetrics.put(CommandMetricUtils.mungeString("top", "la1"), new MetricDetail("LoadAverage", "1 Minute", "load", metricTypes.NORMAL, 1));
@@ -107,7 +109,8 @@ public class OSXMetrics extends UnixMetrics {
 		allMetrics.put(CommandMetricUtils.mungeString("top", "memusedgigs"), new MetricDetail("Memory", "Used", "kb", metricTypes.NORMAL, 1048576));
 		allMetrics.put(CommandMetricUtils.mungeString("top", "memwired"), new MetricDetail("Memory", "Wired", "kb", metricTypes.NORMAL, 1024));
 		allMetrics.put(CommandMetricUtils.mungeString("top", "memfree"), new MetricDetail("Memory", "Free", "kb", metricTypes.NORMAL, 1024));
-
+		allMetrics.put(CommandMetricUtils.mungeString("top", "memfreegigs"), new MetricDetail("Memory", "Free", "kb", metricTypes.NORMAL, 1048576));
+		
 		HashMap<Pattern, String[]> vm_statMapping = new HashMap<Pattern, String[]>();
 				vm_statMapping.put(Pattern.compile("\\s*([^:]+):\\s+(\\d+)\\.*"), new String[]{kColumnMetricName, kColumnMetricValue});	
 		allCommands.put("vm_stat", new UnixCommand(new String[]{"vm_stat"}, commandTypes.REGEXDIM, defaultignores, 0, vm_statMapping));
