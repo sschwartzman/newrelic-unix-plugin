@@ -1,6 +1,8 @@
 # New Relic Plugin for Unix 
 ## System-Level Montoring for AIX, Linux, Mac OS X & Solaris/SunOS
 
+### Download the plugin here: [newrelic_unix_plugin.tar.gz](https://github.com/sschwartzman/newrelic-unix-plugin/blob/master/dist/newrelic_unix_plugin.tar.gz?raw=true)
+
 ### What's new in V3.4?
 
 * Automatic locating of Java & plugin dir
