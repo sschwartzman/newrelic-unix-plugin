@@ -29,7 +29,7 @@ echo "Plugin location: $PLUGIN_PATH"
 # Attempt to set Java path & filename if not manually defined above
 if [ -z "$PLUGIN_JAVA" ]; then
     if [ -n "$JAVA_HOME" ]; then
-        $PLUGIN_JAVA=$JAVA_HOME/bin/java
+        PLUGIN_JAVA=$JAVA_HOME/bin/java
     else
         PLUGIN_JAVA=`which java`
     fi
