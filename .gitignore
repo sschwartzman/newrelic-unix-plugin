@@ -1,6 +1,8 @@
-/bin/jar/*
-/bin/tar/*
-/bin/classes/*
-/.settings/*
+bin/jar/*
+bin/tar/*
+bin/classes/*
+.settings/
+.project/
+.classpath
 *.class
 *.log
