@@ -2,7 +2,7 @@ bin/jar/*
 bin/tar/*
 bin/classes/*
 .settings/
-.project/
+.project
 .classpath
 *.class
 *.log
