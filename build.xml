@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <project basedir="." default="dist" name="newrelic_unix_plugin">
     <!-- UPDATE VERSION NUMBER HERE, NOT DIRECTLY IN SRC! -->
-	<property name="version" value="3.4.1"/>
+	<property name="version" value="3.5"/>
 	
 	<property name="unixagent.file" value="com/chocolatefactory/newrelic/plugins/unix/UnixAgent.java"/>
 	<property name="pluginname" value="newrelic_unix_plugin"/>

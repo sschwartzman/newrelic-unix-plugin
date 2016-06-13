@@ -14,6 +14,7 @@ import java.util.regex.Pattern;
 
 import com.chocolatefactory.newrelic.plugins.unix.UnixAgent;
 import com.chocolatefactory.newrelic.plugins.unix.UnixMetrics;
+import com.chocolatefactory.newrelic.plugins.utils.MetricDetail.metricTypes;
 import com.newrelic.metrics.publish.util.Logger;
 
 public class CommandMetricUtils {
@@ -21,6 +22,67 @@ public class CommandMetricUtils {
 	private static Pattern dashesPattern = Pattern.compile("\\s*[\\w-]+(\\s+[-]+)+(\\s[\\w-]*)*");
 	private static Pattern singleMetricLinePattern = Pattern.compile("\\S*(\\d+)\\s+([\\w-%\\(\\)])(\\s{0,1}[\\w-%\\(\\)])*");
 	private static final Logger logger = Logger.getLogger(UnixAgent.class);
+	
+	public static void addSummaryMetrics(HashMap<String, MetricOutput> currentMetrics) throws Exception {
+		String metricName = null, metricUnits = null, metricPrefix = "Summary";
+		double metricValue = 0.0, memFree = 0.0, memUsed = 0.0, memTotal = 0.0;
+		boolean memFreeSet = false, memUsedSet = false, memTotalSet = false;
+		HashMap<String, MetricOutput> newMetrics = new HashMap<String, MetricOutput>();
+		
+		for (MetricOutput thisMetric : currentMetrics.values()) {
+			String thisMetricName = thisMetric.getMetricDetail().getName();
+			String thisMetricPrefix = thisMetric.getMetricDetail().getPrefix();
+			double thisMetricValue = thisMetric.getValue().doubleValue();
+			if(thisMetricPrefix.equals("CPU") && thisMetricName.equals("Idle")) {
+				metricValue = 100 - thisMetricValue;
+				metricName = "CPU Utilization";
+				metricUnits = "%";
+			} else if(thisMetricPrefix.equals("Disk") && thisMetricName.equals("Used") 
+					&& thisMetric.getMetricDetail().getUnits().equals("%") && thisMetricValue > metricValue) {
+				metricValue = thisMetricValue;
+				metricName = "Fullest Disk";
+				metricUnits = "%";
+			} else if(thisMetricPrefix.startsWith("Memory") && !thisMetricName.startsWith("Swap") 
+					&& thisMetric.getMetricDetail().getUnits().equals("kb")) {
+				if (thisMetric.getMetricDetail().getName().endsWith("Free")) {
+					memFreeSet = true;
+					memFree = thisMetricValue;
+				} else if (thisMetric.getMetricDetail().getName().endsWith("Used")) {
+					memUsedSet = true;
+					memUsed = thisMetricValue;
+				} else if (thisMetric.getMetricDetail().getName().endsWith("Total")) {
+					memTotalSet = true;
+					memTotal = thisMetricValue;
+				}
+			}
+			
+			if(metricName != null && metricUnits != null) {
+				newMetrics.put(mungeString(metricPrefix, metricName), 
+					new MetricOutput(new MetricDetail(metricPrefix, metricName, metricUnits, metricTypes.NORMAL, 1), 
+					"", roundNumber(metricValue, 2)));
+				metricName = null;
+				metricUnits = null;
+			}
+		}
+		
+		if(memUsedSet && (memFreeSet || memTotalSet)) {
+			metricName = "Memory Utilization";
+			metricUnits = "%";
+			if(memTotalSet) {
+				metricValue = 100 - (memFree / memTotal);
+			} else {
+				metricValue = 100 - (memFree / (memFree + memUsed));
+			}
+			
+			newMetrics.put(mungeString(metricPrefix, metricName), 
+				new MetricOutput(new MetricDetail(metricPrefix, metricName, metricUnits, metricTypes.NORMAL, 1), 
+				"", roundNumber(metricValue, 2)));
+		}
+		
+		if (!newMetrics.isEmpty()) {
+			currentMetrics.putAll(newMetrics);
+		}
+	}
 	
 	public static ArrayList<String> executeCommand(String[] interfaceCommand) {
 		return executeCommand(interfaceCommand, false);
@@ -279,5 +341,10 @@ public class CommandMetricUtils {
 			outputArray[i] = thisArray[i].replaceAll(findThis, replaceWithThis);
 		}
 		return outputArray;
+	}
+	
+	public static double roundNumber(double theNumber, int places) {
+		double placesDouble = Math.pow(10, places);
+		return Math.round(theNumber * placesDouble) / placesDouble;
 	}
 }

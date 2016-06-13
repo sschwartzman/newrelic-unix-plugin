@@ -21,7 +21,7 @@ import com.newrelic.metrics.publish.Agent;
 public class UnixAgent extends Agent {
     
 	// Required for New Relic Plugins
-	public static final String kAgentVersion = "3.4.1";
+	public static final String kAgentVersion = "3.5";
 	public static final String kAgentGuid = "com.chocolatefactory.newrelic.plugins.unix";
 	
 	static final String kDefaultServerName = "unixserver";
@@ -146,6 +146,7 @@ public class UnixAgent extends Agent {
 					thisCommand.getLineMappings(), "", 
 					thisCommand.getLineLimit(), thisCommand.isCheckAllRegex(),
 					metricOutput, umetrics.allMetrics, commandReader);
+				CommandMetricUtils.addSummaryMetrics(metricOutput);
 				reportMetrics();
 				break;
 			case SIMPLEDIM:
@@ -158,7 +159,7 @@ public class UnixAgent extends Agent {
 			}
 		} catch (Exception e) {
 			logger.error("Error: Parsing of " + Arrays.toString(thisCommand.getCommand()) + "could not be completed.");
-			e.printStackTrace();
+			logger.debug(e.getMessage());
 		}
 	}
 	
