@@ -3,12 +3,19 @@
 
 ### Download the plugin here: [newrelic_unix_plugin.tar.gz](https://github.com/sschwartzman/newrelic-unix-plugin/blob/master/dist/newrelic_unix_plugin.tar.gz?raw=true)
 
+### What's new in V3.5?
+
+* New Summary Metrics (CPU, Memory & Fullest Disk) to closer match New Relic Servers and to facilitate alerting
+
+### NOTE: If all of your Summary Metrics disappeared like this (below), UPGRADE TO THE LATEST VERSION!
+![Pic of Busted Summary](/img/you_need_to_upgrade.png?raw=true "Summary Prior To Upgrade")
+
+### Previous updates
+
 ### What's new in V3.4?
 
 * Automatic locating of Java & plugin dir
 * Automatic copying of the plugin.json template for your OS 
-
-### Previous updates
 
 #### V3.3
 * [Global configurations in plugin.json](#globalconf)
