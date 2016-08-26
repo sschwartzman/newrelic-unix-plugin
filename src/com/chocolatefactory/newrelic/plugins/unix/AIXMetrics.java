@@ -184,7 +184,7 @@ public class AIXMetrics extends UnixMetrics {
 			new String[]{kColumnMetricPrefix, "work", "pers", "clnt", "other"});
 		svmonMapping.put(Pattern.compile("\\s*(in\\s{1}use)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)"),
 			new String[]{kColumnMetricPrefix, "work", "pers", "clnt"});
-		allCommands.put("svmon", new UnixCommand(new String[]{"svmon","-G","-Ounit=KB"}, commandTypes.REGEXDIM, defaultignores, 0, svmonMapping));
+		allCommands.put("svmon", new UnixCommand(new String[]{"svmon","-Ounit=KB"}, commandTypes.REGEXDIM, defaultignores, 0, svmonMapping));
 		
 		allMetrics.put(CommandMetricUtils.mungeString("svmon", "size"), new MetricDetail("MemoryDetailed", "Total", "kb", metricTypes.NORMAL, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("svmon", "inuse"), new MetricDetail("MemoryDetailed", "Used", "kb", metricTypes.NORMAL, 1));
