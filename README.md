@@ -5,6 +5,7 @@
 
 ### What's new in V3.5.1?
 
+ * Fix for AIX memory reporting - removed "-G" from svmon command, now reports on the current LPAR/WPAR.
  * Fix for IBM WebSphere JDK for IBM JSSE when the WebSphere Socket factory "classNotFound" exception. [Click here for details on how to apply fix](#ibmjsse)
 
 ### Previous updates
