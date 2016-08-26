@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <project basedir="." default="dist" name="newrelic_unix_plugin">
     <!-- UPDATE VERSION NUMBER HERE, NOT DIRECTLY IN SRC! -->
-	<property name="version" value="3.5"/>
+	<property name="version" value="3.5.1"/>
 	
 	<property name="unixagent.file" value="com/chocolatefactory/newrelic/plugins/unix/UnixAgent.java"/>
 	<property name="pluginname" value="newrelic_unix_plugin"/>
@@ -20,6 +20,7 @@
     <property name="src.dir" location="src"/>
     <property name="lib.dir" location="lib"/>
     <property name="conf.dir" location="config"/>
+    <property name="etc.dir" location="etc"/>
     <property name="script.dir" location="."/>
     <property name="newrelic.lib" value="${lib.dir}/metrics_publish-2.0.1.jar"/>
     <property name="json.lib" value="${lib.dir}/json-simple-1.1.1.jar"/>
@@ -80,6 +81,7 @@
     	<mkdir dir="${build.tar.src.dir}/bin"/>
     	<mkdir dir="${build.tar.src.dir}/config"/>
         <mkdir dir="${build.tar.src.dir}/lib"/>
+        <mkdir dir="${build.tar.src.dir}/etc"/>
         <copy file="LICENSE" todir="${build.tar.src.dir}" />
         <copy file="README.md" todir="${build.tar.src.dir}" />
         <copy file="pluginctl.sh" todir="${build.tar.src.dir}" />
@@ -88,6 +90,9 @@
         </copy>
         <copy todir="${build.tar.src.dir}/lib">
             <fileset dir="${lib.dir}" />
+        </copy>
+        <copy todir="${build.tar.src.dir}/etc">
+            <fileset dir="${etc.dir}" />
         </copy>
         <copy file="${build.jar.dir}/${jarfile}" todir="${build.tar.src.dir}/bin" />
         <tar compression="gzip" destfile="${dist.dir}/${tarfile}">

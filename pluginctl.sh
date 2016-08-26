@@ -8,6 +8,9 @@
 # Change to false if you want to append to existing logs.
 DELETE_LOGS_ON_STARTUP=true
 
+# Uncomment if you are using a JDK packaged with WebSphere
+# USE_IBM_JSSE=true
+
 # Manually define Plugin path if this script can't find it
 # PLUGIN_PATH=/opt/newrelic/newrelic_unix_plugin
 
@@ -51,6 +54,12 @@ PLUGIN_ERR_FILE=$PLUGIN_PATH/logs/newrelic_unix_plugin.err
 PLUGIN_PID_FILE=$PLUGIN_PATH/logs/newrelic_unix_plugin.pid
 PLUGIN_JAVA_CLASS=com.chocolatefactory.newrelic.plugins.unix.Main
 PLUGIN_JAVA_OPTS="-Xms16m -Xmx128m -cp $PLUGIN_PATH/bin/newrelic_unix_plugin.jar:$PLUGIN_PATH/lib/metrics_publish-2.0.1.jar:$PLUGIN_PATH/lib/json-simple-1.1.1.jar"
+
+# Added for IBM JSSE support
+if [ "$USE_IBM_JSSE" == "true" ]; then
+    PLUGIN_JAVA_OPTS="$PLUGIN_JAVA_OPTS -Djava.security.properties=$PLUGIN_PATH/etc/ibm_jsse.java.security"
+fi
+
 PLUGIN_RESTART_ON_START=0
 
 check_plugin_status() {

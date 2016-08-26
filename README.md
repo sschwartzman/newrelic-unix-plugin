@@ -3,16 +3,20 @@
 
 ### Download the plugin here: [newrelic_unix_plugin.tar.gz](https://github.com/sschwartzman/newrelic-unix-plugin/blob/master/dist/newrelic_unix_plugin.tar.gz?raw=true)
 
-### What's new in V3.5?
+### What's new in V3.5.1?
+
+ * Fix for IBM WebSphere JDK for IBM JSSE when the WebSphere Socket factory "classNotFound" exception. [Click here for details on how to apply fix](#ibmjsse)
+
+### Previous updates
+
+#### V3.5
 
 * New Summary Metrics (CPU, Memory & Fullest Disk) to closer match New Relic Servers and to facilitate alerting
 
 ### NOTE: If all of your Summary Metrics disappeared like this (below), UPGRADE TO THE LATEST VERSION!
 ![Pic of Busted Summary](/img/you_need_to_upgrade.png?raw=true "Summary Prior To Upgrade")
 
-### Previous updates
-
-### What's new in V3.4?
+#### V3.4
 
 * Automatic locating of Java & plugin dir
 * Automatic copying of the plugin.json template for your OS 
@@ -136,15 +140,15 @@ If you are running your plugin from a machine that runs outbound traffic through
 
 ----
 
-###  <a name="pluginjson"></a> Configuring the `plugin.json` file
+<a name="pluginjson"/>### Configuring the `plugin.json` file
 
 The `plugin.json` file contains the list of OS level commands that you want to execute as part of the plugin, and global settings to apply across all commands. All current possibilities for each OS are found in the `config/plugin.json.[OS]` template files.
 To set up the agent for your OS, copy one of these templates to `plugin.json`. If you don't do this, the plugin will do it for you the first time it is run.
 
 Each command will get its own object in the `agents` array, as seen in the Example below.
 `command` is the only required configuration for each object. Commands in lowercase are ones literally defined in the plugin (i.e. `iostat`), whereas commands in Caps are specialized variations on those commands (i.e. `IostatCPU`). 
-<a name="globalconf">
-#### Global Configurations (NEW!)
+
+<a name="globalconf"/>#### Global Configurations
 
 Each plugin.json file now has a `global` object, which contains the optional configurations to be applied across all of the commands.
 
@@ -224,4 +228,17 @@ Here is an example with optional configurations set in the `agent` object that o
         }
     ]
 }
+```
+
+<a name="ibmjsse"/>### Using the IBM (WebSphere) JDK
+
+If you are using the JDK that is packaged with WebSphere see an exception in the logs like below, it is due to WebSphere attempting to use the WebSphere SSL Factory instead of the IBM JSSE packages.
+```
+ERROR com.newrelic.metrics.publish.binding.Request - An error occurred communicating with the New Relic service
+java.net.SocketException: java.lang.ClassNotFoundException: Cannot find the specified class com.ibm.websphere.ssl.protocol.SSLSocketFactory
+```
+
+If so, uncomment the following line in `pluginctl.sh` and restart the agent.
+```
+# USE_IBM_JSSE=true
 ```
