@@ -71,7 +71,7 @@
 
 ----
 
-### <a name="nrjson"></a> Configuring the `newrelic.json` file
+### <a name="nrjson"/>Configuring the `newrelic.json` file
 
 The `newrelic.json` is a standardized file containing configuration information that applies to any plugin (e.g. license key, logging, proxy settings), so going forward you will be able to copy a single `newrelic.json` file from one plugin to another.  Below is a list of the configuration fields that can be managed through this file:
 
@@ -109,7 +109,7 @@ By default, this plugins will have logging turned on; however, you can manage th
 }
 ```
 
-#### <a name="proxyconfig"></a> Proxy configuration
+#### <a name="proxyconfig"/>Proxy configuration
 
 If you are running your plugin from a machine that runs outbound traffic through a proxy, you can use the following optional configurations in your `newrelic.json` file:
 
@@ -140,7 +140,7 @@ If you are running your plugin from a machine that runs outbound traffic through
 
 ----
 
-<a name="pluginjson"/>### Configuring the `plugin.json` file
+### <a name="pluginjson"/>Configuring the `plugin.json` file
 
 The `plugin.json` file contains the list of OS level commands that you want to execute as part of the plugin, and global settings to apply across all commands. All current possibilities for each OS are found in the `config/plugin.json.[OS]` template files.
 To set up the agent for your OS, copy one of these templates to `plugin.json`. If you don't do this, the plugin will do it for you the first time it is run.
@@ -148,7 +148,7 @@ To set up the agent for your OS, copy one of these templates to `plugin.json`. I
 Each command will get its own object in the `agents` array, as seen in the Example below.
 `command` is the only required configuration for each object. Commands in lowercase are ones literally defined in the plugin (i.e. `iostat`), whereas commands in Caps are specialized variations on those commands (i.e. `IostatCPU`). 
 
-<a name="globalconf"/>#### Global Configurations
+#### <a name="globalconf"/>Global Configurations
 
 Each plugin.json file now has a `global` object, which contains the optional configurations to be applied across all of the commands.
 
@@ -230,7 +230,7 @@ Here is an example with optional configurations set in the `agent` object that o
 }
 ```
 
-<a name="ibmjsse"/>### Using the IBM (WebSphere) JDK
+### <a name="ibmjsse"/>Fix for using the IBM (WebSphere) JDK
 
 If you are using the JDK that is packaged with WebSphere see an exception in the logs like below, it is due to WebSphere attempting to use the WebSphere SSL Factory instead of the IBM JSSE packages.
 ```
