@@ -30,6 +30,9 @@
             "command": "vmstat"
         },
         {
+            "command": "VmstatThreads"
+        },
+        {
             "command": "VmstatTotals"
         }
     ]
