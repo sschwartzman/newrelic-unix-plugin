@@ -11,13 +11,15 @@ import com.newrelic.metrics.publish.util.Logger;
 
 public class UnixAgentFactory extends AgentFactory {
 	
-	String os, command, hostname;
+	private static final String kDefaultServerName = "unixserver";
 	Boolean debug;
 	Map<String, Object> global_properties;
+	private static final Logger logger = Logger.getLogger(UnixAgentFactory.class);
+	UnixMetrics umetrics;
+	HashMap<String, Object> agentInstanceConfigs;
 	
 	public UnixAgentFactory() {
 		super();
-		Logger logger = Logger.getLogger(UnixAgentFactory.class);
 		logger.info("Unix Agent version: " + UnixAgent.kAgentVersion);
 		global_properties = Config.getValue("global");
 		if (global_properties != null) {
@@ -28,11 +30,16 @@ public class UnixAgentFactory extends AgentFactory {
 					"\nEither of which is OK!");
 			global_properties = new HashMap<String, Object>();
 		}
-
+		agentInstanceConfigs = new HashMap<String, Object>();
+		
 	}
 
 	@Override
 	public Agent createConfiguredAgent(Map<String, Object> properties) throws ConfigurationException {
+		
+		String os, command, hostname, iregex;
+		String[] dcommand, icommand;
+		
 		if (properties.containsKey("debug")) {
 			debug = (Boolean) properties.get("debug");
 		}
@@ -54,16 +61,53 @@ public class UnixAgentFactory extends AgentFactory {
 			debug = false;
 		}
 		
-		if(properties.containsKey("hostname")) {
+		if(properties.containsKey("hostname") && !((String)properties.get("hostname")).toLowerCase().equals("auto")) {
 			hostname = ((String) properties.get("hostname"));
-		} else if (global_properties.containsKey("hostname")) {
-				hostname = ((String) global_properties.get("hostname"));
+		} else if (global_properties.containsKey("hostname") && !((String)global_properties.get("hostname")).toLowerCase().equals("auto")) {
+			hostname = ((String) global_properties.get("hostname"));
 		} else {
-			hostname = "auto";
+			try {
+				hostname = java.net.InetAddress.getLocalHost().getHostName(); 
+			} catch (Exception e) {
+				logger.error("Naming failed: " + e.toString());
+				logger.error("Applying default server name (" + kDefaultServerName + ") to this server");
+				hostname = kDefaultServerName;
+			}
 		}
 		
 		command = ((String) properties.get("command"));
 		
-    	return new UnixAgent(os, command, debug, hostname);
+		if(os.contains("linux")) {
+			umetrics = new LinuxMetrics();
+			icommand = new String[]{"ip","link","show"};
+			iregex = "\\d+:\\s+(\\w+\\d*):.*";
+		} else if (os.contains("aix")) {
+			umetrics = new AIXMetrics();
+			icommand = new String[]{"/usr/sbin/ifconfig", "-a"};
+			iregex = "(\\w+\\d*):\\s+flags.*.*";
+		} else if (os.contains("sunos")) {
+			umetrics = new SolarisMetrics();
+			icommand = new String[]{"/usr/sbin/ifconfig", "-a"};
+			iregex = "(\\w+\\d*):\\d*:*\\s+flags.*";
+		} else if (os.toLowerCase().contains("os x") || os.toLowerCase().contains("osx")) {
+			umetrics = new OSXMetrics();
+			dcommand = new String[]{"diskutil", "list"};
+			agentInstanceConfigs.put("dcommand", dcommand);
+			icommand = new String[]{"ifconfig", "-a"};
+			iregex = "(\\w+\\d*):\\s+flags.*";
+		} else {
+			logger.error("Unix Agent could not detect an OS version that it supports.");
+			logger.error("OS detected: " + os);
+			return null;
+		}
+		
+		agentInstanceConfigs.put("os", os);
+		agentInstanceConfigs.put("command", command);
+		agentInstanceConfigs.put("debug", debug);
+		agentInstanceConfigs.put("hostname", hostname);
+		agentInstanceConfigs.put("icommand", icommand);
+		agentInstanceConfigs.put("iregex", iregex);
+		
+    	return new UnixAgent(umetrics, agentInstanceConfigs);
 	}
 }

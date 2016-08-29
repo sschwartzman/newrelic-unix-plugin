@@ -21,73 +21,38 @@ import com.newrelic.metrics.publish.Agent;
 public class UnixAgent extends Agent {
     
 	// Required for New Relic Plugins
-	public static final String kAgentVersion = "3.5.1";
+	public static final String kAgentVersion = "3.6";
 	public static final String kAgentGuid = "com.chocolatefactory.newrelic.plugins.unix";
-	
-	static final String kDefaultServerName = "unixserver";
 			
 	boolean isDebug = false;
-	UnixMetrics umetrics;
+	UnixMetrics unixMetrics;
 	HashMap<String, MetricOutput> metricOutput = new HashMap<String, MetricOutput>();
 	String commandName;
 	String hostName = "";
-	String[] interfaceCommand, diskCommand;
-	String interfaceRegex;
+
 	HashSet<String> members;
 	UnixCommand thisCommand = null;
 	private static final Logger logger = Logger.getLogger(UnixAgent.class);
 	
-	public UnixAgent(String os, String command, Boolean debug, String hostname) {
+	public UnixAgent(UnixMetrics umetrics, HashMap<String, Object> instance) {
 			
 		super(kAgentGuid, kAgentVersion);
 		
-		hostName = hostname;
-		commandName = command;
-		isDebug = debug;
-		
-		if (hostname == null || hostname.isEmpty() || hostname.equals("auto")) {
-			try {
-				hostName = java.net.InetAddress.getLocalHost().getHostName(); 
-			} catch (Exception e) {
-				logger.error("Naming failed: " + e.toString());
-				logger.error("Applying default server name (" + kDefaultServerName + ") to this server");
-				hostName = kDefaultServerName;
-			}
-		} else {
-			hostName = hostname;
-		}
+		hostName = (String)instance.get("hostname");
+		commandName = (String)instance.get("command");
+		isDebug = (Boolean)instance.get("debug");
+		String[] interfaceCommand = (String[])instance.get("icommand");
+		String[] diskCommand = (String[])instance.get("dcommand");
+		String interfaceRegex = (String)instance.get("iregex");
 		
 		logger.debug("Instance Configuration:" +
-				"\nOS: " + os +
 				"\ncommand: " + commandName +
 				"\ndebug: " + isDebug +
 				"\nhostname: " + hostName);
 		
-		if(os.contains("linux")) {
-			umetrics = new LinuxMetrics();
-			interfaceCommand = new String[]{"ip","link","show"};
-			interfaceRegex = "\\d+:\\s+(\\w+\\d*):.*";
-		} else if (os.contains("aix")) {
-			umetrics = new AIXMetrics();
-			interfaceCommand = new String[]{"/usr/sbin/ifconfig", "-a"};
-			interfaceRegex = "(\\w+\\d*):\\s+flags.*.*";
-		} else if (os.contains("sunos")) {
-			umetrics = new SolarisMetrics();
-			interfaceCommand = new String[]{"/usr/sbin/ifconfig", "-a"};
-			interfaceRegex = "(\\w+\\d*):\\d*:*\\s+flags.*";
-		} else if (os.toLowerCase().contains("os x") || os.toLowerCase().contains("osx")) {
-			umetrics = new OSXMetrics();
-			diskCommand = new String[]{"diskutil", "list"};
-			interfaceCommand = new String[]{"ifconfig", "-a"};
-			interfaceRegex = "(\\w+\\d*):\\s+flags.*";
-		} else {
-			logger.error("Unix Agent could not detect an OS version that it supports.");
-			logger.error("OS detected: " + os);
-			return;
-		}
-		
-		if (umetrics.allCommands.containsKey(command)) {
-			thisCommand = umetrics.allCommands.get(command);
+		unixMetrics = umetrics;
+		if (unixMetrics.allCommands.containsKey(commandName)) {
+			thisCommand = unixMetrics.allCommands.get(commandName);
 			if(thisCommand.getType() == UnixMetrics.commandTypes.REGEXLISTDIM) {
 				if (thisCommand.getCommand()[0] == "iostat") {
 					logger.debug("Running " + thisCommand.getCommand().toString() + " to get list of disks.");
@@ -107,15 +72,7 @@ public class UnixAgent extends Agent {
 
 	@Override
     public String getAgentName() {
-		try {
-			if (hostName == null || hostName.isEmpty() || hostName.equals("auto"))
-				hostName = java.net.InetAddress.getLocalHost().getHostName(); 
-			return hostName; 
-		} catch (Exception e) {
-			logger.error("Naming failed: " + e.toString());
-			logger.error("Applying default server name (" + kDefaultServerName + ") to this server");
-			return kDefaultServerName;
-		}
+		return hostName;
     }
     
 	@Override
@@ -136,7 +93,7 @@ public class UnixAgent extends Agent {
 					CommandMetricUtils.parseRegexMetricOutput(commandName, 
 						thisCommand.getLineMappings(), thismember, 
 						thisCommand.getLineLimit(), thisCommand.isCheckAllRegex(),
-						metricOutput, umetrics.allMetrics, commandReader);
+						metricOutput, unixMetrics.allMetrics, commandReader);
 				}
 				reportMetrics();
 				break;
@@ -145,7 +102,7 @@ public class UnixAgent extends Agent {
 				CommandMetricUtils.parseRegexMetricOutput(commandName, 
 					thisCommand.getLineMappings(), "", 
 					thisCommand.getLineLimit(), thisCommand.isCheckAllRegex(),
-					metricOutput, umetrics.allMetrics, commandReader);
+					metricOutput, unixMetrics.allMetrics, commandReader);
 				CommandMetricUtils.addSummaryMetrics(metricOutput);
 				reportMetrics();
 				break;
@@ -158,7 +115,7 @@ public class UnixAgent extends Agent {
 				return;
 			}
 		} catch (Exception e) {
-			logger.error("Error: Parsing of " + Arrays.toString(thisCommand.getCommand()) + "could not be completed.");
+			logger.error("Error: Parsing of " + Arrays.toString(thisCommand.getCommand()) + " could not be completed.");
 			logger.debug(e.getMessage());
 		}
 	}

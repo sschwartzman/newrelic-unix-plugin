@@ -15,6 +15,9 @@ public class LinuxMetrics extends UnixMetrics {
 	public List<Integer> linuxvmstatignores = Arrays.asList(13, 14, 15, 16, 17);
 	
 	public LinuxMetrics() {
+		
+		super();
+		
 		/*
 		 * Parser & declaration for 'df' command
 		 */
@@ -154,10 +157,10 @@ public class LinuxMetrics extends UnixMetrics {
 		allMetrics.put(CommandMetricUtils.mungeString("top", "proczzz"), new MetricDetail("Processes", "Sleeping", "processes", metricTypes.NORMAL, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("top", "procstop"), new MetricDetail("Processes", "Stopped", "processes", metricTypes.NORMAL, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("top", "proczomb"), new MetricDetail("Processes", "Zombie", "processes", metricTypes.NORMAL, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("top", "memtot"), new MetricDetail("MemoryDetailed", "PhysMem/Total", "kb", metricTypes.NORMAL, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("top", "memused"), new MetricDetail("MemoryDetailed", "PhysMem/Used", "kb", metricTypes.NORMAL, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("top", "memfree"), new MetricDetail("MemoryDetailed", "PhysMem/Free", "kb", metricTypes.NORMAL, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("top", "membuff"), new MetricDetail("MemoryDetailed", "PhysMem/Buffer", "kb", metricTypes.NORMAL, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("top", "memtot"), new MetricDetail("Memory", "Total", "kb", metricTypes.NORMAL, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("top", "memused"), new MetricDetail("Memory", "Used", "kb", metricTypes.NORMAL, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("top", "memfree"), new MetricDetail("Memory", "Free", "kb", metricTypes.NORMAL, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("top", "membuff"), new MetricDetail("Memory", "Buffer", "kb", metricTypes.NORMAL, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("top", "swaptot"), new MetricDetail("MemoryDetailed", "Swap/Total", "kb", metricTypes.NORMAL, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("top", "swapused"), new MetricDetail("MemoryDetailed", "Swap/Used", "kb", metricTypes.NORMAL, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("top", "swapfree"), new MetricDetail("MemoryDetailed", "Swap/Free", "kb", metricTypes.NORMAL, 1));
@@ -175,10 +178,10 @@ public class LinuxMetrics extends UnixMetrics {
 
 		allMetrics.put(CommandMetricUtils.mungeString("vmstat", "r"), new MetricDetail("KernelThreads", "Runnable", "threads", metricTypes.NORMAL, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("vmstat", "b"), new MetricDetail("KernelThreads", "In Wait Queue", "threads", metricTypes.NORMAL, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("vmstat", "swpd"), new MetricDetail("Memory", "Swap", "kb", metricTypes.NORMAL, 4096));
-		allMetrics.put(CommandMetricUtils.mungeString("vmstat", "free"), new MetricDetail("Memory", "Free", "kb", metricTypes.NORMAL, 4096));
-		allMetrics.put(CommandMetricUtils.mungeString("vmstat", "buff"), new MetricDetail("Memory", "Buffer", "kb", metricTypes.NORMAL, 4096));
-		allMetrics.put(CommandMetricUtils.mungeString("vmstat", "cache"), new MetricDetail("Memory", "Cache", "kb", metricTypes.NORMAL, 4096));
+		allMetrics.put(CommandMetricUtils.mungeString("vmstat", "swpd"), new MetricDetail("Memory", "Swap", "kb", metricTypes.NORMAL, getPageSize()*1024));
+		allMetrics.put(CommandMetricUtils.mungeString("vmstat", "free"), new MetricDetail("Memory", "Free", "kb", metricTypes.NORMAL, getPageSize()*1024));
+		allMetrics.put(CommandMetricUtils.mungeString("vmstat", "buff"), new MetricDetail("Memory", "Buffer", "kb", metricTypes.NORMAL, getPageSize()*1024));
+		allMetrics.put(CommandMetricUtils.mungeString("vmstat", "cache"), new MetricDetail("Memory", "Cache", "kb", metricTypes.NORMAL, getPageSize()*1024));
 		allMetrics.put(CommandMetricUtils.mungeString("vmstat", "si"), new MetricDetail("Page", "Paged In", "pages", metricTypes.NORMAL, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("vmstat", "so"), new MetricDetail("Page", "Paged Out", "pages", metricTypes.NORMAL, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("vmstat", "bi"), new MetricDetail("IO", "Sent", "Blocks", metricTypes.NORMAL, 1));

@@ -12,6 +12,9 @@ public class OSXMetrics extends UnixMetrics {
 	public static final String kDefaultAgentName = "MacOSX";
 	
 	public OSXMetrics() {
+	
+		super();
+		
 		/*
 		 * Parser & declaration for 'df' command
 		 */
@@ -29,11 +32,11 @@ public class OSXMetrics extends UnixMetrics {
 		 */
 		HashMap<Pattern, String[]> iostatMapping = new HashMap<Pattern, String[]>();
 		iostatMapping.put(Pattern.compile("\\s*([0-9\\.]+)\\s+([0-9\\.]+)\\s+([0-9\\.]+).*"),
-				new String[]{"KB-t", "tps", "MB-s"});
-		allCommands.put("iostat", new UnixCommand(new String[]{"iostat", "-c " + kExecutionCount, "-w " + kExecutionDelay, "-d", kMemberPlaceholder}, commandTypes.REGEXLISTDIM, defaultignores, 0, iostatMapping));
-		allMetrics.put(CommandMetricUtils.mungeString("iostat", "tps"), new MetricDetail("DiskIO", "Transfers Per Second", "transfers", metricTypes.NORMAL, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("iostat", "MB-s"), new MetricDetail("DiskIO", "Data Transferred Per Second", "kb", metricTypes.NORMAL, 1024));
-		allMetrics.put(CommandMetricUtils.mungeString("iostat", "KB-t"), new MetricDetail("DiskIO", "Average Request Size", "KB", metricTypes.NORMAL, 1));
+				new String[]{"KB-t", "xfrs", "MB"});
+		allCommands.put("iostat", new UnixCommand(new String[]{"iostat", "-I" , "-d", kMemberPlaceholder}, commandTypes.REGEXLISTDIM, defaultignores, 0, iostatMapping));
+		allMetrics.put(CommandMetricUtils.mungeString("iostat", "xfrs"), new MetricDetail("DiskIO", "Transfers Per Interval", "transfers", metricTypes.DELTA, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("iostat", "MB"), new MetricDetail("DiskIO", "Data Transferred Per Interval", "kb", metricTypes.DELTA, 1024));
+		allMetrics.put(CommandMetricUtils.mungeString("iostat", "KB-t"), new MetricDetail("DiskIO", "Average Request Size", "kb", metricTypes.NORMAL, 1));
 		
 		/*
 		 * Parser & declaration for 'netstat' command
@@ -79,14 +82,22 @@ public class OSXMetrics extends UnixMetrics {
 		topMapping.put(Pattern.compile("MemRegions:\\s+(\\d+)\\s+total,\\s+(\\d+)M\\s+resident,\\s+(\\d+)M\\s+private,\\s+(\\d+)M\\s+shared.*"), 
 			new String[]{"memregtot", "memregres", "memregpriv", "memregshare"});
 		topMapping.put(Pattern.compile("Swap:\\s+(\\d+)B\\s+\\+\\s+(\\d+)B\\s+free."), 
-			new String[]{"swapused", "swapfree"});		
-		topMapping.put(Pattern.compile("PhysMem:\\s+(\\d+)M\\s+used\\s+\\((\\d+)M wired\\),\\s(\\d+)M\\s+unused."), 
-				new String[]{"memused", "memwired", "memfree"});
-		topMapping.put(Pattern.compile("PhysMem:\\s+(\\d+)G\\s+used\\s+\\((\\d+)M wired\\),\\s(\\d+)M\\s+unused."), 
-				new String[]{"memusedgigs", "memwired", "memfree"});	
-		topMapping.put(Pattern.compile("PhysMem:\\s+(\\d+)M\\s+used\\s+\\((\\d+)M wired\\),\\s(\\d+)G\\s+unused."), 
-				new String[]{"memused", "memwired", "memfreegigs"});	
-		allCommands.put("top", new UnixCommand(new String[]{"top","-l", "1", "-n", "0", "-S"}, commandTypes.REGEXDIM, defaultignores, 0, topMapping));
+			new String[]{"swapused", "swapfree"});
+		topMapping.put(Pattern.compile("PhysMem:\\s+(\\d+)M\\s+used\\s+.*"), 
+				new String[]{"memused"});
+		topMapping.put(Pattern.compile("PhysMem:\\s+(\\d+)G\\s+used\\s+.*"), 
+				new String[]{"memusedgigs"});
+		topMapping.put(Pattern.compile("PhysMem:\\s+\\d+[MG]{1}\\s+used\\s+\\((\\d+)M wired\\).*"), 
+				new String[]{"memwired"});
+		topMapping.put(Pattern.compile("PhysMem:\\s+\\d+[MG]{1}\\s+used\\s+\\((\\d+)G wired\\).*"), 
+				new String[]{"memwiredgigs"});
+		topMapping.put(Pattern.compile("PhysMem:\\s+\\d+[MG]{1}\\s+used\\s+\\(\\d+[MG]{1} wired\\),\\s(\\d+)M\\s+unused."), 
+				new String[]{"memfree"});
+		topMapping.put(Pattern.compile("PhysMem:\\s+\\d+[MG]{1}\\s+used\\s+\\(\\d+[MG]{1} wired\\),\\s(\\d+)G\\s+unused."), 
+				new String[]{"memfreegigs"});
+		topMapping.put(Pattern.compile("Disks:\\s+(\\d+)\\/\\d+[BKMGT]{1}\\s+read,\\s+(\\d+)\\/\\d+[BKMGT]{1}\\s+written."),
+				new String[]{"diskreads","diskwrites"});
+		allCommands.put("top", new UnixCommand(new String[]{"top","-l", "1", "-n", "0", "-S"}, commandTypes.REGEXDIM, defaultignores, 0, true, topMapping));
 		
 		allMetrics.put(CommandMetricUtils.mungeString("top", "la1"), new MetricDetail("LoadAverage", "1 Minute", "load", metricTypes.NORMAL, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("top", "la5"), new MetricDetail("LoadAverage", "5 Minute", "load", metricTypes.NORMAL, 1));
@@ -108,20 +119,23 @@ public class OSXMetrics extends UnixMetrics {
 		allMetrics.put(CommandMetricUtils.mungeString("top", "memused"), new MetricDetail("Memory", "Used", "kb", metricTypes.NORMAL, 1024));
 		allMetrics.put(CommandMetricUtils.mungeString("top", "memusedgigs"), new MetricDetail("Memory", "Used", "kb", metricTypes.NORMAL, 1048576));
 		allMetrics.put(CommandMetricUtils.mungeString("top", "memwired"), new MetricDetail("Memory", "Wired", "kb", metricTypes.NORMAL, 1024));
+		allMetrics.put(CommandMetricUtils.mungeString("top", "memwiredgigs"), new MetricDetail("Memory", "Wired", "kb", metricTypes.NORMAL, 1048576));
 		allMetrics.put(CommandMetricUtils.mungeString("top", "memfree"), new MetricDetail("Memory", "Free", "kb", metricTypes.NORMAL, 1024));
 		allMetrics.put(CommandMetricUtils.mungeString("top", "memfreegigs"), new MetricDetail("Memory", "Free", "kb", metricTypes.NORMAL, 1048576));
+		allMetrics.put(CommandMetricUtils.mungeString("top", "diskreads"), new MetricDetail("DiskIO", "Reads Per Interval", "reads", metricTypes.NORMAL, 1048576));
+		allMetrics.put(CommandMetricUtils.mungeString("top", "diskwrites"), new MetricDetail("DiskIO", "Writes Per Interval", "writes", metricTypes.NORMAL, 1048576));
 		
 		HashMap<Pattern, String[]> vm_statMapping = new HashMap<Pattern, String[]>();
 				vm_statMapping.put(Pattern.compile("\\s*([^:]+):\\s+(\\d+)\\.*"), new String[]{kColumnMetricName, kColumnMetricValue});	
 		allCommands.put("vm_stat", new UnixCommand(new String[]{"vm_stat"}, commandTypes.REGEXDIM, defaultignores, 0, vm_statMapping));
 		
-		allMetrics.put(CommandMetricUtils.mungeString("vm_stat", "Pages free"),new MetricDetail("Page", "Free", "pages", metricTypes.DELTA, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("vm_stat", "Pages active"),new MetricDetail("Page", "Active", "pages", metricTypes.DELTA, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("vm_stat", "Pages inactive"),new MetricDetail("Page", "Inactive", "pages", metricTypes.DELTA, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("vm_stat", "Pages speculative"),new MetricDetail("Page", "Speculative", "pages", metricTypes.DELTA, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("vm_stat", "Pages throttled"),new MetricDetail("Page", "Throttled", "pages", metricTypes.DELTA, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("vm_stat", "Pages wired down"),new MetricDetail("Page", "Wired down", "pages", metricTypes.DELTA, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("vm_stat", "Pages purgeable"),new MetricDetail("Page", "Purgeable", "pages", metricTypes.DELTA, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("vm_stat", "Pages free"),new MetricDetail("Page", "Free", "pages", metricTypes.NORMAL, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("vm_stat", "Pages active"),new MetricDetail("Page", "Active", "pages", metricTypes.NORMAL, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("vm_stat", "Pages inactive"),new MetricDetail("Page", "Inactive", "pages", metricTypes.NORMAL, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("vm_stat", "Pages speculative"),new MetricDetail("Page", "Speculative", "pages", metricTypes.NORMAL, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("vm_stat", "Pages throttled"),new MetricDetail("Page", "Throttled", "pages", metricTypes.NORMAL, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("vm_stat", "Pages wired down"),new MetricDetail("Page", "Wired down", "pages", metricTypes.NORMAL, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("vm_stat", "Pages purgeable"),new MetricDetail("Page", "Purgeable", "pages", metricTypes.NORMAL, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("vm_stat", "\"Translation faults\""),new MetricDetail("Faults", "VM Translation Faults", "faults", metricTypes.DELTA, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("vm_stat", "Pages copy-on-write"),new MetricDetail("Page", "Copy-on-write", "pages", metricTypes.DELTA, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("vm_stat", "Pages zero filled"),new MetricDetail("Page", "Zero filled", "pages", metricTypes.DELTA, 1));

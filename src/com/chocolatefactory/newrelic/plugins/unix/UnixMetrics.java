@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import com.chocolatefactory.newrelic.plugins.utils.CommandMetricUtils;
 import com.chocolatefactory.newrelic.plugins.utils.MetricDetail;
 
 public abstract class UnixMetrics {
@@ -27,17 +28,43 @@ public abstract class UnixMetrics {
 	public static final String kColumnMetricValue = "THIS_IS_THE_METRIC_VALUE";
 	public static final String kMemberPlaceholder = "MEMBER_PLACEHOLDER";
 	public static final String kColumnIgnore = "IGNORE_THIS_COLUMN";
-	
-	public HashMap<String, MetricDetail> allMetrics = new HashMap<String, MetricDetail>();
-	public HashMap<String, UnixCommand> allCommands = new HashMap<String, UnixCommand>();
-	// Use defaultignores in "new UnixCommand(...)" when retrieving all columns of a table,
-	// or when retrieving single-dimensional metrics (1 metric per line)
-	public List<Integer> defaultignores = new ArrayList<Integer>();
-	
 	// COMPLEXDIM: multiple metrics per line, can have words in value lines
 	// MULTIDIM: multiple metrics per line, can only have numbers (or dashes) in line
 	// SINGLEDIM: single metric per line (usually "name value")
 	public static enum commandTypes{REGEXLISTDIM, REGEXDIM, SIMPLEDIM};
+	
+	public HashMap<String, MetricDetail> allMetrics;
+	public HashMap<String, UnixCommand> allCommands;
+	// Use defaultignores in "new UnixCommand(...)" when retrieving all columns of a table,
+	// or when retrieving single-dimensional metrics (1 metric per line)
+	public List<Integer> defaultignores;
+	
+	private int pageSize;
+	
+	public void setPageSize() {
+		String[] pageSizeCommand = {"pagesize"};
+		int ps = 0;
+		for(String line : CommandMetricUtils.executeCommand(pageSizeCommand)) {
+			try {
+				ps = Integer.parseInt(line.trim());
+				break;
+			} catch (NumberFormatException e) { 
+				ps = 0;
+			}
+		}
+		pageSize = ps;
+	}
+	
+	public int getPageSize() {
+		return pageSize;
+	}
+	
+	public UnixMetrics() {
+		setPageSize();
+		allMetrics = new HashMap<String, MetricDetail>();
+		allCommands = new HashMap<String, UnixCommand>();
+		defaultignores = new ArrayList<Integer>();
+	}
 	
 	class UnixCommand {
 		private String[] command;

@@ -12,6 +12,8 @@ public class SolarisMetrics extends UnixMetrics {
 	public static final String kDefaultAgentName = "SunOS";
 	
 	public SolarisMetrics() {
+
+		super();
 		
 		/*
 		 * Parser & declaration for 'df' command

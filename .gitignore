@@ -4,3 +4,4 @@
 /.settings/*
 *.class
 *.log
+dist/newrelic_unix_plugin/**

@@ -3,9 +3,10 @@
 
 ### Download the plugin here: [newrelic_unix_plugin.tar.gz](https://github.com/sschwartzman/newrelic-unix-plugin/blob/master/dist/newrelic_unix_plugin.tar.gz?raw=true)
 
-### What's new in V3.5.1?
+### What's new in V3.6?
 
- * Fix for AIX memory reporting - removed "-G" from svmon command, now reports on the current LPAR/WPAR.
+ * Fix for AIX memory reporting
+ * Fix for OSX disk & memory reporting
  * Fix for IBM WebSphere JDK for IBM JSSE when the WebSphere Socket factory "classNotFound" exception. [Click here for details on how to apply fix](#ibmjsse)
 
 ### Previous updates

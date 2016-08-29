@@ -12,6 +12,9 @@ public class AIXMetrics extends UnixMetrics {
 	public static final String kDefaultAgentName = "AIX";
 	
 	public AIXMetrics() {
+
+		super();
+		
 		/*
 		 * Parser & declaration for 'df' command
 		 */
@@ -120,13 +123,13 @@ public class AIXMetrics extends UnixMetrics {
 		HashMap<Pattern, String[]> iostatMapping = new HashMap<Pattern, String[]>();
 		iostatMapping.put(Pattern.compile("\\s*(\\w+\\d*)\\s+([0-9\\.]+)\\s+([0-9\\.]+)\\s+([0-9\\.]+)\\s+([0-9\\.]+)\\s+([0-9\\.]+)"),
 			new String[]{kColumnMetricPrefix, "tm_act", "Kbps", "tps", "Kb_read", "Kb_wrtn"});
-		allCommands.put("iostat", new UnixCommand(new String[]{"iostat", "-d", kExecutionDelay, "1"}, commandTypes.REGEXDIM, defaultignores, 0, iostatMapping));
+		allCommands.put("iostat", new UnixCommand(new String[]{"iostat", "-d"}, commandTypes.REGEXDIM, defaultignores, 0, iostatMapping));
 		
-		allMetrics.put(CommandMetricUtils.mungeString("iostat", "kbps"), new MetricDetail("DiskIO", "Data Transferred per Second", "kb", metricTypes.NORMAL, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("iostat", "tps"), new MetricDetail("DiskIO", "Transfers per Second", "transfers", metricTypes.NORMAL, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("iostat", "kbps"), new MetricDetail("DiskIO", "Average Data Transferred per Second", "kb", metricTypes.NORMAL, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("iostat", "tps"), new MetricDetail("DiskIO", "Average Transfers per Second", "transfers", metricTypes.NORMAL, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("iostat", "kb_read"), new MetricDetail("DiskIO", "Data Read per Interval", "kb", metricTypes.DELTA, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("iostat", "kb_wrtn"), new MetricDetail("DiskIO", "Data Written per Interval", "kb", metricTypes.DELTA, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("iostat", "tm_act"), new MetricDetail("DiskIO", "Percentage of Time Busy", "%", metricTypes.NORMAL, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("iostat", "tm_act"), new MetricDetail("DiskIO", "Average Percentage of Time Busy", "%", metricTypes.NORMAL, 1));
 	
 		/*
 		 * Parser & declaration for 'lparstat' command
@@ -181,21 +184,24 @@ public class AIXMetrics extends UnixMetrics {
 		svmonMapping.put(Pattern.compile("\\s*(pg\\s{1}space)\\s+(\\d+)\\s+(\\d+)"),
 			new String[]{kColumnMetricPrefix, "size", "inuse"});
 		svmonMapping.put(Pattern.compile("\\s*(pin)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)"),
-			new String[]{kColumnMetricPrefix, "work", "pers", "clnt", "other"});
+			new String[]{kColumnMetricPrefix, "pin_work", "pin_pers", "pin_clnt", "pin_other"});
 		svmonMapping.put(Pattern.compile("\\s*(in\\s{1}use)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)"),
-			new String[]{kColumnMetricPrefix, "work", "pers", "clnt"});
+			new String[]{kColumnMetricPrefix, "inuse_work", "inuse_pers", "inuse_clnt"});
 		allCommands.put("svmon", new UnixCommand(new String[]{"svmon","-Ounit=KB"}, commandTypes.REGEXDIM, defaultignores, 0, svmonMapping));
 		
-		allMetrics.put(CommandMetricUtils.mungeString("svmon", "size"), new MetricDetail("MemoryDetailed", "Total", "kb", metricTypes.NORMAL, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("svmon", "inuse"), new MetricDetail("MemoryDetailed", "Used", "kb", metricTypes.NORMAL, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("svmon", "free"), new MetricDetail("MemoryDetailed", "Free", "kb", metricTypes.NORMAL, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("svmon", "pin"), new MetricDetail("MemoryDetailed", "Pinned", "kb", metricTypes.NORMAL, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("svmon", "virtual"), new MetricDetail("MemoryDetailed", "Virtual", "kb", metricTypes.NORMAL, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("svmon", "available"), new MetricDetail("MemoryDetailed", "Available", "kb", metricTypes.NORMAL, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("svmon", "work"), new MetricDetail("MemoryDetailed", "Working", "kb", metricTypes.NORMAL, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("svmon", "pers"), new MetricDetail("MemoryDetailed", "Persistent", "kb", metricTypes.NORMAL, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("svmon", "clnt"), new MetricDetail("MemoryDetailed", "Client", "kb", metricTypes.NORMAL, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("svmon", "other"), new MetricDetail("MemoryDetailed", "Other", "kb", metricTypes.NORMAL, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("svmon", "size"), new MetricDetail("MemoryDetailed", "Physical/Total", "kb", metricTypes.NORMAL, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("svmon", "inuse"), new MetricDetail("MemoryDetailed", "Physical/Total In Use", "kb", metricTypes.NORMAL, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("svmon", "free"), new MetricDetail("MemoryDetailed", "Physical/Free", "kb", metricTypes.NORMAL, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("svmon", "pin"), new MetricDetail("MemoryDetailed", "Pinned/Total", "kb", metricTypes.NORMAL, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("svmon", "virtual"), new MetricDetail("Memory", "Used", "kb", metricTypes.NORMAL, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("svmon", "available"), new MetricDetail("Memory", "Free", "kb", metricTypes.NORMAL, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("svmon", "pin_work"), new MetricDetail("MemoryDetailed", "Pinned/Working", "kb", metricTypes.NORMAL, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("svmon", "pin_pers"), new MetricDetail("MemoryDetailed", "Pinned/Persistent", "kb", metricTypes.NORMAL, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("svmon", "pin_clnt"), new MetricDetail("MemoryDetailed", "Pinned/Client", "kb", metricTypes.NORMAL, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("svmon", "pin_other"), new MetricDetail("MemoryDetailed", "Pinned/Other", "kb", metricTypes.NORMAL, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("svmon", "inuse_work"), new MetricDetail("MemoryDetailed", "Physical/Working", "kb", metricTypes.NORMAL, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("svmon", "inuse_pers"), new MetricDetail("MemoryDetailed", "Physical/Persistent", "kb", metricTypes.NORMAL, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("svmon", "inuse_clnt"), new MetricDetail("MemoryDetailed", "Physical/Client", "kb", metricTypes.NORMAL, 1));
 		
 		/*
 		 * Parser & declaration for 'uptime' command
@@ -209,20 +215,47 @@ public class AIXMetrics extends UnixMetrics {
 		allMetrics.put(CommandMetricUtils.mungeString("uptime", "la5"), new MetricDetail("LoadAverage", "5 Minute", "load", metricTypes.NORMAL, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("uptime", "la15"), new MetricDetail("LoadAverage", "15 Minute", "load", metricTypes.NORMAL, 1));
 		
-		/*
-		 * Parser & declaration for 'vmstat' commands
-		 * Ignoring fields 14-17 (CPU measurements) from VMSTAT, get from LPARSTAT instead.
-		 */
 		HashMap<Pattern, String[]> vmstatMapping = new HashMap<Pattern, String[]>();
+		vmstatMapping.put(Pattern.compile("\\s*(\\d+)\\s+(.*)"), new String[]{kColumnMetricName, kColumnMetricValue});	
+		allCommands.put("vmstat", new UnixCommand(new String[]{"vmstat", "-s"}, commandTypes.REGEXDIM, defaultignores, 0, vmstatMapping));
+		
+        allMetrics.put(CommandMetricUtils.mungeString("vmstat", "total address trans. faults"),new MetricDetail("Faults", "Address Translation Faults", "faults", metricTypes.DELTA, 1));
+        allMetrics.put(CommandMetricUtils.mungeString("vmstat", "page ins"),new MetricDetail("Page", "VMM Page-Ins", "pages", metricTypes.DELTA, 1));
+        allMetrics.put(CommandMetricUtils.mungeString("vmstat", "page outs"),new MetricDetail("Page", "VMM Page-Outs", "pages", metricTypes.DELTA, 1));
+        allMetrics.put(CommandMetricUtils.mungeString("vmstat", "zero filled pages faults"),new MetricDetail("Faults", "Zero-filled Pages Faults", "faults", metricTypes.DELTA, 1));
+        allMetrics.put(CommandMetricUtils.mungeString("vmstat", "executable filled pages faults"),new MetricDetail("Faults", "Executable Filled Pages Faults", "faults", metricTypes.DELTA, 1));
+        allMetrics.put(CommandMetricUtils.mungeString("vmstat", "pages examined by clock"),new MetricDetail("Page", "Examined by clock", "pages", metricTypes.DELTA, 1));
+        allMetrics.put(CommandMetricUtils.mungeString("vmstat", "pages freed by the clock"),new MetricDetail("Page", "Freed by clock", "pages", metricTypes.DELTA, 1));
+        allMetrics.put(CommandMetricUtils.mungeString("vmstat", "cpu context switches"),new MetricDetail("Faults", "CPU Context Switches", "switches", metricTypes.DELTA, 1));
+        allMetrics.put(CommandMetricUtils.mungeString("vmstat", "device interrupts"),new MetricDetail("Faults", "Device Interrupts", "interrupts", metricTypes.DELTA, 1));
+        allMetrics.put(CommandMetricUtils.mungeString("vmstat", "software interrupts"),new MetricDetail("Faults", "Software Interrupts", "interrupts", metricTypes.DELTA, 1));
+        allMetrics.put(CommandMetricUtils.mungeString("vmstat", "decrementer interrupts"),new MetricDetail("Faults", "Decrementer Interrupts", "interrupts", metricTypes.DELTA, 1));
+        allMetrics.put(CommandMetricUtils.mungeString("vmstat", "syscalls"),new MetricDetail("Faults", "System Calls", "calls", metricTypes.DELTA, 1));
+		
+        HashMap<Pattern, String[]> vmstatThreadMapping = new HashMap<Pattern, String[]>();
+        vmstatThreadMapping.put(Pattern.compile("\\s*(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+).*"),
+				 new String[]{"r","b","p","w"});
+		allCommands.put("VmstatThreads", new UnixCommand(new String[]{"vmstat", "-I", "-W", "1", "1"}, commandTypes.REGEXDIM, defaultignores, 0, vmstatThreadMapping));
+		
+		allMetrics.put(CommandMetricUtils.mungeString("VmstatThreads", "r"), new MetricDetail("KernelThreads", "Runnable", "threads", metricTypes.NORMAL, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("VmstatThreads", "b"), new MetricDetail("KernelThreads", "In Wait Queue", "threads", metricTypes.NORMAL, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("VmstatThreads", "p"), new MetricDetail("KernelThreads", "Waiting for Device IO", "threads", metricTypes.NORMAL, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("VmstatThreads", "w"), new MetricDetail("KernelThreads", "Waiting for File IO", "threads", metricTypes.NORMAL, 1));
+		
+        /*
+         * OLD vmstat command
+         * replaced by "vmstat -s" with deltas to find per-interval values
+         * and "vmstat -IW 1 1" for Kernel Thread values
+        HashMap<Pattern, String[]> vmstatMapping = new HashMap<Pattern, String[]>();
 		vmstatMapping.put(Pattern.compile("\\s*(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)" +
 			"\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+).*"),
 			new String[]{"r","b","avm","fre","re","pi","po","fr","sr","cy","in","sy","cs"});
 		allCommands.put("vmstat", new UnixCommand(new String[]{"vmstat", kExecutionDelay, "1"}, commandTypes.REGEXDIM, defaultignores, 0, vmstatMapping));
-
+	
 		allMetrics.put(CommandMetricUtils.mungeString("vmstat", "r"), new MetricDetail("KernelThreads", "Runnable", "threads", metricTypes.NORMAL, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("vmstat", "b"), new MetricDetail("KernelThreads", "In Wait Queue", "threads", metricTypes.NORMAL, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("vmstat", "avm"), new MetricDetail("Memory", "Active", "pages", metricTypes.NORMAL, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("vmstat", "fre"), new MetricDetail("Memory", "Free", "pages", metricTypes.NORMAL, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("vmstat", "avm"), new MetricDetail("Memory", "Active", "pages", metricTypes.NORMAL, getPageSize()));
+		allMetrics.put(CommandMetricUtils.mungeString("vmstat", "fre"), new MetricDetail("Memory", "Free", "pages", metricTypes.NORMAL, getPageSize()));
 		allMetrics.put(CommandMetricUtils.mungeString("vmstat", "re"), new MetricDetail("Page", "Reclaimed", "pages", metricTypes.NORMAL, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("vmstat", "pi"), new MetricDetail("Page", "Paged In", "pages", metricTypes.NORMAL, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("vmstat", "po"), new MetricDetail("Page", "Paged Out", "pages", metricTypes.NORMAL, 1));
@@ -232,6 +265,7 @@ public class AIXMetrics extends UnixMetrics {
 		allMetrics.put(CommandMetricUtils.mungeString("vmstat", "in"), new MetricDetail("Faults", "Device Interrupts", "interrupts", metricTypes.NORMAL, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("vmstat", "sy"), new MetricDetail("Faults", "System Calls", "threads", metricTypes.NORMAL, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("vmstat", "cs"), new MetricDetail("Faults", "Context Switches", "switches", metricTypes.NORMAL, 1));
+		*/
 		
 		allCommands.put("VmstatTotals", new UnixCommand(new String[]{"vmstat", "-s"}, commandTypes.SIMPLEDIM, defaultignores));
 	}
