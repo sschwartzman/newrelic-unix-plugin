@@ -21,7 +21,7 @@ public class OSXMetrics extends UnixMetrics {
 		HashMap<Pattern, String[]> dfMapping = new HashMap<Pattern, String[]>();
 		dfMapping.put(Pattern.compile("\\s*([^\\s]+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)%.*"),
 			new String[]{kColumnMetricPrefix, "1024-blocks", "Used", "Available", "Capacity"});
-		allCommands.put("df", new UnixCommand(new String[]{"df","-k"}, commandTypes.REGEXDIM, defaultignores, 0, dfMapping));
+		allCommands.put("df", new UnixCommand(new String[]{"df","-k", "-T", "nodevfs"}, commandTypes.REGEXDIM, defaultignores, 0, dfMapping));
 		allMetrics.put(CommandMetricUtils.mungeString("df", "1024-blocks"), new MetricDetail("Disk", "Total", "kb", metricTypes.NORMAL, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("df", "Used"), new MetricDetail("Disk", "Used", "kb", metricTypes.NORMAL, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("df", "Available"), new MetricDetail("Disk", "Free", "kb", metricTypes.NORMAL, 1));
