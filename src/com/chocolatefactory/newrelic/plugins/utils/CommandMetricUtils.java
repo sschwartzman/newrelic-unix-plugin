@@ -42,7 +42,7 @@ public class CommandMetricUtils {
 				metricValue = thisMetricValue;
 				metricName = "Fullest Disk";
 				metricUnits = "%";
-			} else if(thisMetricPrefix.startsWith("Memory") && !thisMetricName.startsWith("Swap") 
+			} else if(thisMetricPrefix.startsWith("Memory") && !thisMetricPrefix.startsWith("MemoryDetailed") && !thisMetricName.startsWith("Swap") 
 					&& thisMetric.getMetricDetail().getUnits().equals("kb")) {
 				if (thisMetric.getMetricDetail().getName().endsWith("Free")) {
 					memFreeSet = true;
