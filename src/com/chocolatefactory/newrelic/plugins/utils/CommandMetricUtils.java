@@ -65,18 +65,30 @@ public class CommandMetricUtils {
 			}
 		}
 		
-		if(memUsedSet && (memFreeSet || memTotalSet)) {
+		if((memUsedSet && memFreeSet) || (memUsedSet && memTotalSet) || (memFreeSet && memTotalSet)) {
 			metricName = "Memory Utilization";
 			metricUnits = "%";
-			if(memTotalSet) {
-				metricValue = 100 - (memFree / memTotal);
+			if(memFreeSet && memTotalSet) {
+				metricValue = (1 - (memFree / memTotal)) * 100;
+				logger.debug("Mem Free: " + memFree);
+				logger.debug("Mem Total: " + memTotal);
+			} else if (memUsedSet && memTotalSet) {
+				metricValue = (memUsed / memTotal) * 100;
+				logger.debug("Mem Used: " + memUsed);
+				logger.debug("Mem Total: " + memTotal);
 			} else {
-				metricValue = 100 - (memFree / (memFree + memUsed));
+				metricValue = (memUsed / (memFree + memUsed)) * 100;
+				logger.debug("Mem Free: " + memFree);
+				logger.debug("Mem Used: " + memUsed);
 			}
 			
-			newMetrics.put(mungeString(metricPrefix, metricName), 
-				new MetricOutput(new MetricDetail(metricPrefix, metricName, metricUnits, metricTypes.NORMAL, 1), 
-				"", roundNumber(metricValue, 2)));
+			logger.debug("Mem Utilization: " + metricValue);
+			
+			if(metricName != null && metricUnits != null) {
+				newMetrics.put(mungeString(metricPrefix, metricName), 
+					new MetricOutput(new MetricDetail(metricPrefix, metricName, metricUnits, metricTypes.NORMAL, 1), 
+					"", roundNumber(metricValue, 2)));
+			}
 		}
 		
 		if (!newMetrics.isEmpty()) {
