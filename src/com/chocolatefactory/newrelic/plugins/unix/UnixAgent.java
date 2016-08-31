@@ -88,7 +88,7 @@ public class UnixAgent extends Agent {
 			case REGEXLISTDIM:
 				for(String thismember : members) {
 					commandReader = CommandMetricUtils.executeCommand(
-						CommandMetricUtils.replaceInArray(thisCommand.getCommand(), 
+						CommandMetricUtils.replaceInArray(thisCommand.getCommands(), 
 								UnixMetrics.kMemberPlaceholder, thismember));
 					CommandMetricUtils.parseRegexMetricOutput(commandName, 
 						thisCommand.getLineMappings(), thismember, 
@@ -98,7 +98,7 @@ public class UnixAgent extends Agent {
 				reportMetrics();
 				break;
 			case REGEXDIM:
-				commandReader = CommandMetricUtils.executeCommand(thisCommand.getCommand());
+				commandReader = CommandMetricUtils.executeCommand(thisCommand.getCommands());
 				CommandMetricUtils.parseRegexMetricOutput(commandName, 
 					thisCommand.getLineMappings(), "", 
 					thisCommand.getLineLimit(), thisCommand.isCheckAllRegex(),
@@ -107,7 +107,7 @@ public class UnixAgent extends Agent {
 				reportMetrics();
 				break;
 			case SIMPLEDIM:
-				commandReader = CommandMetricUtils.executeCommand(thisCommand.getCommand());
+				commandReader = CommandMetricUtils.executeCommand(thisCommand.getCommands());
 				reportMetricsSimple(CommandMetricUtils.parseSimpleMetricOutput(commandName, commandReader));
 				break;
 			default:

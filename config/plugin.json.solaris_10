@@ -5,34 +5,37 @@
 		"debug": false
     },
     "agents": [
-        {
+		{
             "command": "df"
         },
-        {
+		{
             "command": "iostat"
         },
-        {
+		{
             "command": "IostatCPU"
         },
-        {
-            "command": "kstat"
+		{
+            "command": "KstatNetwork"
         },
-        {
+		{
+            "command": "KstatPages"
+        },
+		{
             "command": "prstat"
         },
-        {
-            "command": "prtconf"
-        },
-        {
+		{
             "command": "ps"
         },
-        {
+		{
             "command": "swap"
         },
-        {
-            "command": "vmstat"
+		{
+            "command": "VmstatPagesFaults"
         },
-        {
+		{
+            "command": "VmstatThreadsMemory"
+        },
+		{
             "command": "VmstatTotals"
         }
     ]

@@ -5,28 +5,34 @@
 		"debug": false
     },
     "agents": [
-        {
+		{
             "command": "df"
         },
-        {
+		{
             "command": "iostat"
         },
-        {
-            "command": "kstat"
+		{
+            "command": "KstatNetwork"
         },
-        {
+		{
+            "command": "KstatPages"
+        },
+		{
             "command": "ps"
         },
 		{
             "command": "swap"
         },
-        {
+		{
             "command": "top"
         },
-        {
-            "command": "vmstat"
+		{
+            "command": "VmstatPagesFaults"
         },
-        {
+		{
+            "command": "VmstatThreadsMemory"
+        },
+		{
             "command": "VmstatTotals"
         }
     ]

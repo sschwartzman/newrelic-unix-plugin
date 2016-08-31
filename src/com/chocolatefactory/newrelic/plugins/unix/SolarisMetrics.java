@@ -1,5 +1,6 @@
 package com.chocolatefactory.newrelic.plugins.unix;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.regex.Pattern;
 
@@ -33,13 +34,13 @@ public class SolarisMetrics extends UnixMetrics {
 		HashMap<Pattern, String[]> iostatMapping = new HashMap<Pattern, String[]>();
 		iostatMapping.put(Pattern.compile("\\s*([\\/\\w\\d]+)\\s+([0-9\\.]+)\\s+([0-9\\.]+)\\s+([0-9\\.]+)" +
 			"\\s+([0-9\\.]+)\\s+([0-9\\.]+)\\s+([0-9\\.]+)\\s+([0-9\\.]+)\\s+(\\d+)\\s+(\\d+)"),
-			new String[]{kColumnMetricPrefix,"r-s","w-s","kr-s","kw-s","wait","actv","svc_t","%w","%b"});
-		allCommands.put("iostat", new UnixCommand(new String[]{"iostat","-x", kExecutionDelay, kExecutionCount}, commandTypes.REGEXDIM, defaultignores, 0, iostatMapping));
+			new String[]{kColumnMetricPrefix,"r-i","w-i","kr-i","kw-i","wait","actv","svc_t","%w","%b"});
+		allCommands.put("iostat", new UnixCommand(new String[]{"iostat","-x","-I"}, commandTypes.REGEXDIM, defaultignores, 0, iostatMapping));
 		
-		allMetrics.put(CommandMetricUtils.mungeString("iostat", "r-s"), new MetricDetail("DiskIO", "Reads per Second", "transfers", metricTypes.NORMAL, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("iostat", "w-s"), new MetricDetail("DiskIO", "Writes per Second", "transfers", metricTypes.NORMAL, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("iostat", "kr-s"), new MetricDetail("DiskIO", "Data Read per Second", "kb", metricTypes.NORMAL, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("iostat", "kw-s"), new MetricDetail("DiskIO", "Data Written per Second", "kb", metricTypes.NORMAL, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("iostat", "r-i"), new MetricDetail("DiskIO", "Reads per Interval", "transfers", metricTypes.DELTA, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("iostat", "w-i"), new MetricDetail("DiskIO", "Writes per Interval", "transfers", metricTypes.DELTA, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("iostat", "kr-i"), new MetricDetail("DiskIO", "Data Read per Interval", "kb", metricTypes.DELTA, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("iostat", "kw-i"), new MetricDetail("DiskIO", "Data Written per Interval", "kb", metricTypes.DELTA, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("iostat", "wait"), new MetricDetail("DiskIO", "Average queue length", "transactions", metricTypes.NORMAL, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("iostat", "actv"), new MetricDetail("DiskIO", "Active transactions", "transactions", metricTypes.NORMAL, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("iostat", "svc_t"), new MetricDetail("DiskIO", "Average service time", "ms", metricTypes.NORMAL, 1));
@@ -63,26 +64,42 @@ public class SolarisMetrics extends UnixMetrics {
 		allMetrics.put(CommandMetricUtils.mungeString("iostatcpu", "id"), new MetricDetail("CPU", "Idle", "%", metricTypes.NORMAL, 1));
 		
 		/*
-		 * Parser & declaration for 'kstat' command
+		 * Parser & declaration for 'kstat' command for Network information
 		 */
-		HashMap<Pattern, String[]> kstatMapping = new HashMap<Pattern, String[]>();
-		kstatMapping.put(Pattern.compile("(\\w+\\d*)\\s+([0-9\\.]+)"),
+		HashMap<Pattern, String[]> kstatNetworkMapping = new HashMap<Pattern, String[]>();
+		kstatNetworkMapping.put(Pattern.compile("(\\w+\\d*)\\s+([0-9\\.]+)"),
 			new String[]{kColumnMetricName, kColumnMetricValue});
-		allCommands.put("kstat", new UnixCommand(new String[]{"kstat", "-n", kMemberPlaceholder}, commandTypes.REGEXLISTDIM, defaultignores, 0, kstatMapping));
+		allCommands.put("KstatNetwork", new UnixCommand(new String[]{"kstat", "-n", kMemberPlaceholder}, commandTypes.REGEXLISTDIM, defaultignores, 0, kstatNetworkMapping));
 		
-		allMetrics.put(CommandMetricUtils.mungeString("kstat", "brdcstrcv"), new MetricDetail("Network", "Receive/Broadcast", "packets", metricTypes.DELTA, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("kstat", "brdcstxmt"), new MetricDetail("Network", "Transmit/Broadcast", "packets", metricTypes.DELTA, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("kstat", "collisions"), new MetricDetail("Network", "Collisions", "packets", metricTypes.DELTA, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("kstat", "ierrors"), new MetricDetail("Network", "Receive/Errors", "errors", metricTypes.DELTA, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("kstat", "ipackets64"), new MetricDetail("Network", "Receive/Packets", "packets", metricTypes.DELTA, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("kstat", "multircv"), new MetricDetail("Network", "Receive/Multicast", "bytes", metricTypes.DELTA, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("kstat", "multixmt"), new MetricDetail("Network", "Transmit/Multicast", "bytes", metricTypes.DELTA, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("kstat", "norcvbuf"), new MetricDetail("Network", "Receive/Buffer Allocation Errors", "errors", metricTypes.DELTA, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("kstat", "noxmtbuf"), new MetricDetail("Network", "Transmit/Buffer Allocation Errors", "errors", metricTypes.DELTA, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("kstat", "obytes64"), new MetricDetail("Network", "Transmit/Bytes", "bytes", metricTypes.DELTA, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("kstat", "oerrors"), new MetricDetail("Network", "Transmit/Errors", "errors", metricTypes.DELTA, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("kstat", "opackets64"), new MetricDetail("Network", "Transmit/Packets", "packets", metricTypes.DELTA, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("kstat", "rbytes64"), new MetricDetail("Network", "Receive/Bytes", "bytes", metricTypes.DELTA, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("KstatNetwork", "brdcstrcv"), new MetricDetail("Network", "Receive/Broadcast", "packets", metricTypes.DELTA, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("KstatNetwork", "brdcstxmt"), new MetricDetail("Network", "Transmit/Broadcast", "packets", metricTypes.DELTA, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("KstatNetwork", "collisions"), new MetricDetail("Network", "Collisions", "packets", metricTypes.DELTA, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("KstatNetwork", "ierrors"), new MetricDetail("Network", "Receive/Errors", "errors", metricTypes.DELTA, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("KstatNetwork", "ipackets64"), new MetricDetail("Network", "Receive/Packets", "packets", metricTypes.DELTA, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("KstatNetwork", "multircv"), new MetricDetail("Network", "Receive/Multicast", "bytes", metricTypes.DELTA, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("KstatNetwork", "multixmt"), new MetricDetail("Network", "Transmit/Multicast", "bytes", metricTypes.DELTA, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("KstatNetwork", "norcvbuf"), new MetricDetail("Network", "Receive/Buffer Allocation Errors", "errors", metricTypes.DELTA, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("KstatNetwork", "noxmtbuf"), new MetricDetail("Network", "Transmit/Buffer Allocation Errors", "errors", metricTypes.DELTA, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("KstatNetwork", "obytes64"), new MetricDetail("Network", "Transmit/Bytes", "bytes", metricTypes.DELTA, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("KstatNetwork", "oerrors"), new MetricDetail("Network", "Transmit/Errors", "errors", metricTypes.DELTA, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("KstatNetwork", "opackets64"), new MetricDetail("Network", "Transmit/Packets", "packets", metricTypes.DELTA, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("KstatNetwork", "rbytes64"), new MetricDetail("Network", "Receive/Bytes", "bytes", metricTypes.DELTA, 1));
+		
+		/*
+		 * Parser & declaration for 'kstat' command for Page information
+		 * 
+		 */
+		HashMap<Pattern, String[]> kstatPagesMapping = new HashMap<Pattern, String[]>();
+		kstatPagesMapping.put(Pattern.compile("unix:0:system_pages:([\\w_]+)\\s+([0-9\\.]+)"),
+			new String[]{kColumnMetricName, kColumnMetricValue});
+		allCommands.put("KstatPages", new UnixCommand(new String[]{"kstat", "-p", "unix::system_pages"}, commandTypes.REGEXDIM, defaultignores, 0, kstatPagesMapping));
+		
+		allMetrics.put(CommandMetricUtils.mungeString("KstatPages", "availrmem"), new MetricDetail("Page", "Available", "pages", metricTypes.DELTA, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("KstatPages", "pagesfree"), new MetricDetail("Page", "Free", "pages", metricTypes.DELTA, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("KstatPages", "pageslocked"), new MetricDetail("Page", "Locked", "pages", metricTypes.DELTA, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("KstatPages", "pagestotal"), new MetricDetail("Page", "Total", "pages", metricTypes.DELTA, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("KstatMemory", "physmem"), new MetricDetail("Page", "Physical Total", "pages", metricTypes.DELTA, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("KstatPages", "pp_kernel"), new MetricDetail("Page", "Used By Kernel", "pages", metricTypes.DELTA, 1));
 		
 		/*
 		 * Parser & declaration for 'netstat' command
@@ -120,12 +137,12 @@ public class SolarisMetrics extends UnixMetrics {
 		 * Parser & declaration for 'prtconf' command
 		 * ** only used on Solaris 10 (Solaris 11 has 'top') **
 		 */
-		HashMap<Pattern, String[]> prtconfMapping = new HashMap<Pattern, String[]>();
-		prtconfMapping.put(Pattern.compile("Memory size:\\s+(\\d+)\\s+Megabytes"),
-			new String[]{"memsize"});
-		allCommands.put("prtconf", new UnixCommand(new String[]{"/usr/sbin/prtconf"}, commandTypes.REGEXDIM, defaultignores, 0, prtconfMapping));
-		
-		allMetrics.put(CommandMetricUtils.mungeString("prtconf", "memsize"), new MetricDetail("MemoryDetailed", "PhysMem/Total", "kb", metricTypes.NORMAL, 1024));
+		//HashMap<Pattern, String[]> prtconfMapping = new HashMap<Pattern, String[]>();
+		//prtconfMapping.put(Pattern.compile("Memory size:\\s+(\\d+)\\s+Megabytes"),
+		//	new String[]{"memsize"});
+		//allCommands.put("prtconf", new UnixCommand(new String[]{"/usr/sbin/prtconf"}, commandTypes.REGEXDIM, defaultignores, 0, prtconfMapping));
+		//
+		//allMetrics.put(CommandMetricUtils.mungeString("prtconf", "memsize"), new MetricDetail("Memory", "Total", "kb", metricTypes.NORMAL, 1024));
 		
 		/*
 		 * Parser & declaration for 'ps' command
@@ -174,8 +191,8 @@ public class SolarisMetrics extends UnixMetrics {
 		allMetrics.put(CommandMetricUtils.mungeString("top", "proctot"), new MetricDetail("Processes", "Total", "processes", metricTypes.NORMAL, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("top", "procslp"), new MetricDetail("Processes", "Sleeping", "processes", metricTypes.NORMAL, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("top", "proccpu"), new MetricDetail("Processes", "On CPU", "processes", metricTypes.NORMAL, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("top", "memphys"), new MetricDetail("MemoryDetailed", "PhysMem/Total", "kb", metricTypes.NORMAL, 1024));
-		allMetrics.put(CommandMetricUtils.mungeString("top", "memfree"), new MetricDetail("MemoryDetailed", "PhysMem/Free", "kb", metricTypes.NORMAL, 1024));
+		allMetrics.put(CommandMetricUtils.mungeString("top", "memphys"), new MetricDetail("MemoryDetailed", "Physical/Total", "kb", metricTypes.NORMAL, 1024));
+		allMetrics.put(CommandMetricUtils.mungeString("top", "memfree"), new MetricDetail("MemoryDetailed", "Physical/Free", "kb", metricTypes.NORMAL, 1024));
 		allMetrics.put(CommandMetricUtils.mungeString("top", "swaptot"), new MetricDetail("MemoryDetailed", "Swap/Total On Disk", "kb", metricTypes.NORMAL, 1024));
 		allMetrics.put(CommandMetricUtils.mungeString("top", "swapfree"), new MetricDetail("MemoryDetailed", "Swap/Free On Disk", "kb", metricTypes.NORMAL, 1024));
 		allMetrics.put(CommandMetricUtils.mungeString("top", "cpuidle"), new MetricDetail("CPU", "Idle", "%", metricTypes.NORMAL, 1));
@@ -185,22 +202,33 @@ public class SolarisMetrics extends UnixMetrics {
 		allMetrics.put(CommandMetricUtils.mungeString("top", "cpuswap"), new MetricDetail("CPU", "Swap", "%", metricTypes.NORMAL, 1));
 		
 		/*
-		 * Parsers & declaration for 'vmstat' command
+		 * Parsers & declaration for 'vmstat' command to get threads and memory
 		 */
-		HashMap<Pattern, String[]> vmstatMapping = new HashMap<Pattern, String[]>();
-		vmstatMapping.put(Pattern.compile("\\s*(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)"
-			+ "\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+[-]{0,1}(\\d+)"
-			+ "\\s+[-]{0,1}(\\d+)\\s+[-]{0,1}(\\d+)\\s+[-]{0,1}(\\d+)\\s+(\\d+)"
-			+ "\\s+(\\d+)\\s+(\\d+).*"),
-			new String[]{"r","b","w","swap","free","re","mf","pi","po","fr",
-				"de","sr","d0","d1","d2","d3","in","sy","cs"});
-		allCommands.put("vmstat", new UnixCommand(new String[]{"vmstat", kExecutionDelay, kExecutionCount}, commandTypes.REGEXDIM, defaultignores, 0, vmstatMapping));
+		HashMap<Pattern, String[]> vmstatThreadsMemoryMapping = new HashMap<Pattern, String[]>();
+		// vmstatThreadsMemoryMapping.put(Pattern.compile("\\s*(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)"
+		//	+ "\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+[-]{0,1}(\\d+)"
+		//	+ "\\s+[-]{0,1}(\\d+)\\s+[-]{0,1}(\\d+)\\s+[-]{0,1}(\\d+)\\s+(\\d+)"
+		//	+ "\\s+(\\d+)\\s+(\\d+).*"),
+		//	new String[]{"r","b","w","swap","free","re","mf","pi","po","fr",
+		//		"de","sr","d0","d1","d2","d3","in","sy","cs"});
+		vmstatThreadsMemoryMapping.put(Pattern.compile("\\s*(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+).*"),
+			new String[]{"r","b","w","swap","free"});
+		vmstatThreadsMemoryMapping.put(Pattern.compile("Memory size:\\s+(\\d+)\\s*Megabytes"),
+				new String[]{"memsize"});
+		ArrayList<String[]> vmstatCommands = new ArrayList<String[]>();
+		vmstatCommands.add(new String[]{"vmstat", "1", "2"});
+		vmstatCommands.add(new String[]{"/usr/sbin/prtconf"});
+		allCommands.put("VmstatThreadsMemory", new UnixCommand(vmstatCommands, commandTypes.REGEXDIM, defaultignores, 0, vmstatThreadsMemoryMapping));
 
-		allMetrics.put(CommandMetricUtils.mungeString("vmstat", "r"), new MetricDetail("KernelThreads", "Runnable", "threads", metricTypes.NORMAL, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("vmstat", "b"), new MetricDetail("KernelThreads", "In Wait Queue", "threads", metricTypes.NORMAL, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("vmstat", "w"), new MetricDetail("KernelThreads", "Swapped", "threads", metricTypes.NORMAL, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("vmstat", "swap"), new MetricDetail("Memory", "Swap", "kb", metricTypes.NORMAL, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("vmstat", "free"), new MetricDetail("Memory", "Free", "kb", metricTypes.NORMAL, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("VmstatThreadsMemory", "r"), new MetricDetail("KernelThreads", "Runnable", "threads", metricTypes.NORMAL, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("VmstatThreadsMemory", "b"), new MetricDetail("KernelThreads", "In Wait Queue", "threads", metricTypes.NORMAL, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("VmstatThreadsMemory", "w"), new MetricDetail("KernelThreads", "Swapped", "threads", metricTypes.NORMAL, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("VmstatThreadsMemory", "swap"), new MetricDetail("Memory", "Swap", "kb", metricTypes.NORMAL, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("VmstatThreadsMemory", "free"), new MetricDetail("Memory", "Free", "kb", metricTypes.NORMAL, 1));			
+		allMetrics.put(CommandMetricUtils.mungeString("VmstatThreadsMemory", "memsize"), new MetricDetail("Memory", "Total", "kb", metricTypes.NORMAL, 1024));
+		
+		/*
+		 * Replaced with deltas from vmstat -s (more accurate, no waiting!)
 		allMetrics.put(CommandMetricUtils.mungeString("vmstat", "re"), new MetricDetail("Page", "Reclaimed", "pages", metricTypes.NORMAL, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("vmstat", "mf"), new MetricDetail("Page", "Page Faults", "pages", metricTypes.NORMAL, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("vmstat", "pi"), new MetricDetail("Page", "Paged In", "pages", metricTypes.NORMAL, 1));
@@ -215,7 +243,32 @@ public class SolarisMetrics extends UnixMetrics {
 		allMetrics.put(CommandMetricUtils.mungeString("vmstat", "in"), new MetricDetail("Faults", "Device Interrupts", "interrupts", metricTypes.NORMAL, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("vmstat", "sy"), new MetricDetail("Faults", "System Calls", "threads", metricTypes.NORMAL, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("vmstat", "cs"), new MetricDetail("Faults", "Context Switches", "switches", metricTypes.NORMAL, 1));
+		*/
 		
+		/* 
+		 * Parses & declaration for 'vmstat' command to get pages & faults
+		 */
+		
+		HashMap<Pattern, String[]> vmstatPagesFaultsMapping = new HashMap<Pattern, String[]>();
+		vmstatPagesFaultsMapping.put(Pattern.compile("\\s*(\\d+)\\s+(.*)"),
+			new String[]{kColumnMetricValue, kColumnMetricName});
+		allCommands.put("VmstatPagesFaults", new UnixCommand(new String[]{"vmstat", "-s"}, commandTypes.REGEXDIM, defaultignores, 0, vmstatPagesFaultsMapping));
+		
+		allMetrics.put(CommandMetricUtils.mungeString("VmstatPagesFaults", "pages swapped in"), new MetricDetail("Page", "Swapped In", "pages", metricTypes.DELTA, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("VmstatPagesFaults", "pages swapped out"), new MetricDetail("Page", "Swapped Out", "pages", metricTypes.DELTA, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("VmstatPagesFaults", "total address trans. faults taken"), new MetricDetail("Faults", "Address Translation", "faults", metricTypes.DELTA, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("VmstatPagesFaults", "pages paged in"), new MetricDetail("Page", "Paged In", "pages", metricTypes.DELTA, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("VmstatPagesFaults", "pages paged out"), new MetricDetail("Page", "Paged Out", "pages", metricTypes.DELTA, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("VmstatPagesFaults", "micro (hat) faults"), new MetricDetail("Faults", "Micro (hat)", "faults", metricTypes.DELTA, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("VmstatPagesFaults", "minor (as) faults"), new MetricDetail("Faults", "Minor (as)", "faults", metricTypes.DELTA, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("VmstatPagesFaults", "major faults"), new MetricDetail("Faults", "Major", "faults", metricTypes.DELTA, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("VmstatPagesFaults", "copy-on-write faults"), new MetricDetail("Faults", "Copy-on-write", "faults", metricTypes.DELTA, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("VmstatPagesFaults", "zero fill page faults"), new MetricDetail("Faults", "Zero Fill Page", "faults", metricTypes.DELTA, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("VmstatPagesFaults", "cpu context switches"), new MetricDetail("Faults", "CPU Context Switches", "Faults", metricTypes.DELTA, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("VmstatPagesFaults", "device interrupts"), new MetricDetail("Faults", "Device Interrupts", "faults", metricTypes.DELTA, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("VmstatPagesFaults", "traps"), new MetricDetail("Faults", "Traps", "faults", metricTypes.DELTA, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("VmstatPagesFaults", "system calls"), new MetricDetail("Faults", "System Calls", "Faults", metricTypes.DELTA, 1));
+
 		allCommands.put("VmstatTotals", new UnixCommand(new String[]{"vmstat","-s"}, commandTypes.SIMPLEDIM, defaultignores));
 	}
 }

@@ -60,19 +60,34 @@ public abstract class UnixMetrics {
 	}
 	
 	public UnixMetrics() {
-		setPageSize();
+		// Not in use currently, maybe later
+		// setPageSize();
 		allMetrics = new HashMap<String, MetricDetail>();
 		allCommands = new HashMap<String, UnixCommand>();
 		defaultignores = new ArrayList<Integer>();
 	}
 	
 	class UnixCommand {
-		private String[] command;
+		// private String[] command;
+		private ArrayList<String[]> commands;
 		private commandTypes type;
 		private List<Integer> skipColumns;
 		private HashMap<Pattern, String[]> lineMappings;
 		private int lineLimit;
 		private boolean checkAllRegex = false;
+		
+		UnixCommand(ArrayList<String[]> tcs, commandTypes tt, List<Integer> sc, int ll, HashMap<Pattern, String[]> lm) {
+			setCommands(tcs);
+			setType(tt);
+			setSkipColumns(sc);
+			setLineLimit(ll);
+			setLineMappings(lm);
+		}
+		
+		UnixCommand(ArrayList<String[]> tcs, commandTypes tt, List<Integer> sc, int ll, boolean re, HashMap<Pattern, String[]> lm) {
+			this(tcs, tt, sc, ll, lm);
+			setCheckAllRegex(re);
+		}
 		
 		UnixCommand(String[] tc, commandTypes tt, List<Integer> sc, int ll, HashMap<Pattern, String[]> lm) {
 			setCommand(tc);
@@ -92,11 +107,13 @@ public abstract class UnixMetrics {
 		}
 		
 		public String[] getCommand() {
-			return command;
+			return commands.get(0);
 		}
 		public void setCommand(String[] command) {
-			this.command = command;
+			commands = new ArrayList<String[]>();
+			this.commands.add(command);
 		}
+
 		public commandTypes getType() {
 			return type;
 		}
@@ -135,6 +152,14 @@ public abstract class UnixMetrics {
 
 		public void setCheckAllRegex(boolean checkAllRegex) {
 			this.checkAllRegex = checkAllRegex;
+		}
+
+		public ArrayList<String[]> getCommands() {
+			return commands;
+		}
+
+		public void setCommands(ArrayList<String[]> commands) {
+			this.commands = commands;
 		}
     }
 }

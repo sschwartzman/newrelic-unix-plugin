@@ -5,3 +5,5 @@
 *.class
 *.log
 dist/newrelic_unix_plugin/**
+
+**/.DS_Store

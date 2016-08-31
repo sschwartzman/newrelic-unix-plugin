@@ -96,8 +96,20 @@ public class CommandMetricUtils {
 		}
 	}
 	
-	public static ArrayList<String> executeCommand(String[] interfaceCommand) {
-		return executeCommand(interfaceCommand, false);
+	public static ArrayList<String> executeCommand(ArrayList<String[]> commands) {
+		return executeCommand(commands, false);
+	}
+	
+	public static ArrayList<String> executeCommand(ArrayList<String[]> commands, Boolean useFile) {
+		ArrayList<String> al = new ArrayList<String>();
+		for(int i=0; i< commands.size(); i++) {
+			al.addAll(executeCommand(commands.get(i), useFile));
+		}
+		return al;
+	}
+	
+	public static ArrayList<String> executeCommand(String[] command) {
+		return executeCommand(command, false);
 	}
 	
 	public static ArrayList<String> executeCommand(String[] command, Boolean useFile) {
@@ -146,6 +158,7 @@ public class CommandMetricUtils {
 							proc.getInputStream()));
 					while((line = br.readLine()) != null) {
 						al.add(line);
+						logger.debug(" Line: " + line);
 					}
 				} else {
 					CommandMetricUtils.logger.error("Error: command was null.");
@@ -246,7 +259,8 @@ public class CommandMetricUtils {
 				if (lineMatch.matches()) {
 					logger.debug("Matched: " + line);
 					String thisMetricPrefix = metricPrefix;
-					String thisMetricName = "metric"; //default if somehow the metric name isn't set.
+					String thisMetricName = "";
+					String thisMetricValueString = "";
 					
 					// Loop through columns of regexed line twice
 					// First loop - get metric prefixes
@@ -272,19 +286,26 @@ public class CommandMetricUtils {
 						} else if (lineColumns[m] == UnixMetrics.kColumnMetricName) {
 							thisMetricName = lineMatch.group(m + 1).replaceAll("/", "-");
 						} else if (lineColumns[m] == UnixMetrics.kColumnMetricValue) {
-							CommandMetricUtils.insertMetric(currentMetrics,
-							metricDeets, CommandMetricUtils.mungeString(thisCommand, thisMetricName),
-							thisMetricPrefix, lineMatch.group(m + 1));
+							thisMetricValueString = lineMatch.group(m + 1);
 						} else if (lineColumns[m] == UnixMetrics.kColumnMetricPrefixCount) {
 							CommandMetricUtils.insertMetric(currentMetrics,
 							metricDeets, CommandMetricUtils.mungeString(thisCommand, lineColumns[m]),
 							thisMetricPrefix, "1");
 						} else {
 							CommandMetricUtils.insertMetric(currentMetrics,
-							metricDeets, CommandMetricUtils.mungeString(thisCommand, lineColumns[m]),
-							thisMetricPrefix, lineMatch.group(m + 1));
+								metricDeets, CommandMetricUtils.mungeString(thisCommand, lineColumns[m]),
+								thisMetricPrefix, lineMatch.group(m + 1));
 						}
 					}
+					
+					// If kColumnMetricName & kColumnMetricValue were used to get metric name & value, 
+					// finally report this metric
+					if(!thisMetricName.isEmpty() && !thisMetricValueString.isEmpty()) {
+						CommandMetricUtils.insertMetric(currentMetrics,
+								metricDeets, CommandMetricUtils.mungeString(thisCommand, thisMetricName),
+								thisMetricPrefix, thisMetricValueString);
+					}
+						
 					// Once we find a valid mapping for this line, 
 					// stop looking for matches for this line,
 					// unless we explicitly want to check all regex mappings.
@@ -353,6 +374,14 @@ public class CommandMetricUtils {
 			outputArray[i] = thisArray[i].replaceAll(findThis, replaceWithThis);
 		}
 		return outputArray;
+	}
+	
+	public static ArrayList<String[]> replaceInArray(ArrayList<String[]> thisArrayList, String findThis, String replaceWithThis) {
+		ArrayList<String[]> outputArrayList = new ArrayList<String[]>();
+		for (int i=0; i < thisArrayList.size(); i++) {
+			outputArrayList.add(replaceInArray(thisArrayList.get(i), findThis, replaceWithThis));
+		}
+		return outputArrayList;
 	}
 	
 	public static double roundNumber(double theNumber, int places) {
