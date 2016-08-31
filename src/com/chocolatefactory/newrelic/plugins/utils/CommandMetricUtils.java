@@ -170,11 +170,12 @@ public class CommandMetricUtils {
 			} finally {
 				try {
 					br.close();
-					if (proc != null) {
-						proc.waitFor();
-					}
 				} catch (Exception e) {
 					// If we can't close, then it's probably closed.
+				} finally {
+					if (proc != null) {
+						proc.destroy();
+					}
 				}
 			}
 		}
