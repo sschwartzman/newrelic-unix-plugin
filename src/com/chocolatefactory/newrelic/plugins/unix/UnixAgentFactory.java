@@ -37,21 +37,11 @@ public class UnixAgentFactory extends AgentFactory {
 	@Override
 	public Agent createConfiguredAgent(Map<String, Object> properties) throws ConfigurationException {
 		
-		String os, command, hostname, iregex;
+		String os, command, hostname, iregex, dregex;
 		String[] dcommand, icommand;
 		
-		if (properties.containsKey("debug")) {
-			debug = (Boolean) properties.get("debug");
-		}
-		
-		// Per-instance properties take precedence over global properties
-		if (properties.containsKey("OS") && !((String) properties.get("OS")).toLowerCase().equals("auto")) {
-			os = ((String) properties.get("OS")).toLowerCase();
-		} else if (global_properties.containsKey("OS") && !((String) global_properties.get("OS")).toLowerCase().equals("auto")) {
-			os = ((String) global_properties.get("OS")).toLowerCase();
-		} else {
-			os = System.getProperty("os.name").toLowerCase();
-		}
+		// Setting agent instance configurations based on plugin.json
+		// NOTE: Per-instance properties take precedence over global properties
 		
 		if (properties.containsKey("debug")) {
 			debug = (Boolean) properties.get("debug");
@@ -59,6 +49,14 @@ public class UnixAgentFactory extends AgentFactory {
 			debug = (Boolean) global_properties.get("debug");
 		} else {
 			debug = false;
+		}
+		
+		if (properties.containsKey("OS") && !((String) properties.get("OS")).toLowerCase().equals("auto")) {
+			os = ((String) properties.get("OS")).toLowerCase();
+		} else if (global_properties.containsKey("OS") && !((String) global_properties.get("OS")).toLowerCase().equals("auto")) {
+			os = ((String) global_properties.get("OS")).toLowerCase();
+		} else {
+			os = System.getProperty("os.name").toLowerCase();
 		}
 		
 		if(properties.containsKey("hostname") && !((String)properties.get("hostname")).toLowerCase().equals("auto")) {
@@ -75,29 +73,38 @@ public class UnixAgentFactory extends AgentFactory {
 			}
 		}
 		
+		logger.info("Host OS: " + os);
+		logger.info("Hostname: " + hostname);
+		
 		command = ((String) properties.get("command"));
 		
 		if(os.contains("linux")) {
 			umetrics = new LinuxMetrics();
+			dcommand = new String[]{};
+			dregex = "";
 			icommand = new String[]{"ip","link","show"};
 			iregex = "\\d+:\\s+(\\w+\\d*):.*";
 		} else if (os.contains("aix")) {
 			umetrics = new AIXMetrics();
+			dcommand = new String[]{};
+			dregex = "";
 			icommand = new String[]{"/usr/sbin/ifconfig", "-a"};
 			iregex = "(\\w+\\d*):\\s+flags.*.*";
 		} else if (os.contains("sunos")) {
 			umetrics = new SolarisMetrics();
+			dcommand = new String[]{};
+			dregex = "";
 			icommand = new String[]{"/usr/sbin/ifconfig", "-a"};
 			iregex = "(\\w+\\d*):\\d*:*\\s+flags.*";
 		} else if (os.toLowerCase().contains("os x") || os.toLowerCase().contains("osx")) {
 			umetrics = new OSXMetrics();
 			dcommand = new String[]{"diskutil", "list"};
-			agentInstanceConfigs.put("dcommand", dcommand);
+			dregex = "\\/dev\\/(\\w+\\d*)\\s+\\([\\w\\s,]+\\):.*";			
 			icommand = new String[]{"ifconfig", "-a"};
 			iregex = "(\\w+\\d*):\\s+flags.*";
 		} else {
 			logger.error("Unix Agent could not detect an OS version that it supports.");
-			logger.error("OS detected: " + os);
+			logger.error("Host OS detected: " + os);
 			return null;
 		}
 		
@@ -105,6 +112,8 @@ public class UnixAgentFactory extends AgentFactory {
 		agentInstanceConfigs.put("command", command);
 		agentInstanceConfigs.put("debug", debug);
 		agentInstanceConfigs.put("hostname", hostname);
+		agentInstanceConfigs.put("dcommand", dcommand);
+		agentInstanceConfigs.put("dregex", dregex);
 		agentInstanceConfigs.put("icommand", icommand);
 		agentInstanceConfigs.put("iregex", iregex);
 		

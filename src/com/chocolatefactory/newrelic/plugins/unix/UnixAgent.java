@@ -41,8 +41,9 @@ public class UnixAgent extends Agent {
 		hostName = (String)instance.get("hostname");
 		commandName = (String)instance.get("command");
 		isDebug = (Boolean)instance.get("debug");
-		String[] interfaceCommand = (String[])instance.get("icommand");
 		String[] diskCommand = (String[])instance.get("dcommand");
+		String diskRegex = (String)instance.get("dregex");
+		String[] interfaceCommand = (String[])instance.get("icommand");
 		String interfaceRegex = (String)instance.get("iregex");
 		
 		logger.debug("Instance Configuration:" +
@@ -56,7 +57,7 @@ public class UnixAgent extends Agent {
 			if(thisCommand.getType() == UnixMetrics.commandTypes.REGEXLISTDIM) {
 				if (thisCommand.getCommand()[0] == "iostat") {
 					logger.debug("Running " + thisCommand.getCommand().toString() + " to get list of disks.");
-					Pattern diskPattern = Pattern.compile("\\/dev\\/(\\w+\\d*)\\s+\\([\\w\\s,]+\\):.*");
+					Pattern diskPattern = Pattern.compile(diskRegex);
 					getMembers(diskCommand, diskPattern);
 				} else {
 					logger.debug("Running " + thisCommand.getCommand().toString() + " to get list of interfaces.");
