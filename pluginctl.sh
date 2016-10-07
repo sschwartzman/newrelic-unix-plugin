@@ -73,7 +73,7 @@ if [ -n "$USE_IBM_JSSE" ] && [ "$USE_IBM_JSSE" = "true" ]; then
 fi
 
 PLUGIN_JAVA_FULL_COMMAND="$PLUGIN_JAVA $PLUGIN_JAVA_OPTS -cp $PLUGIN_JAVA_CLASSPATH $PLUGIN_JAVA_CLASS"
-    
+
 check_plugin_status() {
     echo "Checking $PLUGIN_NAME"
     if [ -f $PLUGIN_PID_FILE ]; then
@@ -130,15 +130,15 @@ start_plugin() {
         rm -f $PLUGIN_ERR_FILE
         rm -f $PLUGIN_LOG_FILE
     fi
-        
+
 	echo "####################" >> $PLUGIN_ERR_FILE
 	echo "Starting $PLUGIN_NAME" | tee -a $PLUGIN_ERR_FILE
 	echo "Host OS: $PLUGIN_HOST_OS" >> $PLUGIN_ERR_FILE
     echo "Java location: $PLUGIN_JAVA" >> $PLUGIN_ERR_FILE
     echo "Java version: $PLUGIN_JAVA_VERSION_FULL" >> $PLUGIN_ERR_FILE
     echo "Plugin location: $PLUGIN_PATH" >> $PLUGIN_ERR_FILE
-    echo "Plugin startup command: $PLUGIN_JAVA_FULL_COMMAND" >> $PLUGIN_ERR_FILE    
-    
+    echo "Plugin startup command: $PLUGIN_JAVA_FULL_COMMAND" >> $PLUGIN_ERR_FILE
+
     nohup $PLUGIN_JAVA_FULL_COMMAND >/dev/null 2>>$PLUGIN_ERR_FILE &
 	PID=`echo $!`
 		if [ -z $PID ]; then
@@ -158,7 +158,7 @@ case "$1" in
 status)
 	check_plugin_status
 	;;
-start) 
+start)
 	start_plugin
 	;;
 restart)
