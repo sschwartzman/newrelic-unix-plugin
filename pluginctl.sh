@@ -44,19 +44,33 @@ if [ -z "$PLUGIN_JAVA" ]; then
     # If attempt to set Java path & filename failed, throw error
     if [ -z "$PLUGIN_JAVA" ]; then
         echo "Could not find Java and is not manually defined."
-        echo "Please define manually in pluginctl.sh"
+        echo "Please edit pluginctl.sh and set PLUGIN_JAVA to a valid Java binary."
         exit 1
     fi
 fi
 
+PLUGIN_NAME="New Relic Unix Plugin"
+
 PLUGIN_HOST_OS=`uname -a`
 PLUGIN_JAVA_VERSION_FULL=`$PLUGIN_JAVA -Xmx32m -version 2>&1`
 PLUGIN_JAVA_VERSION=`echo $PLUGIN_JAVA_VERSION_FULL | awk 'NR==1{ gsub(/"/,""); print $3 }'`
-
+PLUGIN_JAVA_MAJOR_VERSION=`echo $PLUGIN_JAVA_VERSION | awk '{split($0, array, ".")} END{print array[2]}'`
 echo "Java location: $PLUGIN_JAVA"
 echo "Java version: $PLUGIN_JAVA_VERSION"
 
-PLUGIN_NAME="New Relic Unix Plugin"
+if [ $PLUGIN_JAVA_MAJOR_VERSION -lt 6 ]; then
+  echo "ERROR: $PLUGIN_NAME will not work with Java versions older than 1.6."
+  echo "Please edit pluginctl.sh and set PLUGIN_JAVA to a Java distro (Sun/Oracle, IBM, OpenJDK) v1.6 or above."
+  exit 1
+fi
+
+if echo $PLUGIN_JAVA_VERSION_FULL | grep -c -q 'gcj'; then
+  echo "ERROR: $PLUGIN_NAME will not work with gcj."
+  echo "Please edit pluginctl.sh and set PLUGIN_JAVA to another Java distro (Sun/Oracle, IBM, OpenJDK)."
+  echo "Output of \"java -version\":\n $PLUGIN_JAVA_VERSION_FULL"
+  exit 1
+fi
+
 PLUGIN_ERR_FILE=$PLUGIN_PATH/logs/newrelic_unix_plugin.err
 PLUGIN_LOG_FILE=$PLUGIN_PATH/logs/newrelic_unix_plugin.log
 PLUGIN_PID_FILE=$PLUGIN_PATH/logs/newrelic_unix_plugin.pid
@@ -73,7 +87,7 @@ if [ -n "$USE_IBM_JSSE" ] && [ "$USE_IBM_JSSE" = "true" ]; then
 fi
 
 PLUGIN_JAVA_FULL_COMMAND="$PLUGIN_JAVA $PLUGIN_JAVA_OPTS -cp $PLUGIN_JAVA_CLASSPATH $PLUGIN_JAVA_CLASS"
-    
+
 check_plugin_status() {
     echo "Checking $PLUGIN_NAME"
     if [ -f $PLUGIN_PID_FILE ]; then
@@ -130,15 +144,15 @@ start_plugin() {
         rm -f $PLUGIN_ERR_FILE
         rm -f $PLUGIN_LOG_FILE
     fi
-        
+
 	echo "####################" >> $PLUGIN_ERR_FILE
 	echo "Starting $PLUGIN_NAME" | tee -a $PLUGIN_ERR_FILE
 	echo "Host OS: $PLUGIN_HOST_OS" >> $PLUGIN_ERR_FILE
     echo "Java location: $PLUGIN_JAVA" >> $PLUGIN_ERR_FILE
     echo "Java version: $PLUGIN_JAVA_VERSION_FULL" >> $PLUGIN_ERR_FILE
     echo "Plugin location: $PLUGIN_PATH" >> $PLUGIN_ERR_FILE
-    echo "Plugin startup command: $PLUGIN_JAVA_FULL_COMMAND" >> $PLUGIN_ERR_FILE    
-    
+    echo "Plugin startup command: $PLUGIN_JAVA_FULL_COMMAND" >> $PLUGIN_ERR_FILE
+
     nohup $PLUGIN_JAVA_FULL_COMMAND >/dev/null 2>>$PLUGIN_ERR_FILE &
 	PID=`echo $!`
 		if [ -z $PID ]; then
@@ -158,7 +172,7 @@ case "$1" in
 status)
 	check_plugin_status
 	;;
-start) 
+start)
 	start_plugin
 	;;
 restart)

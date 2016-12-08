@@ -40,9 +40,9 @@ public abstract class UnixMetrics {
 	public List<Integer> defaultignores;
 	
 	private int pageSize;
+	String[] pageSizeCommand = {"pagesize"};
 	
 	public void setPageSize() {
-		String[] pageSizeCommand = {"pagesize"};
 		int ps = 0;
 		for(String line : CommandMetricUtils.executeCommand(pageSizeCommand)) {
 			try {
@@ -60,13 +60,20 @@ public abstract class UnixMetrics {
 	}
 	
 	public UnixMetrics() {
-		// Not in use currently, maybe later
-		// setPageSize();
+		setPageSize();
 		allMetrics = new HashMap<String, MetricDetail>();
 		allCommands = new HashMap<String, UnixCommand>();
 		defaultignores = new ArrayList<Integer>();
 	}
 	
+	public UnixMetrics(String[] psc) {
+		pageSizeCommand = psc;
+		setPageSize();
+		allMetrics = new HashMap<String, MetricDetail>();
+		allCommands = new HashMap<String, UnixCommand>();
+		defaultignores = new ArrayList<Integer>();
+	}
+
 	class UnixCommand {
 		// private String[] command;
 		private ArrayList<String[]> commands;
