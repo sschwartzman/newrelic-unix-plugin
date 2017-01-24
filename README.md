@@ -5,8 +5,9 @@
 
 ### What's new in V3.6?
 
- * Fix for AIX memory reporting
+ * Fix for AIX disk & memory reporting
  * Fix for OSX disk & memory reporting
+ * Fix for Linux disk reporting
  * Fix for IBM WebSphere JDK for IBM JSSE when the WebSphere Socket factory "classNotFound" exception. [Click here for details on how to apply fix](#ibmjsse)
 
 ### Previous updates

@@ -19,17 +19,17 @@ public class AIXMetrics extends UnixMetrics {
 		 * Parser & declaration for 'df' command
 		 */
 		HashMap<Pattern, String[]> dfMapping = new HashMap<Pattern, String[]>();
-		dfMapping.put(Pattern.compile("\\s*([\\/\\w\\d]+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)%\\s+(\\d+)\\s+(\\d+)%.*"),
-			new String[]{kColumnMetricPrefix, "1024-blocks", "Free", "%Used", "Iused", "%Iused"});
-		allCommands.put("df", new UnixCommand(new String[]{"df","-k"}, commandTypes.REGEXDIM, defaultignores, 0, dfMapping));
-		
-		allMetrics.put(CommandMetricUtils.mungeString("df", "1024-blocks"), new MetricDetail("Disk", "Total", "kb", metricTypes.NORMAL, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("df", "free"), new MetricDetail("Disk", "Free", "kb", metricTypes.NORMAL, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("df", "used"), new MetricDetail("Disk", "Used", "kb", metricTypes.NORMAL, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("df", "%used"), new MetricDetail("Disk", "Used", "%", metricTypes.NORMAL, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("df", "iused"), new MetricDetail("Disk", "INodes Used", "inodes", metricTypes.NORMAL, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("df", "%iused"), new MetricDetail("Disk", "INodes Used", "%", metricTypes.NORMAL, 1));
-		
+		dfMapping.put(Pattern.compile("\\s*(\\S+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)%\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)%.*"),
+			new String[]{kColumnMetricPrefix, "1K-blocks", "Used", "Available", "Use%", "Iused", "Ifree", "Iuse%"});
+		allCommands.put("df", new UnixCommand(new String[]{"df","-v","-k"}, commandTypes.REGEXDIM, defaultignores, 0, dfMapping));
+		allMetrics.put(CommandMetricUtils.mungeString("df", "1K-blocks"), new MetricDetail("Disk", "Total", "kb", metricTypes.NORMAL, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("df", "Used"), new MetricDetail("Disk", "Used", "kb", metricTypes.NORMAL, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("df", "Available"), new MetricDetail("Disk", "Free", "kb", metricTypes.NORMAL, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("df", "Use%"), new MetricDetail("Disk", "Used", "%", metricTypes.NORMAL, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("df", "Iused"), new MetricDetail("Disk", "Inodes Used", "inodes", metricTypes.NORMAL, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("df", "Ifree"), new MetricDetail("Disk", "Inodes Free", "inodes", metricTypes.NORMAL, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("df", "Iuse%"), new MetricDetail("Disk", "Inodes Used", "%", metricTypes.NORMAL, 1));
+
 		/*
 		 * Parser & declaration for 'entstat' command
 		 */

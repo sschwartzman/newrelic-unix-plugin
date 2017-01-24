@@ -5,8 +5,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.regex.Pattern;
 
-import com.chocolatefactory.newrelic.plugins.unix.UnixMetrics.UnixCommand;
-import com.chocolatefactory.newrelic.plugins.unix.UnixMetrics.commandTypes;
 import com.chocolatefactory.newrelic.plugins.utils.CommandMetricUtils;
 import com.chocolatefactory.newrelic.plugins.utils.MetricDetail;
 import com.chocolatefactory.newrelic.plugins.utils.MetricDetail.metricTypes;
@@ -25,14 +23,13 @@ public class LinuxMetrics extends UnixMetrics {
 		 * Parser & declaration for 'df' command
 		 */
 		HashMap<Pattern, String[]> dfMapping = new HashMap<Pattern, String[]>();
-		dfMapping.put(Pattern.compile("\\s*([\\/\\w\\d]+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)%.*"),
-			new String[]{kColumnMetricPrefix, "1024-blocks", "Used", "Available", "Capacity"});
-		allCommands.put("df", new UnixCommand(new String[]{"df","-Pk"}, commandTypes.REGEXDIM, defaultignores, 0, dfMapping));
-
-		allMetrics.put(CommandMetricUtils.mungeString("df", "1024-blocks"), new MetricDetail("Disk", "Total", "kb", metricTypes.NORMAL, 1));
+		dfMapping.put(Pattern.compile("\\s*(\\S+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)%.*"),
+			new String[]{kColumnMetricPrefix, "1K-blocks", "Used", "Available", "Use%"});
+		allCommands.put("df", new UnixCommand(new String[]{"df","-k"}, commandTypes.REGEXDIM, defaultignores, 0, dfMapping));
+		allMetrics.put(CommandMetricUtils.mungeString("df", "1K-blocks"), new MetricDetail("Disk", "Total", "kb", metricTypes.NORMAL, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("df", "Used"), new MetricDetail("Disk", "Used", "kb", metricTypes.NORMAL, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("df", "Available"), new MetricDetail("Disk", "Free", "kb", metricTypes.NORMAL, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("df", "Capacity"), new MetricDetail("Disk", "Used", "%", metricTypes.NORMAL, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("df", "Use%"), new MetricDetail("Disk", "Used", "%", metricTypes.NORMAL, 1));
 		
 		/*
 		 * Parser & declaration for 'diskstats' command
