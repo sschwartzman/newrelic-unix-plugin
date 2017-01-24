@@ -21,7 +21,7 @@ import com.newrelic.metrics.publish.Agent;
 public class UnixAgent extends Agent {
     
 	// Required for New Relic Plugins
-	public static final String kAgentVersion = "3.6.1";
+	public static final String kAgentVersion = "3.6.2";
 	public static final String kAgentGuid = "com.chocolatefactory.newrelic.plugins.unix";
 			
 	boolean isDebug = false;

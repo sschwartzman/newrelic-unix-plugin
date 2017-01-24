@@ -38,7 +38,7 @@ public class CommandMetricUtils {
 				metricName = "CPU Utilization";
 				metricUnits = "%";
 			} else if(thisMetricPrefix.equals("Disk") && thisMetricName.equals("Used") 
-					&& thisMetric.getMetricDetail().getUnits().equals("%") && thisMetricValue > metricValue) {
+					&& !thisMetric.getMetricDetail().getUnits().equals("kb") && thisMetricValue > metricValue) {
 				metricValue = thisMetricValue;
 				metricName = "Fullest Disk";
 				metricUnits = "%";

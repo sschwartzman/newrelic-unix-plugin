@@ -29,7 +29,7 @@ public class LinuxMetrics extends UnixMetrics {
 		allMetrics.put(CommandMetricUtils.mungeString("df", "1K-blocks"), new MetricDetail("Disk", "Total", "kb", metricTypes.NORMAL, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("df", "Used"), new MetricDetail("Disk", "Used", "kb", metricTypes.NORMAL, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("df", "Available"), new MetricDetail("Disk", "Free", "kb", metricTypes.NORMAL, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("df", "Use%"), new MetricDetail("Disk", "Used", "%", metricTypes.NORMAL, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("df", "Use%"), new MetricDetail("Disk", "Used", "percent", metricTypes.NORMAL, 1));
 		
 		/*
 		 * Parser & declaration for 'diskstats' command
@@ -67,12 +67,12 @@ public class LinuxMetrics extends UnixMetrics {
 			new String[]{kColumnMetricPrefix, "rrqm-s", "wrqm-s", "r-s", "w-s", "rkB-s", "wkB-s", "avgrq-sz", "avgqu-sz", "await", "r_await", "w_await", "svctm", "%util"});
 		allCommands.put("iostat", new UnixCommand(new String[]{"iostat", "-k", "-x", kExecutionDelay, kExecutionCount}, commandTypes.REGEXDIM, defaultignores, 0, iostatMapping));
 
-		allMetrics.put(CommandMetricUtils.mungeString("iostat", "%user"), new MetricDetail("CPU", "User", "%", metricTypes.NORMAL, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("iostat", "%nice"), new MetricDetail("CPU", "Nice", "%", metricTypes.NORMAL, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("iostat", "%system"), new MetricDetail("CPU", "System", "%", metricTypes.NORMAL, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("iostat", "%iowait"), new MetricDetail("CPU", "Waiting", "%", metricTypes.NORMAL, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("iostat", "%steal"), new MetricDetail("CPU", "Stolen", "%", metricTypes.NORMAL, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("iostat", "%idle"), new MetricDetail("CPU", "Idle", "%", metricTypes.NORMAL, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("iostat", "%user"), new MetricDetail("CPU", "User", "percent", metricTypes.NORMAL, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("iostat", "%nice"), new MetricDetail("CPU", "Nice", "percent", metricTypes.NORMAL, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("iostat", "%system"), new MetricDetail("CPU", "System", "percent", metricTypes.NORMAL, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("iostat", "%iowait"), new MetricDetail("CPU", "Waiting", "percent", metricTypes.NORMAL, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("iostat", "%steal"), new MetricDetail("CPU", "Stolen", "percent", metricTypes.NORMAL, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("iostat", "%idle"), new MetricDetail("CPU", "Idle", "percent", metricTypes.NORMAL, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("iostat", "rrqm-s"), new MetricDetail("DiskIO", "Queued Merged Read Requests", "requests", metricTypes.NORMAL, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("iostat", "wrqm-s"), new MetricDetail("DiskIO", "Queued Merged Write Requests", "requests", metricTypes.NORMAL, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("iostat", "r-s"), new MetricDetail("DiskIO", "Reads Per Second", "transfers", metricTypes.NORMAL, 1));
@@ -85,7 +85,7 @@ public class LinuxMetrics extends UnixMetrics {
 		allMetrics.put(CommandMetricUtils.mungeString("iostat", "r_await"), new MetricDetail("DiskIO", "Average Response Time (read)", "ms", metricTypes.NORMAL, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("iostat", "w_await"), new MetricDetail("DiskIO", "Average Response Time (write)", "ms", metricTypes.NORMAL, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("iostat", "svctm"), new MetricDetail("DiskIO", "Total Request Time", "ms", metricTypes.NORMAL, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("iostat", "%util"), new MetricDetail("DiskIO", "Percentage of Time Busy", "%", metricTypes.NORMAL, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("iostat", "%util"), new MetricDetail("DiskIO", "Percentage of Time Busy", "percent", metricTypes.NORMAL, 1));
 		
 		/*
 		 * Parser & declaration for "NetworkIO"
@@ -153,8 +153,8 @@ public class LinuxMetrics extends UnixMetrics {
 			commandTypes.REGEXDIM, defaultignores, 0, psMapping));
 		
 		allMetrics.put(CommandMetricUtils.mungeString("ps", kColumnMetricPrefixCount), new MetricDetail("Processes", "Instance Count", "processes", metricTypes.INCREMENT, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("ps", "%CPU"), new MetricDetail("Processes", "Aggregate CPU", "%", metricTypes.INCREMENT, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("ps", "%MEM"), new MetricDetail("Processes", "Aggregate Memory", "%", metricTypes.INCREMENT, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("ps", "%CPU"), new MetricDetail("Processes", "Aggregate CPU", "percent", metricTypes.INCREMENT, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("ps", "%MEM"), new MetricDetail("Processes", "Aggregate Memory", "percent", metricTypes.INCREMENT, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("ps", "RSS"), new MetricDetail("Processes", "Aggregate Resident Size", "kb", metricTypes.INCREMENT, 1));
 			
 		/*
@@ -197,14 +197,14 @@ public class LinuxMetrics extends UnixMetrics {
 		allMetrics.put(CommandMetricUtils.mungeString("top", "swapused"), new MetricDetail("MemoryDetailed", "Swap/Used", "kb", metricTypes.NORMAL, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("top", "swapfree"), new MetricDetail("MemoryDetailed", "Swap/Free", "kb", metricTypes.NORMAL, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("top", "swapbuff"), new MetricDetail("MemoryDetailed", "Swap/Buffer", "kb", metricTypes.NORMAL, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("top", "cpuus"), new MetricDetail("CPU", "User", "%", metricTypes.NORMAL, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("top", "cpuni"), new MetricDetail("CPU", "Nice", "%", metricTypes.NORMAL, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("top", "cpusy"), new MetricDetail("CPU", "System", "%", metricTypes.NORMAL, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("top", "cpuwa"), new MetricDetail("CPU", "Waiting", "%", metricTypes.NORMAL, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("top", "cpust"), new MetricDetail("CPU", "Stolen", "%", metricTypes.NORMAL, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("top", "cpuid"), new MetricDetail("CPU", "Idle", "%", metricTypes.NORMAL, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("top", "cpuhi"), new MetricDetail("CPU", "Interrupt-Hardware", "%", metricTypes.NORMAL, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("top", "cpusi"), new MetricDetail("CPU", "Interrupt-Software", "%", metricTypes.NORMAL, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("top", "cpuus"), new MetricDetail("CPU", "User", "percent", metricTypes.NORMAL, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("top", "cpuni"), new MetricDetail("CPU", "Nice", "percent", metricTypes.NORMAL, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("top", "cpusy"), new MetricDetail("CPU", "System", "percent", metricTypes.NORMAL, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("top", "cpuwa"), new MetricDetail("CPU", "Waiting", "percent", metricTypes.NORMAL, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("top", "cpust"), new MetricDetail("CPU", "Stolen", "percent", metricTypes.NORMAL, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("top", "cpuid"), new MetricDetail("CPU", "Idle", "percent", metricTypes.NORMAL, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("top", "cpuhi"), new MetricDetail("CPU", "Interrupt-Hardware", "percent", metricTypes.NORMAL, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("top", "cpusi"), new MetricDetail("CPU", "Interrupt-Software", "percent", metricTypes.NORMAL, 1));
             
 		/*
 		 * Parsers & declaration for 'vmstat' command
@@ -244,11 +244,11 @@ public class LinuxMetrics extends UnixMetrics {
 		//allMetrics.put(CommandMetricUtils.mungeString("vmstat", "cs"), new MetricDetail("Faults", "Context Switches", "switches", metricTypes.NORMAL, 1));
 		/*
 		 * Skipping last 5 columns of vmstat for CPU measurement - using iostat instead.
-		 * allMetrics.put(CommandMetricUtils.mungeString("vmstat", "us"), new MetricDetail("CPU", "User", "%", metricTypes.NORMAL, 1));
-		 * allMetrics.put(CommandMetricUtils.mungeString("vmstat", "sy"), new MetricDetail("CPU", "System", "%", metricTypes.NORMAL, 1));
-		 * allMetrics.put(CommandMetricUtils.mungeString("vmstat", "id"), new MetricDetail("CPU", "Idle", "%", metricTypes.NORMAL, 1));
-		 * allMetrics.put(CommandMetricUtils.mungeString("vmstat", "wa"), new MetricDetail("CPU", "Waiting", "%", metricTypes.NORMAL, 1));
-		 * allMetrics.put(CommandMetricUtils.mungeString("vmstat", "st"), new MetricDetail("CPU", "Stolen", "%", metricTypes.NORMAL, 1));
+		 * allMetrics.put(CommandMetricUtils.mungeString("vmstat", "us"), new MetricDetail("CPU", "User", "percent", metricTypes.NORMAL, 1));
+		 * allMetrics.put(CommandMetricUtils.mungeString("vmstat", "sy"), new MetricDetail("CPU", "System", "percent", metricTypes.NORMAL, 1));
+		 * allMetrics.put(CommandMetricUtils.mungeString("vmstat", "id"), new MetricDetail("CPU", "Idle", "percent", metricTypes.NORMAL, 1));
+		 * allMetrics.put(CommandMetricUtils.mungeString("vmstat", "wa"), new MetricDetail("CPU", "Waiting", "percent", metricTypes.NORMAL, 1));
+		 * allMetrics.put(CommandMetricUtils.mungeString("vmstat", "st"), new MetricDetail("CPU", "Stolen", "percent", metricTypes.NORMAL, 1));
 	     */
 
 		allCommands.put("VmstatTotals", new UnixCommand(new String[]{"vmstat","-s"}, commandTypes.SIMPLEDIM, defaultignores));

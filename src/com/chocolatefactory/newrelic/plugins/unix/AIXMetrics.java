@@ -25,10 +25,10 @@ public class AIXMetrics extends UnixMetrics {
 		allMetrics.put(CommandMetricUtils.mungeString("df", "1K-blocks"), new MetricDetail("Disk", "Total", "kb", metricTypes.NORMAL, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("df", "Used"), new MetricDetail("Disk", "Used", "kb", metricTypes.NORMAL, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("df", "Available"), new MetricDetail("Disk", "Free", "kb", metricTypes.NORMAL, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("df", "Use%"), new MetricDetail("Disk", "Used", "%", metricTypes.NORMAL, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("df", "Use%"), new MetricDetail("Disk", "Used", "percent", metricTypes.NORMAL, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("df", "Iused"), new MetricDetail("Disk", "Inodes Used", "inodes", metricTypes.NORMAL, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("df", "Ifree"), new MetricDetail("Disk", "Inodes Free", "inodes", metricTypes.NORMAL, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("df", "Iuse%"), new MetricDetail("Disk", "Inodes Used", "%", metricTypes.NORMAL, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("df", "Iuse%"), new MetricDetail("Disk", "Inodes Used", "percent", metricTypes.NORMAL, 1));
 
 		/*
 		 * Parser & declaration for 'entstat' command
@@ -129,7 +129,7 @@ public class AIXMetrics extends UnixMetrics {
 		allMetrics.put(CommandMetricUtils.mungeString("iostat", "tps"), new MetricDetail("DiskIO", "Average Transfers per Second", "transfers", metricTypes.NORMAL, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("iostat", "kb_read"), new MetricDetail("DiskIO", "Data Read per Interval", "kb", metricTypes.DELTA, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("iostat", "kb_wrtn"), new MetricDetail("DiskIO", "Data Written per Interval", "kb", metricTypes.DELTA, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("iostat", "tm_act"), new MetricDetail("DiskIO", "Average Percentage of Time Busy", "%", metricTypes.NORMAL, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("iostat", "tm_act"), new MetricDetail("DiskIO", "Average Percentage of Time Busy", "percent", metricTypes.NORMAL, 1));
 	
 		/*
 		 * Parser & declaration for 'lparstat' command
@@ -139,10 +139,10 @@ public class AIXMetrics extends UnixMetrics {
 			new String[]{"user", "sys", "wait", "idle"});
 		allCommands.put("lparstat", new UnixCommand(new String[]{"lparstat", "1", "1"}, commandTypes.REGEXDIM, defaultignores, 0, lparstatMapping));
 		
-		allMetrics.put(CommandMetricUtils.mungeString("lparstat", "user"), new MetricDetail("CPU", "User", "%", metricTypes.NORMAL, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("lparstat", "sys"), new MetricDetail("CPU", "System", "%", metricTypes.NORMAL, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("lparstat", "wait"), new MetricDetail("CPU", "IOWait", "%", metricTypes.NORMAL, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("lparstat", "idle"), new MetricDetail("CPU", "Idle", "%", metricTypes.NORMAL, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("lparstat", "user"), new MetricDetail("CPU", "User", "percent", metricTypes.NORMAL, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("lparstat", "sys"), new MetricDetail("CPU", "System", "percent", metricTypes.NORMAL, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("lparstat", "wait"), new MetricDetail("CPU", "IOWait", "percent", metricTypes.NORMAL, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("lparstat", "idle"), new MetricDetail("CPU", "Idle", "percent", metricTypes.NORMAL, 1));
 
 		/*
 		 * Parser & declaration for 'netstat' command
@@ -171,8 +171,8 @@ public class AIXMetrics extends UnixMetrics {
 			commandTypes.REGEXDIM, defaultignores, 0, psMapping));
 		
 		allMetrics.put(CommandMetricUtils.mungeString("ps", kColumnMetricPrefixCount), new MetricDetail("Processes", "Instance Count", "processes", metricTypes.INCREMENT, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("ps", "%CPU"), new MetricDetail("Processes", "Aggregate CPU", "%", metricTypes.INCREMENT, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("ps", "%MEM"), new MetricDetail("Processes", "Aggregate Memory", "%", metricTypes.INCREMENT, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("ps", "%CPU"), new MetricDetail("Processes", "Aggregate CPU", "percent", metricTypes.INCREMENT, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("ps", "%MEM"), new MetricDetail("Processes", "Aggregate Memory", "percent", metricTypes.INCREMENT, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("ps", "RSS"), new MetricDetail("Processes", "Aggregate Resident Size", "kb", metricTypes.INCREMENT, 1));
 		
 		/*

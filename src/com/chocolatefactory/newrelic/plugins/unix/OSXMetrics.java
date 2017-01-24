@@ -25,7 +25,7 @@ public class OSXMetrics extends UnixMetrics {
 		allMetrics.put(CommandMetricUtils.mungeString("df", "1K-blocks"), new MetricDetail("Disk", "Total", "kb", metricTypes.NORMAL, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("df", "Used"), new MetricDetail("Disk", "Used", "kb", metricTypes.NORMAL, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("df", "Available"), new MetricDetail("Disk", "Free", "kb", metricTypes.NORMAL, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("df", "Use%"), new MetricDetail("Disk", "Used", "%", metricTypes.NORMAL, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("df", "Use%"), new MetricDetail("Disk", "Used", "percent", metricTypes.NORMAL, 1));
 						
 		/*
 		 * Parsers & declaration for 'iostat' command
@@ -65,8 +65,8 @@ public class OSXMetrics extends UnixMetrics {
 			commandTypes.REGEXDIM, defaultignores, 0, psMapping));
 		
 		allMetrics.put(CommandMetricUtils.mungeString("ps", kColumnMetricPrefixCount), new MetricDetail("Processes", "Instance Count", "processes", metricTypes.INCREMENT, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("ps", "%CPU"), new MetricDetail("Processes", "Aggregate CPU", "%", metricTypes.INCREMENT, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("ps", "%MEM"), new MetricDetail("Processes", "Aggregate Memory", "%", metricTypes.INCREMENT, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("ps", "%CPU"), new MetricDetail("Processes", "Aggregate CPU", "percent", metricTypes.INCREMENT, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("ps", "%MEM"), new MetricDetail("Processes", "Aggregate Memory", "percent", metricTypes.INCREMENT, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("ps", "RSS"), new MetricDetail("Processes", "Aggregate Resident Size", "kb", metricTypes.INCREMENT, 1));
 			
 		/*
@@ -113,9 +113,9 @@ public class OSXMetrics extends UnixMetrics {
 		allMetrics.put(CommandMetricUtils.mungeString("top", "memregshare"), new MetricDetail("MemoryDetailed", "Regions/Shared", "kb", metricTypes.NORMAL, 1024));
 		allMetrics.put(CommandMetricUtils.mungeString("top", "swapused"), new MetricDetail("MemoryDetailed", "Swap/Used", "kb", metricTypes.NORMAL, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("top", "swapfree"), new MetricDetail("MemoryDetailed", "Swap/Free", "kb", metricTypes.NORMAL, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("top", "cpuuser"), new MetricDetail("CPU", "User", "%", metricTypes.NORMAL, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("top", "cpuidle"), new MetricDetail("CPU", "Idle", "%", metricTypes.NORMAL, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("top", "cpusys"), new MetricDetail("CPU", "System", "%", metricTypes.NORMAL, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("top", "cpuuser"), new MetricDetail("CPU", "User", "percent", metricTypes.NORMAL, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("top", "cpuidle"), new MetricDetail("CPU", "Idle", "percent", metricTypes.NORMAL, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("top", "cpusys"), new MetricDetail("CPU", "System", "percent", metricTypes.NORMAL, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("top", "memused"), new MetricDetail("Memory", "Used", "kb", metricTypes.NORMAL, 1024));
 		allMetrics.put(CommandMetricUtils.mungeString("top", "memusedgigs"), new MetricDetail("Memory", "Used", "kb", metricTypes.NORMAL, 1048576));
 		allMetrics.put(CommandMetricUtils.mungeString("top", "memwired"), new MetricDetail("Memory", "Wired", "kb", metricTypes.NORMAL, 1024));

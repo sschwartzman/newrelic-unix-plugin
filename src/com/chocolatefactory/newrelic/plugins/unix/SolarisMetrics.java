@@ -26,7 +26,7 @@ public class SolarisMetrics extends UnixMetrics {
 		allMetrics.put(CommandMetricUtils.mungeString("df", "1K-blocks"), new MetricDetail("Disk", "Total", "kb", metricTypes.NORMAL, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("df", "Used"), new MetricDetail("Disk", "Used", "kb", metricTypes.NORMAL, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("df", "Available"), new MetricDetail("Disk", "Free", "kb", metricTypes.NORMAL, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("df", "Use%"), new MetricDetail("Disk", "Used", "%", metricTypes.NORMAL, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("df", "Use%"), new MetricDetail("Disk", "Used", "percent", metricTypes.NORMAL, 1));
 		
 		/*
 		 * Parser & declaration for 'iostat' command
@@ -44,8 +44,8 @@ public class SolarisMetrics extends UnixMetrics {
 		allMetrics.put(CommandMetricUtils.mungeString("iostat", "wait"), new MetricDetail("DiskIO", "Average queue length", "transactions", metricTypes.NORMAL, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("iostat", "actv"), new MetricDetail("DiskIO", "Active transactions", "transactions", metricTypes.NORMAL, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("iostat", "svc_t"), new MetricDetail("DiskIO", "Average service time", "ms", metricTypes.NORMAL, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("iostat", "%w"), new MetricDetail("DiskIO", "Percentage of Time Non-Empty Queue", "%", metricTypes.NORMAL, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("iostat", "%b"), new MetricDetail("DiskIO", "Percentage of Time Busy", "%", metricTypes.NORMAL, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("iostat", "%w"), new MetricDetail("DiskIO", "Percentage of Time Non-Empty Queue", "percent", metricTypes.NORMAL, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("iostat", "%b"), new MetricDetail("DiskIO", "Percentage of Time Busy", "percent", metricTypes.NORMAL, 1));
 		
 		/*
 		 * Parser & declaration for 'iostat' CPU command
@@ -58,10 +58,10 @@ public class SolarisMetrics extends UnixMetrics {
 		// To make this backwards-compatible with older Solaris plugin.json versions.
 		allCommands.put("iostatCPU", new UnixCommand(new String[]{"iostat","-c", "1", "2"}, commandTypes.REGEXDIM, defaultignores, 0, iostatCPUMapping));
 		
-		allMetrics.put(CommandMetricUtils.mungeString("iostatcpu", "us"), new MetricDetail("CPU", "User", "%", metricTypes.NORMAL, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("iostatcpu", "sy"), new MetricDetail("CPU", "System", "%", metricTypes.NORMAL, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("iostatcpu", "wt"), new MetricDetail("CPU", "Waiting", "%", metricTypes.NORMAL, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("iostatcpu", "id"), new MetricDetail("CPU", "Idle", "%", metricTypes.NORMAL, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("iostatcpu", "us"), new MetricDetail("CPU", "User", "percent", metricTypes.NORMAL, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("iostatcpu", "sy"), new MetricDetail("CPU", "System", "percent", metricTypes.NORMAL, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("iostatcpu", "wt"), new MetricDetail("CPU", "Waiting", "percent", metricTypes.NORMAL, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("iostatcpu", "id"), new MetricDetail("CPU", "Idle", "percent", metricTypes.NORMAL, 1));
 		
 		/*
 		 * Parser & declaration for 'kstat' command for Network information
@@ -153,8 +153,8 @@ public class SolarisMetrics extends UnixMetrics {
 		allCommands.put("ps", new UnixCommand(new String[]{"ps", "-eo", "pcpu,pmem,rss,comm"}, commandTypes.REGEXDIM, defaultignores, 0, psMapping));
 		
 		allMetrics.put(CommandMetricUtils.mungeString("ps", kColumnMetricPrefixCount), new MetricDetail("Processes", "Instance Count", "processes", metricTypes.INCREMENT, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("ps", "%CPU"), new MetricDetail("Processes", "Aggregate CPU", "%", metricTypes.INCREMENT, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("ps", "%MEM"), new MetricDetail("Processes", "Aggregate Memory", "%", metricTypes.INCREMENT, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("ps", "%CPU"), new MetricDetail("Processes", "Aggregate CPU", "percent", metricTypes.INCREMENT, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("ps", "%MEM"), new MetricDetail("Processes", "Aggregate Memory", "percent", metricTypes.INCREMENT, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("ps", "RSS"), new MetricDetail("Processes", "Aggregate Resident Size", "kb", metricTypes.INCREMENT, 1));
 			
 		/*
@@ -195,11 +195,11 @@ public class SolarisMetrics extends UnixMetrics {
 		allMetrics.put(CommandMetricUtils.mungeString("top", "memfree"), new MetricDetail("MemoryDetailed", "Physical/Free", "kb", metricTypes.NORMAL, 1024));
 		allMetrics.put(CommandMetricUtils.mungeString("top", "swaptot"), new MetricDetail("MemoryDetailed", "Swap/Total On Disk", "kb", metricTypes.NORMAL, 1024));
 		allMetrics.put(CommandMetricUtils.mungeString("top", "swapfree"), new MetricDetail("MemoryDetailed", "Swap/Free On Disk", "kb", metricTypes.NORMAL, 1024));
-		allMetrics.put(CommandMetricUtils.mungeString("top", "cpuidle"), new MetricDetail("CPU", "Idle", "%", metricTypes.NORMAL, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("top", "cpuuser"), new MetricDetail("CPU", "User", "%", metricTypes.NORMAL, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("top", "cpukern"), new MetricDetail("CPU", "Kernel", "%", metricTypes.NORMAL, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("top", "cpuiowait"), new MetricDetail("CPU", "IOWait", "%", metricTypes.NORMAL, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("top", "cpuswap"), new MetricDetail("CPU", "Swap", "%", metricTypes.NORMAL, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("top", "cpuidle"), new MetricDetail("CPU", "Idle", "percent", metricTypes.NORMAL, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("top", "cpuuser"), new MetricDetail("CPU", "User", "percent", metricTypes.NORMAL, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("top", "cpukern"), new MetricDetail("CPU", "Kernel", "percent", metricTypes.NORMAL, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("top", "cpuiowait"), new MetricDetail("CPU", "IOWait", "percent", metricTypes.NORMAL, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("top", "cpuswap"), new MetricDetail("CPU", "Swap", "percent", metricTypes.NORMAL, 1));
 		
 		/*
 		 * Parsers & declaration for 'vmstat' command to get threads and memory
