@@ -3,7 +3,7 @@
 # description: Unix system plugin for New Relic
 # processname: NR Unix Agent
 
-### Set these as appropriate
+### Set these as appropriate ###
 
 # Change to false if you want to append to existing logs.
 DELETE_LOGS_ON_STARTUP=true
@@ -11,16 +11,18 @@ DELETE_LOGS_ON_STARTUP=true
 # Uncomment if you are using a JDK packaged with WebSphere
 # USE_IBM_JSSE=true
 
-# Manually define Plugin path if this script can't find it
+# Uncomment to manually define Plugin path if this script can't find it
 # PLUGIN_PATH=/opt/newrelic/newrelic_unix_plugin
 
-# Manually define Java path & filename if this script can't find it
+# Uncomment to manually define Java path & filename if this script can't find it
 # AIX:
 # PLUGIN_JAVA=/usr/java6/bin/java
 # LINUX, OSX & SOLARIS:
 # PLUGIN_JAVA=/usr/bin/java
 
 ### Do not change these unless instructed! ###
+
+PLUGIN_NAME="New Relic Unix Plugin"
 
 # Behavior when "start" command is issued and plugin is running
 # False (default): Plugin will not be restarted.
@@ -33,6 +35,12 @@ if [ -z "$PLUGIN_PATH" ]; then
     PLUGIN_PATH=`eval "cd \"$RELATIVE_PATH\" && pwd"`
 fi
 echo "Plugin location: $PLUGIN_PATH"
+
+# Comment-out if using -jar
+PLUGIN_JAVA_CLASS=com.chocolatefactory.newrelic.plugins.unix.Main
+# Set to the jar if using -jar
+PLUGIN_JAVA_CLASSPATH="$PLUGIN_PATH/bin/newrelic_unix_plugin.jar:$PLUGIN_PATH/lib/metrics_publish-2.0.1.jar:$PLUGIN_PATH/lib/json-simple-1.1.1.jar"
+PLUGIN_JAVA_OPTS="-Xms16m -Xmx128m"
 
 # Attempt to set Java path & filename if not manually defined above
 if [ -z "$PLUGIN_JAVA" ]; then
@@ -49,11 +57,9 @@ if [ -z "$PLUGIN_JAVA" ]; then
     fi
 fi
 
-PLUGIN_NAME="New Relic Unix Plugin"
-
 PLUGIN_HOST_OS=`uname -a`
 PLUGIN_JAVA_VERSION_FULL=`$PLUGIN_JAVA -Xmx32m -version 2>&1`
-PLUGIN_JAVA_VERSION=`echo $PLUGIN_JAVA_VERSION_FULL | awk 'NR==1{ gsub(/"/,""); print $3 }'`
+PLUGIN_JAVA_VERSION=`echo $PLUGIN_JAVA_VERSION_FULL | awk -F '"' '/version/ {print $2}'`
 PLUGIN_JAVA_MAJOR_VERSION=`echo $PLUGIN_JAVA_VERSION | awk '{split($0, array, ".")} END{print array[2]}'`
 echo "Java location: $PLUGIN_JAVA"
 echo "Java version: $PLUGIN_JAVA_VERSION"
@@ -71,13 +77,9 @@ if echo $PLUGIN_JAVA_VERSION_FULL | grep -c -q 'gcj'; then
   exit 1
 fi
 
-PLUGIN_ERR_FILE=$PLUGIN_PATH/logs/newrelic_unix_plugin.err
-PLUGIN_LOG_FILE=$PLUGIN_PATH/logs/newrelic_unix_plugin.log
-PLUGIN_PID_FILE=$PLUGIN_PATH/logs/newrelic_unix_plugin.pid
-
-PLUGIN_JAVA_CLASS=com.chocolatefactory.newrelic.plugins.unix.Main
-PLUGIN_JAVA_CLASSPATH="$PLUGIN_PATH/bin/newrelic_unix_plugin.jar:$PLUGIN_PATH/lib/metrics_publish-2.0.1.jar:$PLUGIN_PATH/lib/json-simple-1.1.1.jar"
-PLUGIN_JAVA_OPTS="-Xms16m -Xmx128m"
+PLUGIN_ERR_FILE=$PLUGIN_PATH/logs/newrelic_plugin.err
+PLUGIN_LOG_FILE=$PLUGIN_PATH/logs/newrelic_plugin.log
+PLUGIN_PID_FILE=$PLUGIN_PATH/logs/newrelic_plugin.pid
 
 # Added for IBM JSSE support
 if [ -n "$USE_IBM_JSSE" ] && [ "$USE_IBM_JSSE" = "true" ]; then
@@ -86,7 +88,11 @@ if [ -n "$USE_IBM_JSSE" ] && [ "$USE_IBM_JSSE" = "true" ]; then
     PLUGIN_JAVA_OPTS="$PLUGIN_JAVA_OPTS -Djava.security.properties=$PLUGIN_SEC_FILE"
 fi
 
-PLUGIN_JAVA_FULL_COMMAND="$PLUGIN_JAVA $PLUGIN_JAVA_OPTS -cp $PLUGIN_JAVA_CLASSPATH $PLUGIN_JAVA_CLASS"
+if [ -n "$PLUGIN_JAVA_CLASS" ]; then
+	PLUGIN_JAVA_FULL_COMMAND="$PLUGIN_JAVA $PLUGIN_JAVA_OPTS -cp $PLUGIN_JAVA_CLASSPATH $PLUGIN_JAVA_CLASS"
+else
+	PLUGIN_JAVA_FULL_COMMAND="$PLUGIN_JAVA $PLUGIN_JAVA_OPTS -jar $PLUGIN_JAVA_CLASSPATH"
+fi
 
 check_plugin_status() {
     echo "Checking $PLUGIN_NAME"
