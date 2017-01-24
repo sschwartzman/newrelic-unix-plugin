@@ -5,6 +5,7 @@
 
 ### What's new in V3.6?
 
+ * Changed metric units from '%' to 'percent' to fix dashboard issues
  * Fix for AIX disk & memory reporting
  * Fix for OSX disk & memory reporting
  * Fix for Linux disk reporting
