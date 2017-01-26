@@ -57,10 +57,18 @@ if [ -z "$PLUGIN_JAVA" ]; then
     fi
 fi
 
-PLUGIN_HOST_OS=`uname -a`
+PLUGIN_HOST_OS=`uname`
 PLUGIN_JAVA_VERSION_FULL=`$PLUGIN_JAVA -Xmx32m -version 2>&1`
-PLUGIN_JAVA_VERSION=`echo $PLUGIN_JAVA_VERSION_FULL | awk -F '"' '/version/ {print $2}'`
-PLUGIN_JAVA_MAJOR_VERSION=`echo $PLUGIN_JAVA_VERSION | awk '{split($0, array, ".")} END{print array[2]}'`
+
+if [ "$PLUGIN_HOST_OS" = "SunOS" ]; then
+  AWK_COMMAND="nawk"
+else
+  AWK_COMMAND="awk"
+fi
+
+PLUGIN_JAVA_VERSION=`echo $PLUGIN_JAVA_VERSION_FULL | $AWK_COMMAND -F '"' '/version/ {print $2}'`
+PLUGIN_JAVA_MAJOR_VERSION=`echo $PLUGIN_JAVA_VERSION | $AWK_COMMAND '{split($0, array, ".")} END{print array[2]}'`
+
 echo "Java location: $PLUGIN_JAVA"
 echo "Java version: $PLUGIN_JAVA_VERSION"
 
