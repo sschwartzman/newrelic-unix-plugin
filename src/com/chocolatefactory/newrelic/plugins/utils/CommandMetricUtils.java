@@ -19,6 +19,8 @@ import com.newrelic.metrics.publish.util.Logger;
 
 public class CommandMetricUtils {
 
+	public static final String kPluginJarName = "newrelic_unix_plugin";
+	
 	private static Pattern dashesPattern = Pattern.compile("\\s*[\\w-]+(\\s+[-]+)+(\\s[\\w-]*)*");
 	private static Pattern singleMetricLinePattern = Pattern.compile("\\S*(\\d+)\\s+([\\w-%\\(\\)])(\\s{0,1}[\\w-%\\(\\)])*");
 	private static final Logger logger = Logger.getLogger(UnixAgent.class);
@@ -266,29 +268,37 @@ public class CommandMetricUtils {
 					// Loop through columns of regexed line twice
 					// First loop - get metric prefixes
 					for (int l = 0; l < lineColumns.length; l++) {
-						if (lineColumns[l] == UnixMetrics.kColumnMetricPrefix ||
-								lineColumns[l] == UnixMetrics.kColumnMetricPrefixCount) {
+						if(lineColumns[l] == UnixMetrics.kColumnMetricPrefix) {
 							String thisPrefix = lineMatch.group(l + 1);
-							if(thisPrefix.startsWith("/")) {
+							thisMetricPrefix = CommandMetricUtils.mungeString(thisMetricPrefix, thisPrefix.replaceAll("/", "-"));
+						} else if(lineColumns[l] == UnixMetrics.kColumnMetricProcessName) {
+							String thisPrefix = lineMatch.group(l + 1);
+							if(thisPrefix.contains(UnixAgent.kAgentGuid) || thisPrefix.contains(kPluginJarName)) {
 								thisMetricPrefix = CommandMetricUtils.mungeString(
-									thisMetricPrefix, thisPrefix.substring(thisPrefix.lastIndexOf('/') + 1));
+									thisMetricPrefix, kPluginJarName);
 							} else {
-								thisMetricPrefix = CommandMetricUtils.mungeString(
-									thisMetricPrefix, thisPrefix.replaceAll("/", "-"));
+								String processCommand = thisPrefix.split("\\s+")[0];
+								if (processCommand.startsWith("[") && processCommand.endsWith("]")) {
+									thisMetricPrefix = CommandMetricUtils.mungeString(
+										thisMetricPrefix, processCommand.replace("]","").replace("[", "").split("/")[0]);
+								} else {
+									thisMetricPrefix = CommandMetricUtils.mungeString(
+										thisMetricPrefix, processCommand.substring(processCommand.lastIndexOf('/') + 1));
+								}
 							}
 						}
 					}
 					
 					// Second loop - get metrics
 					for (int m = 0; m < lineColumns.length; m++) {
-						if (lineColumns[m] == UnixMetrics.kColumnMetricPrefix || 
+						if (lineColumns[m] == UnixMetrics.kColumnMetricPrefix ||
 								lineColumns[m] == UnixMetrics.kColumnIgnore) {
 							continue;
 						} else if (lineColumns[m] == UnixMetrics.kColumnMetricName) {
 							thisMetricName = lineMatch.group(m + 1).replaceAll("/", "-");
 						} else if (lineColumns[m] == UnixMetrics.kColumnMetricValue) {
 							thisMetricValueString = lineMatch.group(m + 1);
-						} else if (lineColumns[m] == UnixMetrics.kColumnMetricPrefixCount) {
+						} else if (lineColumns[m] == UnixMetrics.kColumnMetricProcessName) {
 							CommandMetricUtils.insertMetric(currentMetrics,
 							metricDeets, CommandMetricUtils.mungeString(thisCommand, lineColumns[m]),
 							thisMetricPrefix, "1");

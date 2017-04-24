@@ -21,13 +21,14 @@ public abstract class UnixMetrics {
 	public static final char kMetricTreeDivider='/';
 	public static final float kGigabytesToBytes=1073741824;
 	public static final float kMegabytesToBytes=1048576;
-	public static enum specialFields{PREFIX, NAME, VALUE, INTERFACE, PREFIX_COUNT, NAME_COUNT};
-	public static final String kColumnMetricPrefix = "THIS_IS_PART_OF_METRIC_NAME";
-	public static final String kColumnMetricPrefixCount = "THIS_IS_PART_OF_METRIC_NAME_AND_COUNT";
-	public static final String kColumnMetricName = "THIS_IS_THE_LAST_PART_OF_METRIC_NAME";
-	public static final String kColumnMetricValue = "THIS_IS_THE_METRIC_VALUE";
-	public static final String kMemberPlaceholder = "MEMBER_PLACEHOLDER";
-	public static final String kColumnIgnore = "IGNORE_THIS_COLUMN";
+
+	public static final String kColumnMetricPrefix = "THIS_IS_THE_PREFIX_OF_A_METRIC_NAME";
+	public static final String kColumnMetricProcessName = "THIS_IS_A_PROCESS_NAME_TO_BE_COUNTED";
+	public static final String kColumnMetricName = "THIS_IS_THE_LAST_PART_OF_A_METRIC_NAME";
+	public static final String kColumnMetricValue = "THIS_IS_THE_ACTUAL_METRIC_VALUE";
+	public static final String kMemberPlaceholder = "THIS_IS_A_MEMBER_PLACEHOLDER";
+	public static final String kColumnIgnore = "THIS_COLUMN_WILL_BE_IGNORED";
+	
 	// COMPLEXDIM: multiple metrics per line, can have words in value lines
 	// MULTIDIM: multiple metrics per line, can only have numbers (or dashes) in line
 	// SINGLEDIM: single metric per line (usually "name value")

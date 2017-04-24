@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <project basedir="." default="dist" name="newrelic_unix_plugin">
     <!-- UPDATE VERSION NUMBER HERE, NOT DIRECTLY IN SRC! -->
-	<property name="version" value="3.6.2"/>
+	<property name="version" value="3.6.3"/>
 	
 	<property name="unixagent.file" value="com/chocolatefactory/newrelic/plugins/unix/UnixAgent.java"/>
 	<property name="pluginname" value="newrelic_unix_plugin"/>
@@ -96,7 +96,12 @@
         </copy>
         <copy file="${build.jar.dir}/${jarfile}" todir="${build.tar.src.dir}/bin" />
         <tar compression="gzip" destfile="${dist.dir}/${tarfile}">
-            <tarfileset dir="${build.tar.dir}" />
+        	<tarfileset dir="${build.tar.dir}">
+        		<exclude name="*.sh"/>
+       		</tarfileset>
+        	<tarfileset mode="755" dir="${build.tar.dir}">
+        		<include name="*.sh"/>
+       		</tarfileset>
         </tar>
      </target>
 </project>

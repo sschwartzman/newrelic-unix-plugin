@@ -24,12 +24,12 @@ public class LinuxMetrics extends UnixMetrics {
 		 */
 		HashMap<Pattern, String[]> dfMapping = new HashMap<Pattern, String[]>();
 		dfMapping.put(Pattern.compile("\\s*(\\S+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)%.*"),
-			new String[]{kColumnMetricPrefix, "1K-blocks", "Used", "Available", "Use%"});
-		allCommands.put("df", new UnixCommand(new String[]{"df","-k"}, commandTypes.REGEXDIM, defaultignores, 0, dfMapping));
-		allMetrics.put(CommandMetricUtils.mungeString("df", "1K-blocks"), new MetricDetail("Disk", "Total", "kb", metricTypes.NORMAL, 1));
+			new String[]{kColumnMetricPrefix, "1024-blocks", "Used", "Available", "Capacity"});
+		allCommands.put("df", new UnixCommand(new String[]{"df","-Pk", "-x iso9660", "-x cdfs", "-x hsfs"}, commandTypes.REGEXDIM, defaultignores, 0, dfMapping));
+		allMetrics.put(CommandMetricUtils.mungeString("df", "1024-blocks"), new MetricDetail("Disk", "Total", "kb", metricTypes.NORMAL, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("df", "Used"), new MetricDetail("Disk", "Used", "kb", metricTypes.NORMAL, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("df", "Available"), new MetricDetail("Disk", "Free", "kb", metricTypes.NORMAL, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("df", "Use%"), new MetricDetail("Disk", "Used", "percent", metricTypes.NORMAL, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("df", "Capacity%"), new MetricDetail("Disk", "Used", "percent", metricTypes.NORMAL, 1));
 		
 		/*
 		 * Parser & declaration for 'diskstats' command
@@ -145,14 +145,12 @@ public class LinuxMetrics extends UnixMetrics {
 		 * Parser & declaration for 'ps' command
 		 */
 		HashMap<Pattern, String[]> psMapping = new HashMap<Pattern, String[]>();
-		psMapping.put(Pattern.compile("([0-9\\.]+)\\s+([0-9\\.]+)\\s+(\\d+)\\s+([^\\[\\s]+)\\s*.*"),
-				new String[]{"%CPU", "%MEM", "RSS", kColumnMetricPrefixCount});
-		psMapping.put(Pattern.compile("([0-9\\.]+)\\s+([0-9\\.]+)\\s+(\\d+)\\s+\\[([^\\/\\]]+)\\/*[^\\]]*\\]"),
-				new String[]{"%CPU", "%MEM", "RSS", kColumnMetricPrefixCount});
-		allCommands.put("ps", new UnixCommand(new String[]{"ps", "-eo", "%cpu,%mem,rss,command"}, 
+		psMapping.put(Pattern.compile("([0-9\\.]+)\\s+([0-9\\.]+)\\s+(\\d+)\\s+(.*)"),
+				new String[]{"%CPU", "%MEM", "RSS", kColumnMetricProcessName});
+		allCommands.put("ps", new UnixCommand(new String[]{"ps", "-ewwo", "%cpu,%mem,rss,command"}, 
 			commandTypes.REGEXDIM, defaultignores, 0, psMapping));
 		
-		allMetrics.put(CommandMetricUtils.mungeString("ps", kColumnMetricPrefixCount), new MetricDetail("Processes", "Instance Count", "processes", metricTypes.INCREMENT, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("ps", kColumnMetricProcessName), new MetricDetail("Processes", "Instance Count", "processes", metricTypes.INCREMENT, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("ps", "%CPU"), new MetricDetail("Processes", "Aggregate CPU", "percent", metricTypes.INCREMENT, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("ps", "%MEM"), new MetricDetail("Processes", "Aggregate Memory", "percent", metricTypes.INCREMENT, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("ps", "RSS"), new MetricDetail("Processes", "Aggregate Resident Size", "kb", metricTypes.INCREMENT, 1));

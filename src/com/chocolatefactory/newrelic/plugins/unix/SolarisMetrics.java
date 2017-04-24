@@ -149,10 +149,10 @@ public class SolarisMetrics extends UnixMetrics {
 		 */
 		HashMap<Pattern, String[]> psMapping = new HashMap<Pattern, String[]>();
 		psMapping.put(Pattern.compile("([0-9\\.]+)\\s+([0-9\\.]+)\\s+(\\d+)\\s+(.+)"),
-				new String[]{"%CPU", "%MEM", "RSS", kColumnMetricPrefixCount});
-		allCommands.put("ps", new UnixCommand(new String[]{"ps", "-eo", "pcpu,pmem,rss,comm"}, commandTypes.REGEXDIM, defaultignores, 0, psMapping));
+				new String[]{"%CPU", "%MEM", "RSS", kColumnMetricProcessName});
+		allCommands.put("ps", new UnixCommand(new String[]{"ps", "-eo", "pcpu,pmem,rss,args"}, commandTypes.REGEXDIM, defaultignores, 0, psMapping));
 		
-		allMetrics.put(CommandMetricUtils.mungeString("ps", kColumnMetricPrefixCount), new MetricDetail("Processes", "Instance Count", "processes", metricTypes.INCREMENT, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("ps", kColumnMetricProcessName), new MetricDetail("Processes", "Instance Count", "processes", metricTypes.INCREMENT, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("ps", "%CPU"), new MetricDetail("Processes", "Aggregate CPU", "percent", metricTypes.INCREMENT, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("ps", "%MEM"), new MetricDetail("Processes", "Aggregate Memory", "percent", metricTypes.INCREMENT, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("ps", "RSS"), new MetricDetail("Processes", "Aggregate Resident Size", "kb", metricTypes.INCREMENT, 1));

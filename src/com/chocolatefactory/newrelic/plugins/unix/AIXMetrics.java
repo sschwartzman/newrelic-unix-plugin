@@ -76,7 +76,7 @@ public class AIXMetrics extends UnixMetrics {
 			new String[]{"Transmit/Multiple Collision Count"});
 		entstatMapping.put(Pattern.compile(".*Current HW Transmit Queue\\s+Length:\\s+([0-9\\.]+)"),
 			new String[]{"Transmit/Current HW Transmit Queue Length"});
-		allCommands.put("entstat", new UnixCommand(new String[]{"entstat", kMemberPlaceholder}, commandTypes.REGEXLISTDIM, defaultignores, 0, entstatMapping));
+		allCommands.put("entstat", new UnixCommand(new String[]{"entstat", UnixMetrics.kMemberPlaceholder}, commandTypes.REGEXLISTDIM, defaultignores, 0, entstatMapping));
 		
 		allMetrics.put(CommandMetricUtils.mungeString("entstat", "Transmit/Packets"), new MetricDetail("Network", "Transmit/Packets", "packets", metricTypes.DELTA, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("entstat", "Transmit/Bytes"), new MetricDetail("Network", "Transmit/Bytes", "bytes", metricTypes.DELTA, 1));
@@ -165,12 +165,16 @@ public class AIXMetrics extends UnixMetrics {
 		 * Parser & declaration for 'ps' command
 		 */
 		HashMap<Pattern, String[]> psMapping = new HashMap<Pattern, String[]>();
-		psMapping.put(Pattern.compile("([^\\s]+)\\s+([0-9\\.]+)\\s+([0-9\\.]+)\\s+(\\d+)"),
-			new String[]{kColumnMetricPrefixCount, "%CPU", "%MEM", "RSS"});
-		allCommands.put("ps", new UnixCommand(new String[]{"ps", "-eo", "command,pcpu,pmem,rssize"}, 
+		psMapping.put(Pattern.compile("(\\d+)\\s+\\S+\\s+\\S+\\s+\\S+\\s+\\S+\\s+"
+				+ "(\\d+)\\s+\\d+\\s+\\d+\\s+\\d+([0-9\\.]+)\\s+([0-9\\.]+)\\s+(.*)"),
+				new String[]{"RSS", "%CPU", "%MEM", kColumnMetricProcessName});
+			
+		// psMapping.put(Pattern.compile("([^\\s]+)\\s+([0-9\\.]+)\\s+([0-9\\.]+)\\s+(\\d+)"),
+		//	new String[]{kColumnMetricPrefixCount, "%CPU", "%MEM", "RSS"});
+		allCommands.put("ps", new UnixCommand(new String[]{"ps", "vewww"}, 
 			commandTypes.REGEXDIM, defaultignores, 0, psMapping));
 		
-		allMetrics.put(CommandMetricUtils.mungeString("ps", kColumnMetricPrefixCount), new MetricDetail("Processes", "Instance Count", "processes", metricTypes.INCREMENT, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("ps", kColumnMetricProcessName), new MetricDetail("Processes", "Instance Count", "processes", metricTypes.INCREMENT, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("ps", "%CPU"), new MetricDetail("Processes", "Aggregate CPU", "percent", metricTypes.INCREMENT, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("ps", "%MEM"), new MetricDetail("Processes", "Aggregate Memory", "percent", metricTypes.INCREMENT, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("ps", "RSS"), new MetricDetail("Processes", "Aggregate Resident Size", "kb", metricTypes.INCREMENT, 1));
