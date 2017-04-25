@@ -24,12 +24,12 @@ public class LinuxMetrics extends UnixMetrics {
 		 */
 		HashMap<Pattern, String[]> dfMapping = new HashMap<Pattern, String[]>();
 		dfMapping.put(Pattern.compile("\\s*(\\S+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)%.*"),
-			new String[]{kColumnMetricPrefix, "1024-blocks", "Used", "Available", "Capacity"});
+			new String[]{kColumnMetricDiskName, "1024-blocks", "Used", "Available", "Capacity"});
 		allCommands.put("df", new UnixCommand(new String[]{"df","-Pk", "-x iso9660", "-x cdfs", "-x hsfs"}, commandTypes.REGEXDIM, defaultignores, 0, dfMapping));
 		allMetrics.put(CommandMetricUtils.mungeString("df", "1024-blocks"), new MetricDetail("Disk", "Total", "kb", metricTypes.NORMAL, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("df", "Used"), new MetricDetail("Disk", "Used", "kb", metricTypes.NORMAL, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("df", "Available"), new MetricDetail("Disk", "Free", "kb", metricTypes.NORMAL, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("df", "Capacity%"), new MetricDetail("Disk", "Used", "percent", metricTypes.NORMAL, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("df", "Capacity"), new MetricDetail("Disk", "Used", "percent", metricTypes.NORMAL, 1));
 		
 		/*
 		 * Parser & declaration for 'diskstats' command

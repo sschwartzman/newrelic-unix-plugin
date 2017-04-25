@@ -24,6 +24,7 @@ public abstract class UnixMetrics {
 
 	public static final String kColumnMetricPrefix = "THIS_IS_THE_PREFIX_OF_A_METRIC_NAME";
 	public static final String kColumnMetricProcessName = "THIS_IS_A_PROCESS_NAME_TO_BE_COUNTED";
+	public static final String kColumnMetricDiskName = "THIS_IS_A_DISK_NAME";
 	public static final String kColumnMetricName = "THIS_IS_THE_LAST_PART_OF_A_METRIC_NAME";
 	public static final String kColumnMetricValue = "THIS_IS_THE_ACTUAL_METRIC_VALUE";
 	public static final String kMemberPlaceholder = "THIS_IS_A_MEMBER_PLACEHOLDER";

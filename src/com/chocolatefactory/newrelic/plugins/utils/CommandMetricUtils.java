@@ -271,6 +271,10 @@ public class CommandMetricUtils {
 						if(lineColumns[l] == UnixMetrics.kColumnMetricPrefix) {
 							String thisPrefix = lineMatch.group(l + 1);
 							thisMetricPrefix = CommandMetricUtils.mungeString(thisMetricPrefix, thisPrefix.replaceAll("/", "-"));
+						} else if(lineColumns[l] == UnixMetrics.kColumnMetricDiskName) {
+							String thisPrefix = lineMatch.group(l + 1);
+							thisMetricPrefix = CommandMetricUtils.mungeString(
+								thisMetricPrefix, thisPrefix.substring(thisPrefix.lastIndexOf('/') + 1));
 						} else if(lineColumns[l] == UnixMetrics.kColumnMetricProcessName) {
 							String thisPrefix = lineMatch.group(l + 1);
 							if(thisPrefix.contains(UnixAgent.kAgentGuid) || thisPrefix.contains(kPluginJarName)) {
@@ -292,6 +296,7 @@ public class CommandMetricUtils {
 					// Second loop - get metrics
 					for (int m = 0; m < lineColumns.length; m++) {
 						if (lineColumns[m] == UnixMetrics.kColumnMetricPrefix ||
+								lineColumns[m] == UnixMetrics.kColumnMetricDiskName ||
 								lineColumns[m] == UnixMetrics.kColumnIgnore) {
 							continue;
 						} else if (lineColumns[m] == UnixMetrics.kColumnMetricName) {
