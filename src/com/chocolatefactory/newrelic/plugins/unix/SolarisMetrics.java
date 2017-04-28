@@ -1,6 +1,5 @@
 package com.chocolatefactory.newrelic.plugins.unix;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.regex.Pattern;
 
@@ -86,7 +85,7 @@ public class SolarisMetrics extends UnixMetrics {
 		allMetrics.put(CommandMetricUtils.mungeString("KstatNetwork", "rbytes64"), new MetricDetail("Network", "Receive/Bytes", "bytes", metricTypes.DELTA, 1));
 		
 		/*
-		 * Parser & declaration for 'kstat' command for Page information
+		 * Parser & declaration for 'kstat' command for Page and Memory information
 		 * 
 		 */
 		HashMap<Pattern, String[]> kstatPagesMapping = new HashMap<Pattern, String[]>();
@@ -98,8 +97,10 @@ public class SolarisMetrics extends UnixMetrics {
 		allMetrics.put(CommandMetricUtils.mungeString("KstatPages", "pagesfree"), new MetricDetail("Page", "Free", "pages", metricTypes.DELTA, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("KstatPages", "pageslocked"), new MetricDetail("Page", "Locked", "pages", metricTypes.DELTA, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("KstatPages", "pagestotal"), new MetricDetail("Page", "Total", "pages", metricTypes.DELTA, 1));
-		allMetrics.put(CommandMetricUtils.mungeString("KstatMemory", "physmem"), new MetricDetail("Page", "Physical Total", "pages", metricTypes.DELTA, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("KstatPages", "pp_kernel"), new MetricDetail("Page", "Used By Kernel", "pages", metricTypes.DELTA, 1));
+		allMetrics.put(CommandMetricUtils.mungeString("KstatPages", "physmem"), new MetricDetail("Memory", "Total", "kb", metricTypes.NORMAL, getPageSize()/1000));
+		allMetrics.put(CommandMetricUtils.mungeString("KstatPages", "freemem"), new MetricDetail("Memory", "Free", "kb", metricTypes.NORMAL, getPageSize()/1000));
+		
 		
 		/*
 		 * Parser & declaration for 'netstat' command
@@ -132,17 +133,6 @@ public class SolarisMetrics extends UnixMetrics {
 		allMetrics.put(CommandMetricUtils.mungeString("prstat", "la15"), new MetricDetail("LoadAverage", "15 Minute", "load", metricTypes.NORMAL, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("prstat", "procs"), new MetricDetail("Processes", "Total", "processes", metricTypes.NORMAL, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("prstat", "lwps"), new MetricDetail("Processes", "Lightweight", "processes", metricTypes.NORMAL, 1));
-		
-		/*
-		 * Parser & declaration for 'prtconf' command
-		 * ** only used on Solaris 10 (Solaris 11 has 'top') **
-		 */
-		//HashMap<Pattern, String[]> prtconfMapping = new HashMap<Pattern, String[]>();
-		//prtconfMapping.put(Pattern.compile("Memory size:\\s+(\\d+)\\s+Megabytes"),
-		//	new String[]{"memsize"});
-		//allCommands.put("prtconf", new UnixCommand(new String[]{"/usr/sbin/prtconf"}, commandTypes.REGEXDIM, defaultignores, 0, prtconfMapping));
-		//
-		//allMetrics.put(CommandMetricUtils.mungeString("prtconf", "memsize"), new MetricDetail("Memory", "Total", "kb", metricTypes.NORMAL, 1024));
 		
 		/*
 		 * Parser & declaration for 'ps' command
@@ -204,28 +194,27 @@ public class SolarisMetrics extends UnixMetrics {
 		/*
 		 * Parsers & declaration for 'vmstat' command to get threads and memory
 		 */
-		HashMap<Pattern, String[]> vmstatThreadsMemoryMapping = new HashMap<Pattern, String[]>();
+		HashMap<Pattern, String[]> vmstatThreadsMapping = new HashMap<Pattern, String[]>();
 		// vmstatThreadsMemoryMapping.put(Pattern.compile("\\s*(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)"
 		//	+ "\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+[-]{0,1}(\\d+)"
 		//	+ "\\s+[-]{0,1}(\\d+)\\s+[-]{0,1}(\\d+)\\s+[-]{0,1}(\\d+)\\s+(\\d+)"
 		//	+ "\\s+(\\d+)\\s+(\\d+).*"),
 		//	new String[]{"r","b","w","swap","free","re","mf","pi","po","fr",
 		//		"de","sr","d0","d1","d2","d3","in","sy","cs"});
-		vmstatThreadsMemoryMapping.put(Pattern.compile("\\s*(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+).*"),
-			new String[]{"r","b","w","swap","free"});
-		vmstatThreadsMemoryMapping.put(Pattern.compile("Memory size:\\s+(\\d+)\\s*Megabytes"),
-				new String[]{"memsize"});
-		ArrayList<String[]> vmstatCommands = new ArrayList<String[]>();
-		vmstatCommands.add(new String[]{"vmstat", "1", "2"});
-		vmstatCommands.add(new String[]{"/usr/sbin/prtconf"});
-		allCommands.put("VmstatThreadsMemory", new UnixCommand(vmstatCommands, commandTypes.REGEXDIM, defaultignores, 0, vmstatThreadsMemoryMapping));
+		vmstatThreadsMapping.put(Pattern.compile("\\s*(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+).*"),
+			new String[]{"r","b","w","swap"});
+		allCommands.put("VmstatThreadsMemory", new UnixCommand(new String[]{"vmstat", "1", "2"}, commandTypes.REGEXDIM, defaultignores, 0, vmstatThreadsMapping));
 
 		allMetrics.put(CommandMetricUtils.mungeString("VmstatThreadsMemory", "r"), new MetricDetail("KernelThreads", "Runnable", "threads", metricTypes.NORMAL, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("VmstatThreadsMemory", "b"), new MetricDetail("KernelThreads", "In Wait Queue", "threads", metricTypes.NORMAL, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("VmstatThreadsMemory", "w"), new MetricDetail("KernelThreads", "Swapped", "threads", metricTypes.NORMAL, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("VmstatThreadsMemory", "swap"), new MetricDetail("Memory", "Swap", "kb", metricTypes.NORMAL, 1));
+		
+		/*
+		 * Replaced with kstat pages calculations for memory (seemingly more accurate)
 		allMetrics.put(CommandMetricUtils.mungeString("VmstatThreadsMemory", "free"), new MetricDetail("Memory", "Free", "kb", metricTypes.NORMAL, 1));			
 		allMetrics.put(CommandMetricUtils.mungeString("VmstatThreadsMemory", "memsize"), new MetricDetail("Memory", "Total", "kb", metricTypes.NORMAL, 1024));
+		*/
 		
 		/*
 		 * Replaced with deltas from vmstat -s (more accurate, no waiting!)
