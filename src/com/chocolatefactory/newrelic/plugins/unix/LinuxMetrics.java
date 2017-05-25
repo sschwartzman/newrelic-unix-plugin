@@ -41,13 +41,13 @@ public class LinuxMetrics extends UnixMetrics {
 
 		allCommands.put("diskstats", new UnixCommand(new String[]{"cat","/proc/diskstats"}, commandTypes.REGEXDIM, defaultignores, 0, diskstatsMapping));
 
-		 allMetrics.put(CommandMetricUtils.mungeString("diskstats", "reads"), new MetricDetail("DiskIO", "Reads", "transfers", metricTypes.DELTA, 1));
-		 allMetrics.put(CommandMetricUtils.mungeString("diskstats", "readsmerged"), new MetricDetail("DiskIO", "Reads Merged", "transfers", metricTypes.DELTA, 1));
-		 allMetrics.put(CommandMetricUtils.mungeString("diskstats", "sectorsread"), new MetricDetail("DiskIO", "Sectors Read", "sectors", metricTypes.DELTA, 1));
+		 allMetrics.put(CommandMetricUtils.mungeString("diskstats", "reads"), new MetricDetail("DiskIO", "Reads Per Interval", "transfers", metricTypes.DELTA, 1));
+		 allMetrics.put(CommandMetricUtils.mungeString("diskstats", "readsmerged"), new MetricDetail("DiskIO", "Reads Merged Per Interval", "transfers", metricTypes.DELTA, 1));
+		 allMetrics.put(CommandMetricUtils.mungeString("diskstats", "sectorsread"), new MetricDetail("DiskIO", "Sectors Read Per Interval", "sectors", metricTypes.DELTA, 1));
 		 allMetrics.put(CommandMetricUtils.mungeString("diskstats", "readtime"), new MetricDetail("DiskIO", "Time Spent Reading", "ms", metricTypes.DELTA, 1));
-		 allMetrics.put(CommandMetricUtils.mungeString("diskstats", "writes"), new MetricDetail("DiskIO", "Writes", "transfers", metricTypes.DELTA, 1));
-		 allMetrics.put(CommandMetricUtils.mungeString("diskstats", "writesmerged"), new MetricDetail("DiskIO", "Writes Merged", "transfers", metricTypes.DELTA, 1));
-		 allMetrics.put(CommandMetricUtils.mungeString("diskstats", "sectorswritten"), new MetricDetail("DiskIO", "Sectors Written", "sectors", metricTypes.DELTA, 1));
+		 allMetrics.put(CommandMetricUtils.mungeString("diskstats", "writes"), new MetricDetail("DiskIO", "Writes Per Interval", "transfers", metricTypes.DELTA, 1));
+		 allMetrics.put(CommandMetricUtils.mungeString("diskstats", "writesmerged"), new MetricDetail("DiskIO", "Writes Merged Per Interval", "transfers", metricTypes.DELTA, 1));
+		 allMetrics.put(CommandMetricUtils.mungeString("diskstats", "sectorswritten"), new MetricDetail("DiskIO", "Sectors Per Interval", "sectors", metricTypes.DELTA, 1));
 		 allMetrics.put(CommandMetricUtils.mungeString("diskstats", "writetime"), new MetricDetail("DiskIO", "Time Spent Writing", "ms", metricTypes.DELTA, 1));
 		 allMetrics.put(CommandMetricUtils.mungeString("diskstats", "inprogress"), new MetricDetail("IO", "IO In progress", "count", metricTypes.DELTA, 1));
 		 allMetrics.put(CommandMetricUtils.mungeString("diskstats", "iotime"), new MetricDetail("IO", "Time Spent on IO", "ms", metricTypes.DELTA, 1));
@@ -171,10 +171,10 @@ public class LinuxMetrics extends UnixMetrics {
 				new String[]{"memtot", "memused", "memfree", "membuff"});
 			topMapping.put(Pattern.compile("KiB Swap:\\s+(\\d+)\\s+total,\\s+(\\d+)\\s+used,\\s+(\\d+)\\s+free,\\s+(\\d+)\\s+cached"), 
 				new String[]{"swaptot", "swapused", "swapfree", "swapbuff"});
-		topMapping.put(Pattern.compile("[%]*Cpu[^:]*:\\s+([\\d\\.]+)\\s+us,\\s+([\\d\\.]+)\\s+sy,"
-			 	+ "\\s+([\\d\\.]+)\\s+ni,\\s+([\\d\\.]+)\\s+id,"
-			 	+ "\\s+([\\d\\.]+)\\s+wa,\\s+([\\d\\.]+)\\s+hi,"
-			 	+ "\\s+([\\d\\.]+)\\s+si,\\s+([\\d\\.]+)\\s+st"),
+		topMapping.put(Pattern.compile("[%]*Cpu[^:]*:\\s+([\\d\\.]+)%\\s*us,\\s+([\\d\\.]+)%\\s*sy,"
+			 	+ "\\s+([\\d\\.]+)%\\s*ni,\\s+([\\d\\.]+)%\\s*id,"
+			 	+ "\\s+([\\d\\.]+)%\\s*wa,\\s+([\\d\\.]+)%\\s*hi,"
+			 	+ "\\s+([\\d\\.]+)%\\s*si,\\s+([\\d\\.]+)%\\s*st"),
 			 	new String[]{"cpuus", "cpusy", "cpuni", "cpuid", "cpuwa", "cpuhi", "cpusi", "cpust"});
 
 		allCommands.put("top", new UnixCommand(new String[]{"top","-b","-n","1"}, commandTypes.REGEXDIM, defaultignores, 5, topMapping));
