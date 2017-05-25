@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -115,10 +116,9 @@ public class CommandMetricUtils {
 	}
 	
 	public static ArrayList<String> executeCommand(String[] command, Boolean useFile) {
-		Runtime rt = Runtime.getRuntime();
 		BufferedReader br = null;
 		ArrayList<String> al = new ArrayList<String>();
-		String line;
+		String line = null;
 		
 		if (useFile) {
 			File commandFile = new File(command + ".out");
@@ -155,12 +155,23 @@ public class CommandMetricUtils {
 				if (command != null) {
 					CommandMetricUtils.logger.debug("Begin execution of "
 							+ Arrays.toString(command));
-					proc = rt.exec(command);
+					ProcessBuilder pb = new ProcessBuilder(command)
+							.redirectErrorStream(true);
+					proc = pb.start();
 					br = new BufferedReader(new InputStreamReader(
 							proc.getInputStream()));
 					while((line = br.readLine()) != null) {
 						al.add(line);
 						logger.debug(" Line: " + line);
+					}
+					proc.waitFor();
+					if(br != null) {
+						br.close();
+					}
+					if(proc != null) {
+						proc.getOutputStream().close();
+						proc.getErrorStream().close();
+						proc.getInputStream().close();						
 					}
 				} else {
 					CommandMetricUtils.logger.error("Error: command was null.");
@@ -171,13 +182,16 @@ public class CommandMetricUtils {
 				e.printStackTrace();
 			} finally {
 				try {
-					br.close();
+					if(br != null) {
+						br.close();
+					}
+					if(proc != null) {
+						proc.getOutputStream().close();
+						proc.getErrorStream().close();
+						proc.getInputStream().close();
+					}
 				} catch (Exception e) {
 					// If we can't close, then it's probably closed.
-				} finally {
-					if (proc != null) {
-						proc.destroy();
-					}
 				}
 			}
 		}
