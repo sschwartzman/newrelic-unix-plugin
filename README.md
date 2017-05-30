@@ -33,8 +33,8 @@
 
 #### V3.0
 
-* MAC OS X support!
-  * Tested on Yosemite (10.11), please let me know if it works for you on other OS X versions.
+* OS X/macOS support!
+  * Tested on Yosemite (10.10) and Sierra (10.12), please let me know if it works for you on other OS X versions.
 * Support for setting your own hostname	
 * Support for "netstat" and "ps" commands on all platforms
 * MUCH improved parsing of commands, now using regex
