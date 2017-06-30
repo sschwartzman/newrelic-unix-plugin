@@ -19,8 +19,8 @@ public class SolarisMetrics extends UnixMetrics {
 		 * Parser & declaration for 'df' command
 		 */
 		HashMap<Pattern, String[]> dfMapping = new HashMap<Pattern, String[]>();
-		dfMapping.put(Pattern.compile("\\s*(\\S+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)%.*"),
-			new String[]{kColumnMetricDiskName, "1K-blocks", "Used", "Available", "Use%"});
+		dfMapping.put(Pattern.compile("\\s*\\S+\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)%\\s+(\\S+)"),
+				new String[]{"1K-blocks", "Used", "Available", "Use%", kColumnMetricDiskName});
 		allCommands.put("df", new UnixCommand(new String[]{"df","-k"}, commandTypes.REGEXDIM, defaultignores, 0, dfMapping));
 		allMetrics.put(CommandMetricUtils.mungeString("df", "1K-blocks"), new MetricDetail("Disk", "Total", "kb", metricTypes.NORMAL, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("df", "Used"), new MetricDetail("Disk", "Used", "kb", metricTypes.NORMAL, 1));
