@@ -24,11 +24,13 @@
     <property name="script.dir" location="."/>
     <property name="newrelic.lib" value="${lib.dir}/metrics_publish-2.0.1.jar"/>
     <property name="json.lib" value="${lib.dir}/json-simple-1.1.1.jar"/>
+    <property name="gson.lib" value="${lib.dir}/gson-2.8.1.jar"/>
 
     <path id="classpath">
         <pathelement location="${build.dir}"/>
         <pathelement location="${newrelic.lib}"/>
         <pathelement location="${json.lib}"/>
+        <pathelement location="${gson.lib}"/>
     </path>
 	
     <target name="clean">
@@ -57,8 +59,22 @@
         </javac>
         <echo>Done.</echo>
     </target>
+	
+	<target name="compile-1.7" depends="init">
+	    	<echo>Updating version number.</echo>
+	    	<replaceregexp file="${src.dir}/${unixagent.file}"
+	    		match="kAgentVersion = .*"
+	    		replace="kAgentVersion = &quot;${version}&quot;;"
+	    	/>
+	    	<echo>Building project.</echo>
+	        <mkdir dir="${build.classes.dir}"/>
+	        <javac srcdir="${src.dir}" destdir="${build.classes.dir}" target="1.7" source="1.7" includeantruntime="false">
+	            <classpath refid="classpath"/>
+	        </javac>
+	        <echo>Done.</echo>
+	</target>
 
-    <target name="jar" depends="compile" description="create a Jar file for the plugin">
+    <target name="jar" depends="compile-1.7" description="create a Jar file for the plugin">
         <mkdir dir="${build.jar.dir}"/>
         <tstamp/>
         <jar destfile="${build.jar.dir}/${jarfile}">

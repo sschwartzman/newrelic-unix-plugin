@@ -21,7 +21,7 @@ public class AIXMetrics extends UnixMetrics {
 		HashMap<Pattern, String[]> dfMapping = new HashMap<Pattern, String[]>();
 		dfMapping.put(Pattern.compile("\\s*(\\S+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)%\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)%.*"),
 			new String[]{kColumnMetricDiskName, "1K-blocks", "Used", "Available", "Use%", "Iused", "Ifree", "Iuse%"});
-		allCommands.put("df", new UnixCommand(new String[]{"df","-v","-k"}, commandTypes.REGEXDIM, defaultignores, 0, dfMapping));
+		allCommands.put("df", new UnixCommand(new String[]{"df","-v","-k","-T","local"}, commandTypes.REGEXDIM, defaultignores, 0, dfMapping));
 		allMetrics.put(CommandMetricUtils.mungeString("df", "1K-blocks"), new MetricDetail("Disk", "Total", "kb", metricTypes.NORMAL, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("df", "Used"), new MetricDetail("Disk", "Used", "kb", metricTypes.NORMAL, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("df", "Available"), new MetricDetail("Disk", "Free", "kb", metricTypes.NORMAL, 1));

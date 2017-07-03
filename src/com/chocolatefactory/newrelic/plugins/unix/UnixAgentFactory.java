@@ -1,8 +1,10 @@
 package com.chocolatefactory.newrelic.plugins.unix;
 
+import java.io.FileWriter;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.google.gson.Gson;
 import com.newrelic.metrics.publish.Agent;
 import com.newrelic.metrics.publish.AgentFactory;
 import com.newrelic.metrics.publish.configuration.Config;
@@ -24,6 +26,21 @@ public class UnixAgentFactory extends AgentFactory {
 		global_properties = Config.getValue("global");
 		if (global_properties != null) {
 			logger.debug("Global configurations found in plugin.json.");
+		    boolean isOutputJSON = global_properties.get("outputjson") == null ? false : (Boolean)global_properties.get("outputjson");
+		    if (isOutputJSON) {
+		   		Gson gson = new Gson();
+		   		AIXMetrics aixm = new AIXMetrics();
+		   		OSXMetrics osxm = new OSXMetrics();
+		   		SolarisMetrics solm = new SolarisMetrics();
+		   		LinuxMetrics linm = new LinuxMetrics();
+		   		try (FileWriter file = new FileWriter("UnixMetrics.json")) {
+					file.write(gson.toJson(aixm) + "\n");
+					file.write(gson.toJson(linm) + "\n");
+					file.write(gson.toJson(osxm) + "\n");
+					file.write(gson.toJson(solm) + "\n");
+					file.close();
+				} catch (Exception e) { logger.info(e.getMessage()); } finally { System.exit(0); }
+			}		
 		} else {
 			logger.debug("No global configurations found in plugin.json." +
 					"\nYou're probably using an old OR customized version of plugin.json." +

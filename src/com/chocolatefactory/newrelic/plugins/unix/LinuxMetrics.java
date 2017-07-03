@@ -57,8 +57,9 @@ public class LinuxMetrics extends UnixMetrics {
 		 * Parsers & declaration for 'iostat' command
 		 */
 		HashMap<Pattern, String[]> iostatMapping = new HashMap<Pattern, String[]>();
-		iostatMapping.put(Pattern.compile("\\s*([0-9\\.]+)\\s+([0-9\\.]+)\\s+([0-9\\.]+)\\s+([0-9\\.]+)\\s+([0-9\\.]+)\\s+([0-9\\.]+)"),
-			new String[]{"%user", "%nice", "%system", "%iowait", "%steal", "%idle"});
+		// Getting CPU from top
+		// iostatMapping.put(Pattern.compile("\\s*([0-9\\.]+)\\s+([0-9\\.]+)\\s+([0-9\\.]+)\\s+([0-9\\.]+)\\s+([0-9\\.]+)\\s+([0-9\\.]+)"),
+		//	new String[]{"%user", "%nice", "%system", "%iowait", "%steal", "%idle"});
 		iostatMapping.put(Pattern.compile("(\\S+)\\s+([\\d\\.]+)\\s+([\\d\\.]+)\\s+([\\d\\.]+)\\s+([\\d\\.]+)\\s+"
 			+ "([\\d\\.]+)\\s+([\\d\\.]+)\\s+([\\d\\.]+)\\s+([\\d\\.]+)\\s+([\\d\\.]+)\\s+([\\d\\.]+)\\s+([\\d\\.]+)"),
 			new String[]{kColumnMetricPrefix, "rrqm-s", "wrqm-s", "r-s", "w-s", "rkB-s", "wkB-s", "avgrq-sz", "avgqu-sz", "await", "svctm", "%util"});
@@ -67,12 +68,14 @@ public class LinuxMetrics extends UnixMetrics {
 			new String[]{kColumnMetricPrefix, "rrqm-s", "wrqm-s", "r-s", "w-s", "rkB-s", "wkB-s", "avgrq-sz", "avgqu-sz", "await", "r_await", "w_await", "svctm", "%util"});
 		allCommands.put("iostat", new UnixCommand(new String[]{"iostat", "-k", "-x", kExecutionDelay, kExecutionCount}, commandTypes.REGEXDIM, defaultignores, 0, iostatMapping));
 
+		/* Getting these from Top
 		allMetrics.put(CommandMetricUtils.mungeString("iostat", "%user"), new MetricDetail("CPU", "User", "percent", metricTypes.NORMAL, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("iostat", "%nice"), new MetricDetail("CPU", "Nice", "percent", metricTypes.NORMAL, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("iostat", "%system"), new MetricDetail("CPU", "System", "percent", metricTypes.NORMAL, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("iostat", "%iowait"), new MetricDetail("CPU", "Waiting", "percent", metricTypes.NORMAL, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("iostat", "%steal"), new MetricDetail("CPU", "Stolen", "percent", metricTypes.NORMAL, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("iostat", "%idle"), new MetricDetail("CPU", "Idle", "percent", metricTypes.NORMAL, 1));
+		*/
 		allMetrics.put(CommandMetricUtils.mungeString("iostat", "rrqm-s"), new MetricDetail("DiskIO", "Queued Merged Read Requests", "requests", metricTypes.NORMAL, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("iostat", "wrqm-s"), new MetricDetail("DiskIO", "Queued Merged Write Requests", "requests", metricTypes.NORMAL, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("iostat", "r-s"), new MetricDetail("DiskIO", "Reads Per Second", "transfers", metricTypes.NORMAL, 1));
@@ -177,7 +180,7 @@ public class LinuxMetrics extends UnixMetrics {
 			 	+ "\\s+([\\d\\.]+)%\\s*si,\\s+([\\d\\.]+)%\\s*st"),
 			 	new String[]{"cpuus", "cpusy", "cpuni", "cpuid", "cpuwa", "cpuhi", "cpusi", "cpust"});
 
-		allCommands.put("top", new UnixCommand(new String[]{"top","-b","-n","1"}, commandTypes.REGEXDIM, defaultignores, 5, topMapping));
+		allCommands.put("top", new UnixCommand(new String[]{"top","-b","-n","2"}, commandTypes.REGEXDIM, defaultignores, 5, topMapping));
 		
 		allMetrics.put(CommandMetricUtils.mungeString("top", "la1"), new MetricDetail("LoadAverage", "1 Minute", "load", metricTypes.NORMAL, 1));
 		allMetrics.put(CommandMetricUtils.mungeString("top", "la5"), new MetricDetail("LoadAverage", "5 Minute", "load", metricTypes.NORMAL, 1));

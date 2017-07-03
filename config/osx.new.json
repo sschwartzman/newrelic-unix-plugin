@@ -1,0 +1,615 @@
+{
+  "os": "osx",
+  "pageSize": 4096,
+  "pageSizeCommand": "pagesize",
+  "commands": {
+    "VmstatTotals": {
+      "command": "vm_stat",
+      "checkAllRegex": false,
+      "lineLimit": 0,
+      "type": "REGEXDIM",
+      "mappings": {
+        "\\s*\"*([^:\"]+)\"*:\\s+(\\d+)\\.*": [
+          "THIS_IS_THE_LAST_PART_OF_A_METRIC_NAME",
+          "THIS_IS_THE_ACTUAL_METRIC_VALUE"
+        ]
+      }
+    },
+    "df": {
+      "command": "df -k -l -T nodevfs,cdfs,hsfs,iso9660",
+      "checkAllRegex": false,
+      "lineLimit": 0,
+      "type": "REGEXDIM",
+      "mappings": {
+        "\\s*(\\S+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)%.*": [
+          "THIS_IS_A_DISK_NAME",
+          "1K-blocks",
+          "Used",
+          "Available",
+          "Use%"
+        ]
+      },
+      "metrics": {
+        "1K-blocks": {
+          "name": "Total",
+          "prefix": "Disk",
+          "ratio": 1,
+          "units": "kb",
+          "type": "NORMAL"
+        },
+        "Available": {
+          "name": "Free",
+          "prefix": "Disk",
+          "ratio": 1,
+          "units": "kb",
+          "type": "NORMAL"
+        },
+        "Use%": {
+          "name": "Used",
+          "prefix": "Disk",
+          "ratio": 1,
+          "units": "percent",
+          "type": "NORMAL"
+        },
+        "Used": {
+          "name": "Used",
+          "prefix": "Disk",
+          "ratio": 1,
+          "units": "kb",
+          "type": "NORMAL"
+        }
+      }
+    },
+    "iostat": {
+      "command": "iostat -I -d THIS_IS_A_MEMBER_PLACEHOLDER",
+      "checkAllRegex": false,
+      "lineLimit": 0,
+      "type": "REGEXLISTDIM",
+      "mappings": {
+        "\\s*([0-9\\.]+)\\s+([0-9\\.]+)\\s+([0-9\\.]+).*": [
+          "KB-t",
+          "xfrs",
+          "MB"
+        ]
+      },
+      "metrics": {
+        "KB-t": {
+          "name": "Average Request Size",
+          "prefix": "DiskIO",
+          "ratio": 1,
+          "units": "kb",
+          "type": "NORMAL"
+        },
+        "MB": {
+          "name": "Data Transferred Per Interval",
+          "prefix": "DiskIO",
+          "ratio": 1024,
+          "units": "kb",
+          "type": "DELTA"
+        },
+        "xfrs": {
+          "name": "Transfers Per Interval",
+          "prefix": "DiskIO",
+          "ratio": 1,
+          "units": "transfers",
+          "type": "DELTA"
+        }
+      }
+    },
+    "netstat": {
+      "command": "netstat -i -b",
+      "checkAllRegex": false,
+      "lineLimit": 0,
+      "type": "REGEXDIM",
+      "mappings": {
+        "(\\w+\\d*)\\s+\\d+\\s+\\S+\\s+\\S+\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)": [
+          "THIS_IS_THE_PREFIX_OF_A_METRIC_NAME",
+          "Ipkts",
+          "Ierrs",
+          "Ibytes",
+          "Opkts",
+          "Oerrs",
+          "Obytes",
+          "Coll"
+        ]
+      },
+      "metrics": {
+        "Coll": {
+          "name": "Collisions",
+          "prefix": "Network",
+          "ratio": 1,
+          "units": "packets",
+          "type": "DELTA"
+        },
+        "Ibytes": {
+          "name": "Receive/Bytes",
+          "prefix": "Network",
+          "ratio": 1,
+          "units": "bytes",
+          "type": "DELTA"
+        },
+        "Ierrs": {
+          "name": "Receive/Errors",
+          "prefix": "Network",
+          "ratio": 1,
+          "units": "errors",
+          "type": "DELTA"
+        },
+        "Ipkts": {
+          "name": "Receive/Packets",
+          "prefix": "Network",
+          "ratio": 1,
+          "units": "packets",
+          "type": "DELTA"
+        },
+        "Obytes": {
+          "name": "Transmit/Bytes",
+          "prefix": "Network",
+          "ratio": 1,
+          "units": "bytes",
+          "type": "DELTA"
+        },
+        "Oerrs": {
+          "name": "Transmit/Errors",
+          "prefix": "Network",
+          "ratio": 1,
+          "units": "errors",
+          "type": "DELTA"
+        },
+        "Opkts": {
+          "name": "Transmit/Packets",
+          "prefix": "Network",
+          "ratio": 1,
+          "units": "packets",
+          "type": "DELTA"
+        }
+      }
+    },
+    "ps": {
+      "command": "ps -ewwo %cpu,%mem,rss,args",
+      "checkAllRegex": false,
+      "lineLimit": 0,
+      "type": "REGEXDIM",
+      "mappings": {
+        "([0-9\\.]+)\\s+([0-9\\.]+)\\s+(\\d+)\\s+(.+)": [
+          "%CPU",
+          "%MEM",
+          "RSS",
+          "THIS_IS_A_PROCESS_NAME_TO_BE_COUNTED"
+        ]
+      },
+      "metrics": {
+        "%CPU": {
+          "name": "Aggregate CPU",
+          "prefix": "Processes",
+          "ratio": 1,
+          "units": "percent",
+          "type": "INCREMENT"
+        },
+        "%MEM": {
+          "name": "Aggregate Memory",
+          "prefix": "Processes",
+          "ratio": 1,
+          "units": "percent",
+          "type": "INCREMENT"
+        },
+        "RSS": {
+          "name": "Aggregate Resident Size",
+          "prefix": "Processes",
+          "ratio": 1,
+          "units": "kb",
+          "type": "INCREMENT"
+        },
+        "THIS_IS_A_PROCESS_NAME_TO_BE_COUNTED": {
+          "name": "Instance Count",
+          "prefix": "Processes",
+          "ratio": 1,
+          "units": "processes",
+          "type": "INCREMENT"
+        }
+      }
+    },
+    "top": {
+      "command": "top -l 1 -n 0 -S",
+      "checkAllRegex": true,
+      "lineLimit": 0,
+      "type": "REGEXDIM",
+      "mappings": {
+        "CPU usage:\\s+([0-9\\.]+)%\\s+user,\\s+([0-9\\.]+)%\\s+sys,\\s+([0-9\\.]+)%\\s+idle.*": [
+          "cpuuser",
+          "cpusys",
+          "cpuidle"
+        ],
+        "Disks:\\s+(\\d+)\\/\\d+[BKMGT]{1}\\s+read,\\s+(\\d+)\\/\\d+[BKMGT]{1}\\s+written.": [
+          "diskreads",
+          "diskwrites"
+        ],
+        "Load Avg:\\s+([0-9\\.]+),\\s+([0-9\\.]+),\\s+([0-9\\.]+)": [
+          "la1",
+          "la5",
+          "la15"
+        ],
+        "MemRegions:\\s+(\\d+)\\s+total,\\s+(\\d+)M\\s+resident,\\s+(\\d+)M\\s+private,\\s+(\\d+)M\\s+shared.*": [
+          "memregtot",
+          "memregres",
+          "memregpriv",
+          "memregshare"
+        ],
+        "PhysMem:\\s+(\\d+)G\\s+used\\s+.*": [
+          "memusedgigs"
+        ],
+        "PhysMem:\\s+(\\d+)M\\s+used\\s+.*": [
+          "memused"
+        ],
+        "PhysMem:\\s+\\d+[MG]{1}\\s+used\\s+\\((\\d+)G wired\\).*": [
+          "memwiredgigs"
+        ],
+        "PhysMem:\\s+\\d+[MG]{1}\\s+used\\s+\\((\\d+)M wired\\).*": [
+          "memwired"
+        ],
+        "PhysMem:\\s+\\d+[MG]{1}\\s+used\\s+\\(\\d+[MG]{1} wired\\),\\s(\\d+)G\\s+unused.": [
+          "memfreegigs"
+        ],
+        "PhysMem:\\s+\\d+[MG]{1}\\s+used\\s+\\(\\d+[MG]{1} wired\\),\\s(\\d+)M\\s+unused.": [
+          "memfree"
+        ],
+        "Processes:\\s+(\\d+)\\s+total,\\s+(\\d+)\\s+running,\\s+(\\d+)\\s+stuck,\\s+(\\d+)\\s+sleeping,\\s+(\\d+)\\s+threads.*": [
+          "proctot",
+          "procrun",
+          "procstuck",
+          "proczzz",
+          "procthreads"
+        ],
+        "Swap:\\s+(\\d+)B\\s+\\+\\s+(\\d+)B\\s+free.": [
+          "swapused",
+          "swapfree"
+        ]
+      },
+      "metrics": {
+        "cpuidle": {
+          "name": "Idle",
+          "prefix": "CPU",
+          "ratio": 1,
+          "units": "percent",
+          "type": "NORMAL"
+        },
+        "cpusys": {
+          "name": "System",
+          "prefix": "CPU",
+          "ratio": 1,
+          "units": "percent",
+          "type": "NORMAL"
+        },
+        "cpuuser": {
+          "name": "User",
+          "prefix": "CPU",
+          "ratio": 1,
+          "units": "percent",
+          "type": "NORMAL"
+        },
+        "diskreads": {
+          "name": "Reads Per Interval",
+          "prefix": "DiskIO",
+          "ratio": 1048576,
+          "units": "reads",
+          "type": "NORMAL"
+        },
+        "diskwrites": {
+          "name": "Writes Per Interval",
+          "prefix": "DiskIO",
+          "ratio": 1048576,
+          "units": "writes",
+          "type": "NORMAL"
+        },
+        "la1": {
+          "name": "1 Minute",
+          "prefix": "LoadAverage",
+          "ratio": 1,
+          "units": "load",
+          "type": "NORMAL"
+        },
+        "la15": {
+          "name": "15 Minute",
+          "prefix": "LoadAverage",
+          "ratio": 1,
+          "units": "load",
+          "type": "NORMAL"
+        },
+        "la5": {
+          "name": "5 Minute",
+          "prefix": "LoadAverage",
+          "ratio": 1,
+          "units": "load",
+          "type": "NORMAL"
+        },
+        "memfree": {
+          "name": "Free",
+          "prefix": "Memory",
+          "ratio": 1024,
+          "units": "kb",
+          "type": "NORMAL"
+        },
+        "memfreegigs": {
+          "name": "Free",
+          "prefix": "Memory",
+          "ratio": 1048576,
+          "units": "kb",
+          "type": "NORMAL"
+        },
+        "memregpriv": {
+          "name": "Regions/Private",
+          "prefix": "MemoryDetailed",
+          "ratio": 1024,
+          "units": "kb",
+          "type": "NORMAL"
+        },
+        "memregres": {
+          "name": "Regions/Resident",
+          "prefix": "MemoryDetailed",
+          "ratio": 1024,
+          "units": "kb",
+          "type": "NORMAL"
+        },
+        "memregshare": {
+          "name": "Regions/Shared",
+          "prefix": "MemoryDetailed",
+          "ratio": 1024,
+          "units": "kb",
+          "type": "NORMAL"
+        },
+        "memregtot": {
+          "name": "Regions/Total",
+          "prefix": "MemoryDetailed",
+          "ratio": 1,
+          "units": "regions",
+          "type": "NORMAL"
+        },
+        "memused": {
+          "name": "Used",
+          "prefix": "Memory",
+          "ratio": 1024,
+          "units": "kb",
+          "type": "NORMAL"
+        },
+        "memusedgigs": {
+          "name": "Used",
+          "prefix": "Memory",
+          "ratio": 1048576,
+          "units": "kb",
+          "type": "NORMAL"
+        },
+        "memwired": {
+          "name": "Wired",
+          "prefix": "Memory",
+          "ratio": 1024,
+          "units": "kb",
+          "type": "NORMAL"
+        },
+        "memwiredgigs": {
+          "name": "Wired",
+          "prefix": "Memory",
+          "ratio": 1048576,
+          "units": "kb",
+          "type": "NORMAL"
+        },
+        "procrun": {
+          "name": "Running",
+          "prefix": "Processes",
+          "ratio": 1,
+          "units": "processes",
+          "type": "NORMAL"
+        },
+        "procstuck": {
+          "name": "Stuck",
+          "prefix": "Processes",
+          "ratio": 1,
+          "units": "processes",
+          "type": "NORMAL"
+        },
+        "procthreads": {
+          "name": "Runnable",
+          "prefix": "KernelThreads",
+          "ratio": 1,
+          "units": "threads",
+          "type": "NORMAL"
+        },
+        "proctot": {
+          "name": "Total",
+          "prefix": "Processes",
+          "ratio": 1,
+          "units": "processes",
+          "type": "NORMAL"
+        },
+        "proczzz": {
+          "name": "Sleeping",
+          "prefix": "Processes",
+          "ratio": 1,
+          "units": "processes",
+          "type": "NORMAL"
+        },
+        "swapfree": {
+          "name": "Swap/Free",
+          "prefix": "MemoryDetailed",
+          "ratio": 1,
+          "units": "kb",
+          "type": "NORMAL"
+        },
+        "swapused": {
+          "name": "Swap/Used",
+          "prefix": "MemoryDetailed",
+          "ratio": 1,
+          "units": "kb",
+          "type": "NORMAL"
+        }
+      }
+    },
+    "vm_stat": {
+      "command": "vm_stat",
+      "checkAllRegex": false,
+      "lineLimit": 0,
+      "type": "REGEXDIM",
+      "mappings": {
+        "\\s*([^:]+):\\s+(\\d+)\\.*": [
+          "THIS_IS_THE_LAST_PART_OF_A_METRIC_NAME",
+          "THIS_IS_THE_ACTUAL_METRIC_VALUE"
+        ]
+      },
+      "metrics": {
+        "\"Translation faults\"": {
+          "name": "VM Translation Faults",
+          "prefix": "Faults",
+          "ratio": 1,
+          "units": "faults",
+          "type": "DELTA"
+        },
+        "Anonymous pages": {
+          "name": "Anonymous",
+          "prefix": "Page",
+          "ratio": 1,
+          "units": "pages",
+          "type": "DELTA"
+        },
+        "Compressions": {
+          "name": "Compressions",
+          "prefix": "Page",
+          "ratio": 1,
+          "units": "pages",
+          "type": "DELTA"
+        },
+        "Decompressions": {
+          "name": "Decompressions",
+          "prefix": "Page",
+          "ratio": 1,
+          "units": "pages",
+          "type": "DELTA"
+        },
+        "File-backed pages": {
+          "name": "File-backed",
+          "prefix": "Page",
+          "ratio": 1,
+          "units": "pages",
+          "type": "DELTA"
+        },
+        "Pageins": {
+          "name": "Paged In",
+          "prefix": "Page",
+          "ratio": 1,
+          "units": "pages",
+          "type": "DELTA"
+        },
+        "Pageouts": {
+          "name": "Paged Out",
+          "prefix": "Page",
+          "ratio": 1,
+          "units": "pages",
+          "type": "DELTA"
+        },
+        "Pages active": {
+          "name": "Active",
+          "prefix": "Page",
+          "ratio": 1,
+          "units": "pages",
+          "type": "NORMAL"
+        },
+        "Pages copy-on-write": {
+          "name": "Copy-on-write",
+          "prefix": "Page",
+          "ratio": 1,
+          "units": "pages",
+          "type": "DELTA"
+        },
+        "Pages free": {
+          "name": "Free",
+          "prefix": "Page",
+          "ratio": 1,
+          "units": "pages",
+          "type": "NORMAL"
+        },
+        "Pages inactive": {
+          "name": "Inactive",
+          "prefix": "Page",
+          "ratio": 1,
+          "units": "pages",
+          "type": "NORMAL"
+        },
+        "Pages occupied by compressor": {
+          "name": "Occupied by compressor",
+          "prefix": "Page",
+          "ratio": 1,
+          "units": "pages",
+          "type": "DELTA"
+        },
+        "Pages purgeable": {
+          "name": "Purgeable",
+          "prefix": "Page",
+          "ratio": 1,
+          "units": "pages",
+          "type": "NORMAL"
+        },
+        "Pages purged": {
+          "name": "Purged",
+          "prefix": "Page",
+          "ratio": 1,
+          "units": "pages",
+          "type": "DELTA"
+        },
+        "Pages reactivated": {
+          "name": "Reactivated",
+          "prefix": "Page",
+          "ratio": 1,
+          "units": "pages",
+          "type": "DELTA"
+        },
+        "Pages speculative": {
+          "name": "Speculative",
+          "prefix": "Page",
+          "ratio": 1,
+          "units": "pages",
+          "type": "NORMAL"
+        },
+        "Pages stored in compressor": {
+          "name": "Stored in compressor",
+          "prefix": "Page",
+          "ratio": 1,
+          "units": "pages",
+          "type": "DELTA"
+        },
+        "Pages throttled": {
+          "name": "Throttled",
+          "prefix": "Page",
+          "ratio": 1,
+          "units": "pages",
+          "type": "NORMAL"
+        },
+        "Pages wired down": {
+          "name": "Wired down",
+          "prefix": "Page",
+          "ratio": 1,
+          "units": "pages",
+          "type": "NORMAL"
+        },
+        "Pages zero filled": {
+          "name": "Zero filled",
+          "prefix": "Page",
+          "ratio": 1,
+          "units": "pages",
+          "type": "DELTA"
+        },
+        "Swapins": {
+          "name": "Swapped In",
+          "prefix": "Page",
+          "ratio": 1,
+          "units": "pages",
+          "type": "DELTA"
+        },
+        "Swapouts": {
+          "name": "Swapped Out",
+          "prefix": "Page",
+          "ratio": 1,
+          "units": "pages",
+          "type": "DELTA"
+        }
+      }
+    }
+  }
+}
