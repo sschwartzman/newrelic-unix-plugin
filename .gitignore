@@ -7,3 +7,11 @@
 dist/newrelic_unix_plugin/**
 
 **/.DS_Store
+
+config/newrelic.json
+
+config/plugin.json
+
+logs/**
+
+scratchpad.txt
