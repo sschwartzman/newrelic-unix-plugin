@@ -11,3 +11,4 @@ scratchpad.txt
 
 target/**
 !target/*.tar.gz
+/src/com/**
