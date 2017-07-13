@@ -12,19 +12,6 @@
   },
   "agents": [
     {
-      "name": "VmstatTotals",
-      "command": "vm_stat",
-      "checkAllRegex": false,
-      "lineLimit": 0,
-      "type": "REGEXDIM",
-      "mappings": {
-        "\\s*\"*([^:\"]+)\"*:\\s+(\\d+)\\.*": [
-          "METRIC_NAME",
-          "METRIC_VALUE"
-        ]
-      }
-    },
-    {
       "name": "df",
       "command": "df -k -T nocdfs,devfs,hsfs,iso9660,nfs",
       "checkAllRegex": false,
@@ -624,6 +611,19 @@
           "units": "pages",
           "type": "DELTA"
         }
+      }
+    },
+    {
+      "name": "vm_stat-totals",
+      "command": "vm_stat",
+      "checkAllRegex": false,
+      "lineLimit": 0,
+      "type": "REGEXDIM",
+      "mappings": {
+        "\\s*\"*([^:\"]+)\"*:\\s+(\\d+)\\.*": [
+          "METRIC_NAME",
+          "METRIC_VALUE"
+        ]
       }
     }
   ]

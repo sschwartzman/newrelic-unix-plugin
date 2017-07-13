@@ -12,347 +12,6 @@
   },
   "agents": [
     {
-      "name": "KstatNetwork",
-      "command": "kstat -n MEMBER_PLACEHOLDER",
-      "checkAllRegex": false,
-      "lineLimit": 0,
-      "type": "REGEXLISTDIM",
-      "mappings": {
-        "(\\w+\\d*)\\s+([0-9\\.]+)": [
-          "METRIC_NAME",
-          "METRIC_VALUE"
-        ]
-      },
-      "metrics": {
-        "brdcstrcv": {
-          "name": "Receive/Broadcast",
-          "category": "Network",
-          "ratio": 1,
-          "units": "packets",
-          "type": "DELTA"
-        },
-        "brdcstxmt": {
-          "name": "Transmit/Broadcast",
-          "category": "Network",
-          "ratio": 1,
-          "units": "packets",
-          "type": "DELTA"
-        },
-        "collisions": {
-          "name": "Collisions",
-          "category": "Network",
-          "ratio": 1,
-          "units": "packets",
-          "type": "DELTA"
-        },
-        "ierrors": {
-          "name": "Receive/Errors",
-          "category": "Network",
-          "ratio": 1,
-          "units": "errors",
-          "type": "DELTA"
-        },
-        "ipackets64": {
-          "name": "Receive/Packets",
-          "category": "Network",
-          "ratio": 1,
-          "units": "packets",
-          "type": "DELTA"
-        },
-        "multircv": {
-          "name": "Receive/Multicast",
-          "category": "Network",
-          "ratio": 1,
-          "units": "bytes",
-          "type": "DELTA"
-        },
-        "multixmt": {
-          "name": "Transmit/Multicast",
-          "category": "Network",
-          "ratio": 1,
-          "units": "bytes",
-          "type": "DELTA"
-        },
-        "norcvbuf": {
-          "name": "Receive/Buffer Allocation Errors",
-          "category": "Network",
-          "ratio": 1,
-          "units": "errors",
-          "type": "DELTA"
-        },
-        "noxmtbuf": {
-          "name": "Transmit/Buffer Allocation Errors",
-          "category": "Network",
-          "ratio": 1,
-          "units": "errors",
-          "type": "DELTA"
-        },
-        "obytes64": {
-          "name": "Transmit/Bytes",
-          "category": "Network",
-          "ratio": 1,
-          "units": "bytes",
-          "type": "DELTA"
-        },
-        "oerrors": {
-          "name": "Transmit/Errors",
-          "category": "Network",
-          "ratio": 1,
-          "units": "errors",
-          "type": "DELTA"
-        },
-        "opackets64": {
-          "name": "Transmit/Packets",
-          "category": "Network",
-          "ratio": 1,
-          "units": "packets",
-          "type": "DELTA"
-        },
-        "rbytes64": {
-          "name": "Receive/Bytes",
-          "category": "Network",
-          "ratio": 1,
-          "units": "bytes",
-          "type": "DELTA"
-        }
-      }
-    },
-    {
-      "name": "KstatPages",
-      "command": "kstat -p unix::system_pages",
-      "checkAllRegex": false,
-      "lineLimit": 0,
-      "type": "REGEXDIM",
-      "mappings": {
-        "unix:0:system_pages:([\\w_]+)\\s+([0-9\\.]+)": [
-          "METRIC_NAME",
-          "METRIC_VALUE"
-        ]
-      },
-      "metrics": {
-        "availrmem": {
-          "name": "Available",
-          "category": "Page",
-          "ratio": 1,
-          "units": "pages",
-          "type": "DELTA"
-        },
-        "freemem": {
-          "name": "Free",
-          "category": "Memory",
-          "ratio": 4,
-          "units": "kb",
-          "type": "NORMAL"
-        },
-        "pagesfree": {
-          "name": "Free",
-          "category": "Page",
-          "ratio": 1,
-          "units": "pages",
-          "type": "DELTA"
-        },
-        "pageslocked": {
-          "name": "Locked",
-          "category": "Page",
-          "ratio": 1,
-          "units": "pages",
-          "type": "DELTA"
-        },
-        "pagestotal": {
-          "name": "Total",
-          "category": "Page",
-          "ratio": 1,
-          "units": "pages",
-          "type": "DELTA"
-        },
-        "physmem": {
-          "name": "Total",
-          "category": "Memory",
-          "ratio": 4,
-          "units": "kb",
-          "type": "NORMAL"
-        },
-        "pp_kernel": {
-          "name": "Used By Kernel",
-          "category": "Page",
-          "ratio": 1,
-          "units": "pages",
-          "type": "DELTA"
-        }
-      }
-    },
-    {
-      "name": "VmstatPagesFaults",
-      "command": "vmstat -s",
-      "checkAllRegex": false,
-      "lineLimit": 0,
-      "type": "REGEXDIM",
-      "mappings": {
-        "\\s*(\\d+)\\s+(.*)": [
-          "METRIC_VALUE",
-          "METRIC_NAME"
-        ]
-      },
-      "metrics": {
-        "copy-on-write faults": {
-          "name": "Copy-on-write",
-          "category": "Faults",
-          "ratio": 1,
-          "units": "faults",
-          "type": "DELTA"
-        },
-        "cpu context switches": {
-          "name": "CPU Context Switches",
-          "category": "Faults",
-          "ratio": 1,
-          "units": "Faults",
-          "type": "DELTA"
-        },
-        "device interrupts": {
-          "name": "Device Interrupts",
-          "category": "Faults",
-          "ratio": 1,
-          "units": "faults",
-          "type": "DELTA"
-        },
-        "major faults": {
-          "name": "Major",
-          "category": "Faults",
-          "ratio": 1,
-          "units": "faults",
-          "type": "DELTA"
-        },
-        "micro (hat) faults": {
-          "name": "Micro (hat)",
-          "category": "Faults",
-          "ratio": 1,
-          "units": "faults",
-          "type": "DELTA"
-        },
-        "minor (as) faults": {
-          "name": "Minor (as)",
-          "category": "Faults",
-          "ratio": 1,
-          "units": "faults",
-          "type": "DELTA"
-        },
-        "pages paged in": {
-          "name": "Paged In",
-          "category": "Page",
-          "ratio": 1,
-          "units": "pages",
-          "type": "DELTA"
-        },
-        "pages paged out": {
-          "name": "Paged Out",
-          "category": "Page",
-          "ratio": 1,
-          "units": "pages",
-          "type": "DELTA"
-        },
-        "pages swapped in": {
-          "name": "Swapped In",
-          "category": "Page",
-          "ratio": 1,
-          "units": "pages",
-          "type": "DELTA"
-        },
-        "pages swapped out": {
-          "name": "Swapped Out",
-          "category": "Page",
-          "ratio": 1,
-          "units": "pages",
-          "type": "DELTA"
-        },
-        "system calls": {
-          "name": "System Calls",
-          "category": "Faults",
-          "ratio": 1,
-          "units": "Faults",
-          "type": "DELTA"
-        },
-        "total address trans. faults taken": {
-          "name": "Address Translation",
-          "category": "Faults",
-          "ratio": 1,
-          "units": "faults",
-          "type": "DELTA"
-        },
-        "traps": {
-          "name": "Traps",
-          "category": "Faults",
-          "ratio": 1,
-          "units": "faults",
-          "type": "DELTA"
-        },
-        "zero fill page faults": {
-          "name": "Zero Fill Page",
-          "category": "Faults",
-          "ratio": 1,
-          "units": "faults",
-          "type": "DELTA"
-        }
-      }
-    },
-    {
-      "name": "VmstatThreadsMemory",
-      "command": "vmstat 1 2",
-      "checkAllRegex": false,
-      "lineLimit": 0,
-      "type": "REGEXDIM",
-      "mappings": {
-        "\\s*(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+).*": [
-          "r",
-          "b",
-          "w",
-          "swap"
-        ]
-      },
-      "metrics": {
-        "b": {
-          "name": "In Wait Queue",
-          "category": "KernelThreads",
-          "ratio": 1,
-          "units": "threads",
-          "type": "NORMAL"
-        },
-        "r": {
-          "name": "Runnable",
-          "category": "KernelThreads",
-          "ratio": 1,
-          "units": "threads",
-          "type": "NORMAL"
-        },
-        "swap": {
-          "name": "Swap",
-          "category": "Memory",
-          "ratio": 1,
-          "units": "kb",
-          "type": "NORMAL"
-        },
-        "w": {
-          "name": "Swapped",
-          "category": "KernelThreads",
-          "ratio": 1,
-          "units": "threads",
-          "type": "NORMAL"
-        }
-      }
-    },
-{
-      "name": "VmstatTotals",
-      "command": "vmstat -s",
-      "checkAllRegex": false,
-      "lineLimit": 0,
-      "type": "REGEXDIM",
-      "mappings": {
-        "\\s*\"*([^:\"]+)\"*:\\s+(\\d+)\\.*": [
-          "METRIC_NAME",
-          "METRIC_VALUE"
-        ]
-      }
-    },
-    {
       "name": "df",
       "command": "df -k -l",
       "checkAllRegex": false,
@@ -485,18 +144,173 @@
       }
     },
     {
-      "name": "iostatCPU",
-      "command": "iostat -c 1 2",
+      "name": "kstat-network",
+      "command": "kstat -n MEMBER_PLACEHOLDER",
+      "checkAllRegex": false,
+      "lineLimit": 0,
+      "type": "REGEXLISTDIM",
+      "mappings": {
+        "(\\w+\\d*)\\s+([0-9\\.]+)": [
+          "METRIC_NAME",
+          "METRIC_VALUE"
+        ]
+      },
+      "metrics": {
+        "brdcstrcv": {
+          "name": "Receive/Broadcast",
+          "category": "Network",
+          "ratio": 1,
+          "units": "packets",
+          "type": "DELTA"
+        },
+        "brdcstxmt": {
+          "name": "Transmit/Broadcast",
+          "category": "Network",
+          "ratio": 1,
+          "units": "packets",
+          "type": "DELTA"
+        },
+        "collisions": {
+          "name": "Collisions",
+          "category": "Network",
+          "ratio": 1,
+          "units": "packets",
+          "type": "DELTA"
+        },
+        "ierrors": {
+          "name": "Receive/Errors",
+          "category": "Network",
+          "ratio": 1,
+          "units": "errors",
+          "type": "DELTA"
+        },
+        "ipackets64": {
+          "name": "Receive/Packets",
+          "category": "Network",
+          "ratio": 1,
+          "units": "packets",
+          "type": "DELTA"
+        },
+        "multircv": {
+          "name": "Receive/Multicast",
+          "category": "Network",
+          "ratio": 1,
+          "units": "bytes",
+          "type": "DELTA"
+        },
+        "multixmt": {
+          "name": "Transmit/Multicast",
+          "category": "Network",
+          "ratio": 1,
+          "units": "bytes",
+          "type": "DELTA"
+        },
+        "norcvbuf": {
+          "name": "Receive/Buffer Allocation Errors",
+          "category": "Network",
+          "ratio": 1,
+          "units": "errors",
+          "type": "DELTA"
+        },
+        "noxmtbuf": {
+          "name": "Transmit/Buffer Allocation Errors",
+          "category": "Network",
+          "ratio": 1,
+          "units": "errors",
+          "type": "DELTA"
+        },
+        "obytes64": {
+          "name": "Transmit/Bytes",
+          "category": "Network",
+          "ratio": 1,
+          "units": "bytes",
+          "type": "DELTA"
+        },
+        "oerrors": {
+          "name": "Transmit/Errors",
+          "category": "Network",
+          "ratio": 1,
+          "units": "errors",
+          "type": "DELTA"
+        },
+        "opackets64": {
+          "name": "Transmit/Packets",
+          "category": "Network",
+          "ratio": 1,
+          "units": "packets",
+          "type": "DELTA"
+        },
+        "rbytes64": {
+          "name": "Receive/Bytes",
+          "category": "Network",
+          "ratio": 1,
+          "units": "bytes",
+          "type": "DELTA"
+        }
+      }
+    },
+    {
+      "name": "kstat-pages",
+      "command": "kstat -p unix::system_pages",
       "checkAllRegex": false,
       "lineLimit": 0,
       "type": "REGEXDIM",
       "mappings": {
-        "\\s*(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)": [
-          "us",
-          "sy",
-          "wt",
-          "id"
+        "unix:0:system_pages:([\\w_]+)\\s+([0-9\\.]+)": [
+          "METRIC_NAME",
+          "METRIC_VALUE"
         ]
+      },
+      "metrics": {
+        "availrmem": {
+          "name": "Available",
+          "category": "Page",
+          "ratio": 1,
+          "units": "pages",
+          "type": "DELTA"
+        },
+        "freemem": {
+          "name": "Free",
+          "category": "Memory",
+          "ratio": 4,
+          "units": "kb",
+          "type": "NORMAL"
+        },
+        "pagesfree": {
+          "name": "Free",
+          "category": "Page",
+          "ratio": 1,
+          "units": "pages",
+          "type": "DELTA"
+        },
+        "pageslocked": {
+          "name": "Locked",
+          "category": "Page",
+          "ratio": 1,
+          "units": "pages",
+          "type": "DELTA"
+        },
+        "pagestotal": {
+          "name": "Total",
+          "category": "Page",
+          "ratio": 1,
+          "units": "pages",
+          "type": "DELTA"
+        },
+        "physmem": {
+          "name": "Total",
+          "category": "Memory",
+          "ratio": 4,
+          "units": "kb",
+          "type": "NORMAL"
+        },
+        "pp_kernel": {
+          "name": "Used By Kernel",
+          "category": "Page",
+          "ratio": 1,
+          "units": "pages",
+          "type": "DELTA"
+        }
       }
     },
     {
@@ -789,6 +603,177 @@
           "units": "kb",
           "type": "NORMAL"
         }
+      }
+    },
+    {
+      "name": "vmstat-pages-faults",
+      "command": "vmstat -s",
+      "checkAllRegex": false,
+      "lineLimit": 0,
+      "type": "REGEXDIM",
+      "mappings": {
+        "\\s*(\\d+)\\s+(.*)": [
+          "METRIC_VALUE",
+          "METRIC_NAME"
+        ]
+      },
+      "metrics": {
+        "copy-on-write faults": {
+          "name": "Copy-on-write",
+          "category": "Faults",
+          "ratio": 1,
+          "units": "faults",
+          "type": "DELTA"
+        },
+        "cpu context switches": {
+          "name": "CPU Context Switches",
+          "category": "Faults",
+          "ratio": 1,
+          "units": "Faults",
+          "type": "DELTA"
+        },
+        "device interrupts": {
+          "name": "Device Interrupts",
+          "category": "Faults",
+          "ratio": 1,
+          "units": "faults",
+          "type": "DELTA"
+        },
+        "major faults": {
+          "name": "Major",
+          "category": "Faults",
+          "ratio": 1,
+          "units": "faults",
+          "type": "DELTA"
+        },
+        "micro (hat) faults": {
+          "name": "Micro (hat)",
+          "category": "Faults",
+          "ratio": 1,
+          "units": "faults",
+          "type": "DELTA"
+        },
+        "minor (as) faults": {
+          "name": "Minor (as)",
+          "category": "Faults",
+          "ratio": 1,
+          "units": "faults",
+          "type": "DELTA"
+        },
+        "pages paged in": {
+          "name": "Paged In",
+          "category": "Page",
+          "ratio": 1,
+          "units": "pages",
+          "type": "DELTA"
+        },
+        "pages paged out": {
+          "name": "Paged Out",
+          "category": "Page",
+          "ratio": 1,
+          "units": "pages",
+          "type": "DELTA"
+        },
+        "pages swapped in": {
+          "name": "Swapped In",
+          "category": "Page",
+          "ratio": 1,
+          "units": "pages",
+          "type": "DELTA"
+        },
+        "pages swapped out": {
+          "name": "Swapped Out",
+          "category": "Page",
+          "ratio": 1,
+          "units": "pages",
+          "type": "DELTA"
+        },
+        "system calls": {
+          "name": "System Calls",
+          "category": "Faults",
+          "ratio": 1,
+          "units": "Faults",
+          "type": "DELTA"
+        },
+        "total address trans. faults taken": {
+          "name": "Address Translation",
+          "category": "Faults",
+          "ratio": 1,
+          "units": "faults",
+          "type": "DELTA"
+        },
+        "traps": {
+          "name": "Traps",
+          "category": "Faults",
+          "ratio": 1,
+          "units": "faults",
+          "type": "DELTA"
+        },
+        "zero fill page faults": {
+          "name": "Zero Fill Page",
+          "category": "Faults",
+          "ratio": 1,
+          "units": "faults",
+          "type": "DELTA"
+        }
+      }
+    },
+    {
+      "name": "vmstat-threads-memory",
+      "command": "vmstat 1 2",
+      "checkAllRegex": false,
+      "lineLimit": 0,
+      "type": "REGEXDIM",
+      "mappings": {
+        "\\s*(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+).*": [
+          "r",
+          "b",
+          "w",
+          "swap"
+        ]
+      },
+      "metrics": {
+        "b": {
+          "name": "In Wait Queue",
+          "category": "KernelThreads",
+          "ratio": 1,
+          "units": "threads",
+          "type": "NORMAL"
+        },
+        "r": {
+          "name": "Runnable",
+          "category": "KernelThreads",
+          "ratio": 1,
+          "units": "threads",
+          "type": "NORMAL"
+        },
+        "swap": {
+          "name": "Swap",
+          "category": "Memory",
+          "ratio": 1,
+          "units": "kb",
+          "type": "NORMAL"
+        },
+        "w": {
+          "name": "Swapped",
+          "category": "KernelThreads",
+          "ratio": 1,
+          "units": "threads",
+          "type": "NORMAL"
+        }
+      }
+    },
+    {
+      "name": "vmstat-totals",
+      "command": "vmstat -s",
+      "checkAllRegex": false,
+      "lineLimit": 0,
+      "type": "REGEXDIM",
+      "mappings": {
+        "\\s*\"*([^:\"]+)\"*:\\s+(\\d+)\\.*": [
+          "METRIC_NAME",
+          "METRIC_VALUE"
+        ]
       }
     }
   ]

@@ -12,71 +12,6 @@
   },
   "agents": [
     {
-      "name": "NetworkIO",
-      "command": "grep -r . /sys/class/net/MEMBER_PLACEHOLDER/statistics 2>&1",
-      "checkAllRegex": false,
-      "lineLimit": 0,
-      "type": "REGEXLISTDIM",
-      "mappings": {
-        "\\/sys\\/class\\/net\\/[\\w\\d]+\\/statistics\\/([\\w_]+):(\\d+)": [
-          "METRIC_NAME",
-          "METRIC_VALUE"
-        ]
-      }
-    },
-    {
-      "name": "VmstatKernel",
-      "command": "vmstat -s",
-      "checkAllRegex": false,
-      "lineLimit": 0,
-      "type": "REGEXDIM",
-      "mappings": {
-        "\\s*(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+\\d+\\s+\\d+\\s+\\d+\\s+\\d+\\s+\\d+": [
-          "r",
-          "b",
-          "swpd",
-          "free",
-          "buff",
-          "cache",
-          "si",
-          "so",
-          "bi",
-          "bo",
-          "in",
-          "cs"
-        ]
-      },
-      "metrics": {
-        "b": {
-          "name": "In Wait Queue",
-          "category": "KernelThreads",
-          "ratio": 1,
-          "units": "threads",
-          "type": "NORMAL"
-        },
-        "r": {
-          "name": "Runnable",
-          "category": "KernelThreads",
-          "ratio": 1,
-          "units": "threads",
-          "type": "NORMAL"
-        }
-      }
-    },
-    {
-      "name": "VmstatTotals",
-      "command": "vmstat -s",
-      "checkAllRegex": false,
-      "lineLimit": 0,
-      "type": "REGEXDIM",
-      "mappings": {
-        "\\s*\"*([^:\"]+)\"*:\\s+(\\d+)\\.*": [
-          "METRIC_NAME",
-          "METRIC_VALUE"
-        ]
-      }
-    },
-    {
       "name": "df",
       "command": "df -Pk -x iso9660 -x cdfs -x hsfs",
       "checkAllRegex": false,
@@ -451,6 +386,19 @@
       }
     },
     {
+      "name": "network-io",
+      "command": "grep -r . /sys/class/net/MEMBER_PLACEHOLDER/statistics 2>&1",
+      "checkAllRegex": false,
+      "lineLimit": 0,
+      "type": "REGEXLISTDIM",
+      "mappings": {
+        "\\/sys\\/class\\/net\\/[\\w\\d]+\\/statistics\\/([\\w_]+):(\\d+)": [
+          "METRIC_NAME",
+          "METRIC_VALUE"
+        ]
+      }
+    },
+    {
       "name": "ps",
       "command": "ps -ewwo %cpu,%mem,rss,command",
       "checkAllRegex": false,
@@ -775,6 +723,58 @@
           "units": "pages",
           "type": "DELTA"
         }
+      }
+    },
+    {
+      "name": "vmstat-kernel",
+      "command": "vmstat -s",
+      "checkAllRegex": false,
+      "lineLimit": 0,
+      "type": "REGEXDIM",
+      "mappings": {
+        "\\s*(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+\\d+\\s+\\d+\\s+\\d+\\s+\\d+\\s+\\d+": [
+          "r",
+          "b",
+          "swpd",
+          "free",
+          "buff",
+          "cache",
+          "si",
+          "so",
+          "bi",
+          "bo",
+          "in",
+          "cs"
+        ]
+      },
+      "metrics": {
+        "b": {
+          "name": "In Wait Queue",
+          "category": "KernelThreads",
+          "ratio": 1,
+          "units": "threads",
+          "type": "NORMAL"
+        },
+        "r": {
+          "name": "Runnable",
+          "category": "KernelThreads",
+          "ratio": 1,
+          "units": "threads",
+          "type": "NORMAL"
+        }
+      }
+    },
+    {
+      "name": "vmstat-totals",
+      "command": "vmstat -s",
+      "checkAllRegex": false,
+      "lineLimit": 0,
+      "type": "REGEXDIM",
+      "mappings": {
+        "\\s*\"*([^:\"]+)\"*:\\s+(\\d+)\\.*": [
+          "METRIC_NAME",
+          "METRIC_VALUE"
+        ]
       }
     }
   ]

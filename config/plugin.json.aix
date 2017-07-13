@@ -12,64 +12,6 @@
   },
   "agents": [
     {
-      "name": "VmstatThreads",
-      "command": "vmstat -I -W 1 1",
-      "checkAllRegex": false,
-      "lineLimit": 0,
-      "type": "REGEXDIM",
-      "mappings": {
-        "\\s*(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+).*": [
-          "r",
-          "b",
-          "p",
-          "w"
-        ]
-      },
-      "metrics": {
-        "b": {
-          "name": "In Wait Queue",
-          "category": "KernelThreads",
-          "ratio": 1,
-          "units": "threads",
-          "type": "NORMAL"
-        },
-        "p": {
-          "name": "Waiting for Device IO",
-          "category": "KernelThreads",
-          "ratio": 1,
-          "units": "threads",
-          "type": "NORMAL"
-        },
-        "r": {
-          "name": "Runnable",
-          "category": "KernelThreads",
-          "ratio": 1,
-          "units": "threads",
-          "type": "NORMAL"
-        },
-        "w": {
-          "name": "Waiting for File IO",
-          "category": "KernelThreads",
-          "ratio": 1,
-          "units": "threads",
-          "type": "NORMAL"
-        }
-      }
-    },
-	{
-      "name": "VmstatTotals",
-      "command": "vmstat -s",
-      "checkAllRegex": false,
-      "lineLimit": 0,
-      "type": "REGEXDIM",
-      "mappings": {
-        "\\s*\"*([^:\"]+)\"*:\\s+(\\d+)\\.*": [
-          "METRIC_NAME",
-          "METRIC_VALUE"
-        ]
-      }
-    },
-    {
       "name": "df",
       "command": "df -v -k -T local",
       "checkAllRegex": false,
@@ -711,6 +653,64 @@
           "units": "faults",
           "type": "DELTA"
         }
+      }
+    },
+    {
+      "name": "vmstat-threads",
+      "command": "vmstat -I -W 1 1",
+      "checkAllRegex": false,
+      "lineLimit": 0,
+      "type": "REGEXDIM",
+      "mappings": {
+        "\\s*(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+).*": [
+          "r",
+          "b",
+          "p",
+          "w"
+        ]
+      },
+      "metrics": {
+        "b": {
+          "name": "In Wait Queue",
+          "category": "KernelThreads",
+          "ratio": 1,
+          "units": "threads",
+          "type": "NORMAL"
+        },
+        "p": {
+          "name": "Waiting for Device IO",
+          "category": "KernelThreads",
+          "ratio": 1,
+          "units": "threads",
+          "type": "NORMAL"
+        },
+        "r": {
+          "name": "Runnable",
+          "category": "KernelThreads",
+          "ratio": 1,
+          "units": "threads",
+          "type": "NORMAL"
+        },
+        "w": {
+          "name": "Waiting for File IO",
+          "category": "KernelThreads",
+          "ratio": 1,
+          "units": "threads",
+          "type": "NORMAL"
+        }
+      }
+    },
+    {
+      "name": "vmstat-totals",
+      "command": "vmstat -s",
+      "checkAllRegex": false,
+      "lineLimit": 0,
+      "type": "REGEXDIM",
+      "mappings": {
+        "\\s*\"*([^:\"]+)\"*:\\s+(\\d+)\\.*": [
+          "METRIC_NAME",
+          "METRIC_VALUE"
+        ]
       }
     }
   ]
