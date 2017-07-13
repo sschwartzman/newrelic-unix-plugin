@@ -1,18 +1,23 @@
-# New Relic Plugin for Unix 
+# New Relic Plugin for Unix
 ## System-Level Montoring for AIX, Linux, Mac OS X & Solaris/SunOS
 
-### Download the plugin here: [newrelic_unix_plugin.tar.gz](https://github.com/sschwartzman/newrelic-unix-plugin/blob/master/dist/newrelic_unix_plugin.tar.gz?raw=true)
+### Download the plugin here: [newrelic_unix_plugin-distribution.tar.gz](https://github.com/sschwartzman/newrelic-unix-plugin/blob/master/target/newrelic_unix_plugin-distribution.tar.gz?raw=true)
 
-### What's new in V3.6?
+### What's new in V4.0?
 
- * Fixed pluginctl.sh (now works on Solaris!)
- * Changed metric units from '%' to 'percent' to fix dashboard issues
- * Fix for AIX disk & memory reporting
- * Fix for OSX disk & memory reporting
- * Fix for Linux disk reporting
- * Fix for IBM WebSphere JDK for IBM JSSE when the WebSphere Socket factory "classNotFound" exception. [Click here for details on how to apply fix](#ibmjsse)
+* **COMPLETE REWRITE** to now use config files for all commands! (TODO: Inject detail here!)
+* Moved to the 21st century (Ant -> Maven)
 
 ### Previous updates
+
+#### V3.6
+
+* Fixed pluginctl.sh (now works on Solaris!)
+* Changed metric units from '%' to 'percent' to fix dashboard issues
+* Fix for AIX disk & memory reporting
+* Fix for OSX disk & memory reporting
+* Fix for Linux disk reporting
+* Fix for IBM WebSphere JDK for IBM JSSE when the WebSphere Socket factory "classNotFound" exception. [Click here for details on how to apply fix](#ibmjsse)
 
 #### V3.5
 
@@ -24,7 +29,7 @@
 #### V3.4
 
 * Automatic locating of Java & plugin dir
-* Automatic copying of the plugin.json template for your OS 
+* Automatic copying of the plugin.json template for your OS
 
 #### V3.3
 * [Global configurations in plugin.json](#globalconf)
@@ -35,7 +40,7 @@
 
 * MAC OS X support!
   * Tested on Yosemite (10.11), please let me know if it works for you on other OS X versions.
-* Support for setting your own hostname	
+* Support for setting your own hostname
 * Support for "netstat" and "ps" commands on all platforms
 * MUCH improved parsing of commands, now using regex
 
@@ -60,9 +65,9 @@
 
 1. Download the latest version of the agent: [newrelic_unix_plugin.tar.gz](https://github.com/sschwartzman/newrelic-unix-plugin/blob/master/dist/newrelic_unix_plugin.tar.gz?raw=true)
 2. Gunzip & untar on Unix server that you want to monitor
-3. Configure `config/newrelic.json` 
+3. Configure `config/newrelic.json`
   * [Click here for newrelic.json config details](#nrjson)
-4. OPTIONAL: Copy `config/plugin.json` from the OS-specific templates in `config` and configure that file. 
+4. OPTIONAL: Copy `config/plugin.json` from the OS-specific templates in `config` and configure that file.
   * [Click here for plugin.json config details](#pluginjson)
 5. OPTIONAL: Configure `pluginctl.sh` to have the correct paths to Java and your plugin location
   * Set `PLUGIN_JAVA` to the location of Java on your server (including the "java" filename)
@@ -71,7 +76,7 @@
 7. Run `./pluginctl.sh start` from command-line
 8. Check logs (in `logs` directory by default) for errors
 9. Login to New Relic UI and find your plugin instance
-  * In the New Relic UI, select "Plugins" from the top level accordion menu 
+  * In the New Relic UI, select "Plugins" from the top level accordion menu
   * Check for the "Unix" plugin in left-hand column.  Click on it, your instance should appear in the list.
 
 ----
@@ -151,7 +156,7 @@ The `plugin.json` file contains the list of OS level commands that you want to e
 To set up the agent for your OS, copy one of these templates to `plugin.json`. If you don't do this, the plugin will do it for you the first time it is run.
 
 Each command will get its own object in the `agents` array, as seen in the Example below.
-`command` is the only required configuration for each object. Commands in lowercase are ones literally defined in the plugin (i.e. `iostat`), whereas commands in Caps are specialized variations on those commands (i.e. `IostatCPU`). 
+`command` is the only required configuration for each object. Commands in lowercase are ones literally defined in the plugin (i.e. `iostat`), whereas commands in Caps are specialized variations on those commands (i.e. `IostatCPU`).
 
 #### <a name="globalconf"/>Global Configurations
 
@@ -165,16 +170,16 @@ Each plugin.json file now has a `global` object, which contains the optional con
 
 For each command, the following optional configurations are available:
 
-* `OS` - The OS you are monitoring. 
-  - If left out, it will use the "auto" setting, in which the plugin will detect your OS type. 
+* `OS` - The OS you are monitoring.
+  - If left out, it will use the "auto" setting, in which the plugin will detect your OS type.
   - Normally the "auto" setting works fine. If not, you can define it as any of: [aix, linux, sunos, osx].
-* `debug` - This is an extra debug setting to use when a specific command isn't reporting properly. 
+* `debug` - This is an extra debug setting to use when a specific command isn't reporting properly.
   - Enabling it will prevent metrics from being sent to New Relic.
   - Seeing metrics in logs also requires setting `"log_level": "debug"` in `newrelic.json`.
 * `hostname` - To override the hostname that appears in the UI for this instance, set this option to any string that you want.
   - If you leave this option out, the plugin will obtain your hostname from the JVM (java.net.InetAddress.getLocalHost().getHostName())
 
-#### Examples 
+#### Examples
 
 With the optional configurations left as the defaults, this is what your plugin.json might look like:
 ```

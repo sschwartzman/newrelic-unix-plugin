@@ -37,7 +37,7 @@ fi
 echo "Plugin location: $PLUGIN_PATH"
 
 # Comment-out if using -jar
-PLUGIN_JAVA_CLASS=com.chocolatefactory.newrelic.plugins.unix.Main
+PLUGIN_JAVA_CLASS=com.chocolatefactory.newrelic.plugins.unix.NewMain
 # Set to the jar if using -jar
 PLUGIN_JAVA_CLASSPATH="$PLUGIN_PATH/bin/newrelic_unix_plugin.jar:$PLUGIN_PATH/lib/metrics_publish-2.0.1.jar:$PLUGIN_PATH/lib/json-simple-1.1.1.jar"
 PLUGIN_JAVA_OPTS="-Xms16m -Xmx128m"

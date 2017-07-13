@@ -7,18 +7,18 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import com.chocolatefactory.newrelic.plugins.unix.NewNixAgentFactory;
 import com.newrelic.metrics.publish.Runner;
 import com.newrelic.metrics.publish.configuration.Config;
 import com.newrelic.metrics.publish.configuration.ConfigurationException;
-import com.chocolatefactory.newrelic.plugins.unix.UnixAgentFactory;
 
-public class Main {	
+public class NewMain {	
 	
 	public static void main(String[] args) {
 		try {
 			checkPluginFile();
 	        Runner runner = new Runner();
-	        runner.add(new UnixAgentFactory());
+	        runner.add(new NewNixAgentFactory());
 	        runner.setupAndRun(); // Never returns
 	    } catch (ConfigurationException e) {
 	        System.err.println("ERROR: " + e.getMessage());
