@@ -1,7 +1,7 @@
 # New Relic Plugin for Unix
 ## System-Level Montoring for AIX, Linux, Mac OS X & Solaris/SunOS
 
-### Download the plugin here: [newrelic_unix_plugin-distribution.tar.gz](https://github.com/sschwartzman/newrelic-unix-plugin/blob/master/target/newrelic_unix_plugin-distribution.tar.gz?raw=true)
+### Download the plugin here: [newrelic_unix_plugin-distribution.tar.gz](/target/newrelic_unix_plugin-distribution.tar.gz?raw=true)
 
 ### What's new in V4.0?
 
@@ -63,7 +63,7 @@
 
 ### Installation & Usage Overview
 
-1. Download the latest version of the agent: [newrelic_unix_plugin.tar.gz](https://github.com/sschwartzman/newrelic-unix-plugin/blob/master/dist/newrelic_unix_plugin.tar.gz?raw=true)
+1. Download the latest version of the agent: [newrelic_unix_plugin-distribution.tar.gz](/target/newrelic_unix_plugin-distribution.tar.gz?raw=true)
 2. Gunzip & untar on Unix server that you want to monitor
 3. Configure `config/newrelic.json`
   * [Click here for newrelic.json config details](#nrjson)
