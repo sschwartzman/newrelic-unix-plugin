@@ -42,7 +42,7 @@
           "type": "NORMAL"
         },
         "Use%": {
-          "name": "Used",
+          "name": "Percent Used",
           "category": "Disk",
           "ratio": 1,
           "units": "percent",

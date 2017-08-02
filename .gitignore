@@ -4,7 +4,6 @@
 /.settings/*
 *.class
 *.log
-dist/**
 **/.DS_Store
 logs/**
 scratchpad.txt
